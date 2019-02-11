@@ -8,10 +8,8 @@ int numLines = 0;
 
 void printTokenInfo(const char* tokenType, char* lexeme);
 
-%}
 #include <stdio.h>
 
-int numLines = 1; 
 
 void printRule(const char *, const char *);
 int yyerror(const char *s);
@@ -27,15 +25,16 @@ extern "C"
 %}
 
 /* Token declarations */
-%token  T_IDENT T_INTCONST T_UNKNOWN T_FLOATCONST T_IF
-%token T_ELSE T_WHILE T_FUNCTION T_FOR T_IN T_NEXT
+%token T_IDENT T_INTCONST T_UNKNOWN T_FLOATCONST T_IF
+%token T_WHILE T_FUNCTION T_FOR T_IN T_NEXT
 %token T_BREAK T_TRUE T_FALSE T_QUIT T_PRINT T_CAT
-$token T_READ T_LIST T_STRCONST T_ADD T_SUB T_MULT
+%token T_READ T_LIST T_STRCONST T_ADD T_SUB T_MULT
 %token T_DIV T_MOD T_POWER T_LT T_GT T_LE T_GE T_EQ
 %token T_NE T_NOT T_AND T_OR T_ASSIGN T_SEMICOLON
-%token T_COMMA T_LPAREN T_RPAREN T_LBRACE T_RBRACE
+%token T_COMMA T_LPAREN T_LBRACE T_RBRACE
 %token T_LBRACKET T_RBRACKET T_COMMENT T_POUND
-
+%nonassoc T_RPAREN
+%nonassoc T_ELSE
 /* Starting point */
 %start		N_START
 
@@ -48,23 +47,29 @@ N_START		: N_EXPR
 			return 0;
 			}
 			;
-N_EXPR		: T_INTCONST
+
+N_EXPR		: N_IF_EXPR
 			{
-			printRule("EXPR", "INTCONST");
+			printRule("IF_EXPR", "IF_EXPR IF");
 			}
-                | T_IDENT
+                | N_WHILE_EXPR
                 {
-			printRule("EXPR", "IDENT");
+			printRule("N_WHILE_EXPR", "WHILE_EXPR WHILE");
 			}
-                | T_FOO N_IDENT_LIST N_INTCONST_LIST
+                | N_FOR_EXPR
                 {
 			printRule("EXPR", 
 				    "foo IDENT_LIST INTCONST_LIST");
 			}
+		| N_COMPOUND_EXPR
+		{
+			printRule("COMMPOUND, "COMPOUND EXPR");
+			}
+		| N_ARITHLOGIC_EXPR
 			;
-N_IDENT_LIST   	: /* lambda */
+N_IDENT_LIST   	: /* epsilon */
 			{
-			printRule("IDENT_LIST", "lambda");
+			printRule("IDENT_LIST", "epsilon");
 			}
                 | N_IDENT_LIST T_IDENT
 			{
