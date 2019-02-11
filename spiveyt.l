@@ -151,7 +151,7 @@ STRCONST                (\")[^"\n]*(\")
 			}
 			
 "-"		{
-				printTokenInfo("SUM", yytext);
+				printTokenInfo("SUB", yytext);
 				return T_SUB;
 			}
 "*"		{
