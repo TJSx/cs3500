@@ -3,52 +3,6 @@
 Definitions of constants, variables, & function prototypes go here 
 */
 
-#define T_IDENT     		1
-#define T_INTCONST  		2
-#define T_UNKNOWN   		3
-#define T_FLOATCONST       	4
-#define T_IF				5
-#define T_ELSE				6
-#define T_WHILE				7
-#define T_FUNCTION			8
-#define T_FOR				9
-#define T_IN				10
-#define T_NEXT				11
-#define T_BREAK				12
-#define T_TRUE				13
-#define T_FALSE				14
-#define T_QUIT				15
-#define T_PRINT				16
-#define T_CAT				17
-#define T_READ				18
-#define T_LIST				19
-#define T_STRCONST			20
-#define T_ADD				21
-#define T_SUB				22
-#define T_MULT				23
-#define T_DIV				24
-#define T_MOD				25
-#define T_POWER				26
-#define T_LT				27
-#define T_GT				28
-#define T_LE				29
-#define T_GE				30
-#define T_EQ				31
-#define T_NE				32
-#define T_NOT				33
-#define T_AND				34
-#define T_OR				35
-#define T_ASSIGN			36
-#define T_SEMICOLON			37
-#define T_COMMA				38
-#define T_LPAREN			39
-#define T_RPAREN			40
-#define T_LBRACE			41
-#define T_RBRACE			42
-#define T_LBRACKET			43
-#define T_RBRACKET			44
-#define T_COMMENT			45
-#define T_POUND				46
 
 int numLines = 0;
 
@@ -73,7 +27,14 @@ extern "C"
 %}
 
 /* Token declarations */
-%token  T_IDENT T_INTCONST T_UNKNOWN T_FOO
+%token  T_IDENT T_INTCONST T_UNKNOWN T_FLOATCONST T_IF
+%token T_ELSE T_WHILE T_FUNCTION T_FOR T_IN T_NEXT
+%token T_BREAK T_TRUE T_FALSE T_QUIT T_PRINT T_CAT
+$token T_READ T_LIST T_STRCONST T_ADD T_SUB T_MULT
+%token T_DIV T_MOD T_POWER T_LT T_GT T_LE T_GE T_EQ
+%token T_NE T_NOT T_AND T_OR T_ASSIGN T_SEMICOLON
+%token T_COMMA T_LPAREN T_RPAREN T_LBRACE T_RBRACE
+%token T_LBRACKET T_RBRACKET T_COMMENT T_POUND
 
 /* Starting point */
 %start		N_START
