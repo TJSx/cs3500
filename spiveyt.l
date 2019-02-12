@@ -195,7 +195,7 @@ STRCONST                (\")[^"\n]*(\")
 			}
 "^"		{
 				printTokenInfo("POWER", yytext);
-				return T_POWER;
+				return T_POW;
 			}
 
 {INTCONST}	      {

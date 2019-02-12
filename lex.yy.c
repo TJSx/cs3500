@@ -1118,7 +1118,7 @@ YY_RULE_SETUP
 #line 196 "spiveyt.l"
 {
 				printTokenInfo("POWER", yytext);
-				return T_POWER;
+				return T_POW;
 			}
 	YY_BREAK
 case 42:

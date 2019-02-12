@@ -4,13 +4,10 @@ Definitions of constants, variables, & function prototypes go here
 */
 
 
-int numLines = 0;
-
-void printTokenInfo(const char* tokenType, char* lexeme);
 
 #include <stdio.h>
 
-
+int numLines = 0;
 void printRule(const char *, const char *);
 int yyerror(const char *s);
 void printTokenInfo(const char* tokenType, const char* lexeme);
@@ -69,6 +66,10 @@ N_EXPR		: N_IF_EXPR
 		{
 			printRule("COMMPOUND", "COMPOUND EXPR");
 			}
+		| N_ASSIGNMENT_EXPR
+		{
+			printRule("COMMPOUND", "COMPOUND EXPR");
+			}
 		| N_OUTPUT_EXPR
 		{
 			printRule("COMMPOUND", "COMPOUND EXPR");
@@ -94,7 +95,7 @@ N_EXPR		: N_IF_EXPR
 			printRule("COMMPOUND", "COMPOUND EXPR");
 			}
 			;			
-N_CONST		: T_CONST
+N_CONST		: T_INTCONST
 		{
 			printRule("COMMPOUND", "COMPOUND EXPR");
 			}			
@@ -133,11 +134,11 @@ N_IF_EXPR	: T_IF T_LPAREN N_EXPR T_RPAREN N_EXPR
 		{
 			printRule("COMMPOUND", "COMPOUND EXPR");
 			}
+			;
 		| T_IF T_LPAREN N_EXPR T_RPAREN N_EXPR T_ELSE N_EXPR
 		{
 			printRule("COMMPOUND", "COMPOUND EXPR");
 			}
-			;
 N_WHILE_EXPR	: T_WHILE T_LPAREN N_EXPR T_RPAREN N_LOOP_EXPR
 		{
 			printRule("COMMPOUND", "COMPOUND EXPR");
@@ -225,7 +226,7 @@ N_FUNCTION_DEF 	: T_FUNCTION T_LPAREN N_PARAM_LIST T_RPAREN N_COMPOUND_EXPR
 			printRule("INTCONST_LIST", "INTCONST");
 			}
 			;
-N_PARAM_LIST 	: T_PARAMS
+N_PARAM_LIST 	: N_PARAMS
 		{
 			printRule("INTCONST_LIST", "INTCONST");
 			}		
