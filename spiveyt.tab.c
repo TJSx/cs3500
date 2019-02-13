@@ -1526,7 +1526,7 @@ yyreduce:
   case 21:
 #line 124 "spiveyt.y" /* yacc.c:1646  */
     {
-			printRule("EXPR_LIST", "SEMICOLON EXPR EXPR_LIST");
+			printRule("EXPR_LIST", "; EXPR EXPR_LIST");
 			}
 #line 1532 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
