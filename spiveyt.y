@@ -47,243 +47,241 @@ N_START		: N_EXPR
 
 N_EXPR		: N_IF_EXPR
 			{
-			printRule("IF_EXPR", "IF_EXPR IF");
+			printRule("EXPR", "I");
 			}
                 | N_WHILE_EXPR
                 {
-			printRule("N_WHILE_EXPR", "WHILE_EXPR WHILE");
+			printRule("EXPR", "WHILE");
 			}
                 | N_FOR_EXPR
                 {
-			printRule("EXPR", 
-				    "foo IDENT_LIST INTCONST_LIST");
+			printRule("EXPR", "FOR");
 			}
 		| N_COMPOUND_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("EXPR", "COMPOUND");
 			}
 		| N_ARITHLOGIC_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("EXPR", "ARITHLOGIC");
 			}
 		| N_ASSIGNMENT_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("EXPR", "ASSIGNMENT");
 			}
 		| N_OUTPUT_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("EXPR", "OUTPUT");
 			}
 		| N_INPUT_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("EXPR", "INPUT");
 			}			
 		| N_LIST_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("EXPR", "LIST);
 			}			
 		| N_FUNCTION_DEF
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("EXPR", "FUNCTION");
 			}			
 		| N_FUNCTION_CALL
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("EXPR", "FUNCTION CALL");
 			}			
 		| N_QUIT_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("EXPR", "QUIT");
 			}
 			;			
 N_CONST		: T_INTCONST
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("CONST", "INTCONST");
 			}			
 		| T_STRCONST
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("CONST", "STRCONST");
 			}
 		| T_FLOATCONST
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("CONST", "FLOATCONST");
 			}
 		| T_TRUE
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("CONST", "TRUE");
 			}
 		| T_FALSE
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("CONST", "FALSE");
 			}	
 			;
 N_COMPOUND_EXPR	: T_LBRACKET N_EXPR N_EXPR_LIST T_RBRACKET
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("COMPOUND_EXPR", "LBRACKET EXPR EXPR_LIST RBRACKET ");
 			}
 			;
 N_EXPR_LIST	: T_SEMICOLON N_EXPR N_EXPR_LIST
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("EXPR_LIST", "SEMICOLON EXPR EXPR_LIST");
 			}
 		| /*epsilon*/
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("EXPR_LIST", "EPSILON");
 			}
 			;
 N_IF_EXPR	: T_IF T_LPAREN N_EXPR T_RPAREN N_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("IF_EXPR", "IF LPAREN EXPR RPAREN EXPR");
 			}
 			;
 		| T_IF T_LPAREN N_EXPR T_RPAREN N_EXPR T_ELSE N_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("IF_EXPR", "IF LPAREN EXPR RPAREN EXP ELSE EXPR");
 			}
 N_WHILE_EXPR	: T_WHILE T_LPAREN N_EXPR T_RPAREN N_LOOP_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("WHILE", "WHILE LPAREN EXPR RPAREN LOOP_EXPR");
 			}
 			;
 N_FOR_EXPR	: T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN N_LOOP_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("FOR_EXPR", "FOR LPAREN IDENT IN EXPR RPAREN LOOP");
 			}
 			;
 N_LOOP_EXPR	: N_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("LOOP_EXPR", "EXPR");
 			}
 		| N_BREAK_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("LOOP_EXPR", "BREAK");
 			}
 		| N_NEXT_EXPR
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("LOOP_EXPR", "NEXT");
 			}
 			;			
 N_BREAK_EXPR	: T_BREAK
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("LOOP_EXPR", "BREAK");
 			}
 			;
 N_NEXT_EXPR	: T_NEXT
 		{
-			printRule("COMMPOUND", "COMPOUND EXPR");
+			printRule("NEXT_EXPR", "NEXT");
 			}	
 			;
 N_LIST_EXPR   	: T_LIST T_LPAREN N_CONST_LIST T_RPAREN
 			{
-			printRule("IDENT_LIST", "epsilon");
+			printRule("LIST_EXPR", "LIST LPAREN CONST_LIST RPAREN");
 			}
 			;
 N_CONST_LIST	: N_CONST T_COMMA N_CONST_LIST
 		{
-			printRule("IDENT_LIST", "IDENT_LIST IDENT");
+			printRule("CONST_lIST", "CONST COMMA CONST_LIST");
 			}
 		| N_CONST
 		{
-			printRule("IDENT_LIST", "IDENT_LIST IDENT");
+			printRule("CONST_LIST", "CONST");
 			}		
 			;
 N_ASSIGNMENT_EXPR : T_IDENT N_INDEX T_ASSIGN N_EXPR
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("ASSIGNMENT_EXPR", "IDENT INDEX ASSIGN EXPR");
 			}
 			;
 N_INDEX		: T_LBRACKET T_LBRACKET N_EXPR T_RBRACKET T_RBRACKET
 			{
-			printRule("INTCONST_LIST",
-                          "INTCONST_LIST INTCONST");
+			printRule("INDEX", "LBRACKET LBRACKET EXPR RBRACKET RBRACKET");
 			}
 		| /*EPSILON*/	
 			{
-			printRule("INTCONST_LIST",
-                          "INTCONST_LIST INTCONST");
+			printRule("INDEX",
+                          "EPSILON");
 			}		
 			;
 N_QUIT_EXPR 	: T_QUIT T_LPAREN T_RPAREN
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("QUIT_EXPR", "QUIT LPAREN RPAREN");
 			}
 			;	
 N_OUTPUT_EXPR 	: T_PRINT T_LPAREN N_EXPR T_RPAREN
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("OUTPUT_EXPR", "PRINT LPAREN EXPR RPAREN");
 			}		
 		 | T_CAT T_LPAREN N_EXPR T_RPAREN
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("OUTPUT_EXPR", "CAT LPAREN EXPR RPAREN");
 			}
 			;	
 N_INPUT_EXPR 	: T_READ T_LPAREN N_VAR T_RPAREN
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("INPUT_EXPR", "READ LPAREN VAR RPAREN");
 			}
 			;	
 N_FUNCTION_DEF 	: T_FUNCTION T_LPAREN N_PARAM_LIST T_RPAREN N_COMPOUND_EXPR
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("FUNCTION_DEF", "FUNCTION LPAREN PARAM_LIST RPAREN COMPOUND_EXPR");
 			}
 			;
 N_PARAM_LIST 	: N_PARAMS
 		{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("PARAM_LIST", "PARAMS");
 			}		
 		 | N_NO_PARAMS
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("PARAM_LIST", "NO_PARAMS");
 			}
 			;	
 N_NO_PARAMS 	: /*EPSILON*/
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("NO_PARAMS", "EPSILON");
 			}
 			;	
 N_PARAMS 	: T_IDENT
 		{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("PARAMS", "IDENT");
 			}		
 		 | T_IDENT T_COMMA N_PARAMS
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("PARAMS", "IDENT COMMA PARAMS");
 			}
 			;		
 N_FUNCTION_CALL : T_IDENT T_LPAREN N_ARG_LIST T_RPAREN
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("FUNCTION_CALL", "IDENT LPAREN ARG_LIST RPAREN");
 			}
 			;	
 N_ARG_LIST 	: N_ARGS
 		{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("ARG_LIST", "ARGS");
 			}		
 		 | N_NO_ARGS
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("ARG_LIST", "NO_ARGS");
 			}
 			;	
 N_NO_ARGS 	: /*EPSILON*/
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("NO_ARGS", "EPSILON");
 			}
 			;
 N_ARGS		: N_EXPR
 		{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("ARGS", "EXPR");
 			}		
 		 | N_EXPR T_COMMA N_ARGS
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("ARGS", "EXPR COMMA ARGS");
 			}
 			;	
 N_ARITHLOGIC_EXPR	: N_SIMPLE_ARITHLOGIC
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("ARITHLOGIC_EXPR", "SIMPLE_ARITHLOGIC");
 			}		
 		 | N_SIMPLE_ARITHLOGIC N_REL_OP N_SIMPLE_ARITHLOGIC
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("ARITHLOGIC_EXPR", "SIMPLE_ARITHLOGIC REL_OP SIMPLE_ARITHLOGIC");
 			}
 			;			
 N_SIMPLE_ARITHLOGIC 	: N_TERM N_ADD_OP_LIST
@@ -293,120 +291,120 @@ N_SIMPLE_ARITHLOGIC 	: N_TERM N_ADD_OP_LIST
 			;	
 N_ADD_OP_LIST	: N_ADD_OP N_TERM N_ADD_OP_LIST
 		{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("ADD_OP_LIST", "ADD_OP TERM ADD_OP_LIST");
 			}		
 		 | /*EPSILON*/
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("ADD_OP_LIST", "EPSILON");
 			}
 			;	
 N_TERM	 	: N_FACTOR N_MULT_OP_LIST
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("TERM", "FACTOR MULT_OP_LIST");
 			}
 			;
 N_MULT_OP_LIST	: N_MULT_OP N_FACTOR N_MULT_OP_LIST
 		{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("MULT_OP_LIST", "MULT_OP FACTOR MULT_OP_LIST");
 			}		
 		 | /*EPSILON*/
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("MULT_OP_LIST", "EPSILON");
 			}
 			;	
 N_FACTOR	: N_VAR
 		{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("FACTOR", "VAR");
 			}		
 		 | N_CONST
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("FACTOR", "CONST");
 			}
 		 | T_LPAREN N_EXPR T_RPAREN
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("FACTOR", "LPAREN EXPR RPAREN");
 			}
 		 | T_NOT N_FACTOR
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("FACTOR", "FACTOR");
 			}
 			;	
 N_ADD_OP	: T_ADD
 		{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("ADD_OP", "ADD");
 			}		
 		 | T_SUB
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("ADD_OP", "SUB");
 			}
 		 | T_OR
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("ADD_OP", "OR");
 			}
 			;	
 N_MULT_OP	: T_MULT
 		{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("MULT_OP", "MULT");
 			}		
 		 | T_DIV
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("MULT_OP", "DIV");
 			}
 		 | T_AND
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("MULT_OP", "AND");
 			}
 		 | T_MOD
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("MULT_OP", "MOD");
 			}
 		 | T_POW
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("MULT_OP", "POW");
 			}			
 			;	
 N_REL_OP	: T_LT
 		{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("REL_OP", "LT");
 			}		
 		 | T_GT
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("REL_OP", "GT");
 			}
 		 | T_LE
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("REL_OP", "LE");
 			}
 		 | T_GE
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("REL_OP", "GE");
 			}
 		 | T_EQ
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("REL_OP", "EQ");
 			}
 		 | T_NE
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("REL_OP", "NE");
 			}				
 			;	
 N_VAR		: N_ENTIRE_VAR
 		{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("VAR", "ENTIRE_VAR");
 			}		
 		 | N_SINGLE_ELEMENT
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("VAR", "SINGLE_ELEMENT");
 			}
 			;	
 N_SINGLE_ELEMENT	: T_IDENT T_LBRACKET T_LBRACKET N_EXPR T_RBRACKET T_RBRACKET
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("SINGLE_ELEMENT", "IDENT LBRACKET LBRACKET EXPR RBRACKET RBRACKET");
 			}		
 			;	
 N_ENTIRE_VAR	: T_IDENT
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("ENTIRE_VAR", "IDENT");
 			}		
 			;			
 %%
