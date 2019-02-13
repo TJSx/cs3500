@@ -47,51 +47,51 @@ N_START		: N_EXPR
 
 N_EXPR		: N_IF_EXPR
 			{
-			printRule("EXPR", "I");
+			printRule("EXPR", "IF_EXPR");
 			}
                 | N_WHILE_EXPR
                 {
-			printRule("EXPR", "WHILE");
+			printRule("EXPR", "WHILE_EXPR");
 			}
                 | N_FOR_EXPR
                 {
-			printRule("EXPR", "FOR");
+			printRule("EXPR", "FOR_EXPR");
 			}
 		| N_COMPOUND_EXPR
 		{
-			printRule("EXPR", "COMPOUND");
+			printRule("EXPR", "COMPOUND_EXPR");
 			}
 		| N_ARITHLOGIC_EXPR
 		{
-			printRule("EXPR", "ARITHLOGIC");
+			printRule("EXPR", "ARITHLOGIC_EXPR");
 			}
 		| N_ASSIGNMENT_EXPR
 		{
-			printRule("EXPR", "ASSIGNMENT");
+			printRule("EXPR", "ASSIGNMENT_EXPR");
 			}
 		| N_OUTPUT_EXPR
 		{
-			printRule("EXPR", "OUTPUT");
+			printRule("EXPR", "OUTPUT_EXPR");
 			}
 		| N_INPUT_EXPR
 		{
-			printRule("EXPR", "INPUT");
+			printRule("EXPR", "INPUT_EXPR");
 			}			
 		| N_LIST_EXPR
 		{
-			printRule("EXPR", "LIST");
+			printRule("EXPR", "LIST_EXPR");
 			}			
 		| N_FUNCTION_DEF
 		{
-			printRule("EXPR", "FUNCTION");
+			printRule("EXPR", "FUNCTION_DEF");
 			}			
 		| N_FUNCTION_CALL
 		{
-			printRule("EXPR", "FUNCTION CALL");
+			printRule("EXPR", "FUNCTION_CALL");
 			}			
 		| N_QUIT_EXPR
 		{
-			printRule("EXPR", "QUIT");
+			printRule("EXPR", "QUIT_EXPR");
 			}
 			;			
 N_CONST		: T_INTCONST
@@ -126,7 +126,7 @@ N_EXPR_LIST	: T_SEMICOLON N_EXPR N_EXPR_LIST
 			}
 		| /*epsilon*/
 		{
-			printRule("EXPR_LIST", "EPSILON");
+			printRule("EXPR_LIST", "epsilon");
 			}
 			;
 N_IF_EXPR	: T_IF T_LPAREN N_EXPR T_RPAREN N_EXPR
@@ -197,7 +197,7 @@ N_INDEX		: T_LBRACKET T_LBRACKET N_EXPR T_RBRACKET T_RBRACKET
 		| /*EPSILON*/	
 			{
 			printRule("INDEX",
-                          "EPSILON");
+                          "epsilon");
 			}		
 			;
 N_QUIT_EXPR 	: T_QUIT T_LPAREN T_RPAREN
@@ -235,7 +235,7 @@ N_PARAM_LIST 	: N_PARAMS
 			;	
 N_NO_PARAMS 	: /*EPSILON*/
 			{
-			printRule("NO_PARAMS", "EPSILON");
+			printRule("NO_PARAMS", "epsilon");
 			}
 			;	
 N_PARAMS 	: T_IDENT
@@ -263,7 +263,7 @@ N_ARG_LIST 	: N_ARGS
 			;	
 N_NO_ARGS 	: /*EPSILON*/
 			{
-			printRule("NO_ARGS", "EPSILON");
+			printRule("NO_ARGS", "epsilon");
 			}
 			;
 N_ARGS		: N_EXPR
@@ -286,7 +286,7 @@ N_ARITHLOGIC_EXPR	: N_SIMPLE_ARITHLOGIC
 			;			
 N_SIMPLE_ARITHLOGIC 	: N_TERM N_ADD_OP_LIST
 			{
-			printRule("INTCONST_LIST", "INTCONST");
+			printRule("SIMPLE_ARITHLOGIC", "TERM ADD_OP_LIST");
 			}
 			;	
 N_ADD_OP_LIST	: N_ADD_OP N_TERM N_ADD_OP_LIST
@@ -295,7 +295,7 @@ N_ADD_OP_LIST	: N_ADD_OP N_TERM N_ADD_OP_LIST
 			}		
 		 | /*EPSILON*/
 			{
-			printRule("ADD_OP_LIST", "EPSILON");
+			printRule("ADD_OP_LIST", "epsilon");
 			}
 			;	
 N_TERM	 	: N_FACTOR N_MULT_OP_LIST
@@ -309,7 +309,7 @@ N_MULT_OP_LIST	: N_MULT_OP N_FACTOR N_MULT_OP_LIST
 			}		
 		 | /*EPSILON*/
 			{
-			printRule("MULT_OP_LIST", "EPSILON");
+			printRule("MULT_OP_LIST", "epsilon");
 			}
 			;	
 N_FACTOR	: N_VAR
