@@ -7,7 +7,7 @@ Definitions of constants, variables, & function prototypes go here
 
 #include <stdio.h>
 
-int numLines = 0;
+int numLines = 1;
 void printRule(const char *, const char *);
 int yyerror(const char *s);
 void printTokenInfo(const char* tokenType, const char* lexeme);
@@ -79,7 +79,7 @@ N_EXPR		: N_IF_EXPR
 			}			
 		| N_LIST_EXPR
 		{
-			printRule("EXPR", "LIST);
+			printRule("EXPR", "LIST");
 			}			
 		| N_FUNCTION_DEF
 		{
@@ -420,6 +420,7 @@ void printRule(const char *lhs, const char *rhs)
 
 int yyerror(const char *s) 
 {
+  printf("Line %d: ", numLines);
   printf("%s\n", s);
   return(1);
 }
@@ -436,6 +437,5 @@ int main()
 	yyparse();
   } while (!feof(yyin));
 
-  printf("%d lines processed\n", numLines);
   return(0);
 }

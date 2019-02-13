@@ -1,2 +1,6 @@
-for (x[[i]] in myList) 
-  print(x[[i]])
+i = 1
+for (x in list(3.14, "bojack", TRUE))
+{ 
+  print(x[[i]]);
+  i = i + 1
+}
