@@ -44,7 +44,6 @@ N_START		: N_EXPR
 			return 0;
 			}
 			;
-
 N_EXPR		: N_IF_EXPR
 			{
 			printRule("EXPR", "IF_EXPR");
@@ -92,6 +91,7 @@ N_EXPR		: N_IF_EXPR
 		| N_QUIT_EXPR
 		{
 			printRule("EXPR", "QUIT_EXPR");
+			return 0;
 			}
 			;			
 N_CONST		: T_INTCONST
@@ -115,9 +115,9 @@ N_CONST		: T_INTCONST
 			printRule("CONST", "FALSE");
 			}	
 			;
-N_COMPOUND_EXPR	: T_LBRACKET N_EXPR N_EXPR_LIST T_RBRACKET
+N_COMPOUND_EXPR	: T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
 		{
-			printRule("COMPOUND_EXPR", "LBRACKET EXPR EXPR_LIST RBRACKET ");
+			printRule("COMPOUND_EXPR", "{ EXPR EXPR_LIST }");
 			}
 			;
 N_EXPR_LIST	: T_SEMICOLON N_EXPR N_EXPR_LIST
@@ -131,21 +131,21 @@ N_EXPR_LIST	: T_SEMICOLON N_EXPR N_EXPR_LIST
 			;
 N_IF_EXPR	: T_IF T_LPAREN N_EXPR T_RPAREN N_EXPR
 		{
-			printRule("IF_EXPR", "IF LPAREN EXPR RPAREN EXPR");
+			printRule("IF_EXPR", "IF ( EXPR ) EXPR");
 			}
 			;
 		| T_IF T_LPAREN N_EXPR T_RPAREN N_EXPR T_ELSE N_EXPR
 		{
-			printRule("IF_EXPR", "IF LPAREN EXPR RPAREN EXP ELSE EXPR");
+			printRule("IF_EXPR", "IF ( EXPR ) EXP ELSE EXPR");
 			}
 N_WHILE_EXPR	: T_WHILE T_LPAREN N_EXPR T_RPAREN N_LOOP_EXPR
 		{
-			printRule("WHILE", "WHILE LPAREN EXPR RPAREN LOOP_EXPR");
+			printRule("WHILE", "WHILE ( EXPR ) LOOP_EXPR");
 			}
 			;
 N_FOR_EXPR	: T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN N_LOOP_EXPR
 		{
-			printRule("FOR_EXPR", "FOR LPAREN IDENT IN EXPR RPAREN LOOP");
+			printRule("FOR_EXPR", "FOR ( IDENT IN EXPR ) LOOP");
 			}
 			;
 N_LOOP_EXPR	: N_EXPR
@@ -173,12 +173,12 @@ N_NEXT_EXPR	: T_NEXT
 			;
 N_LIST_EXPR   	: T_LIST T_LPAREN N_CONST_LIST T_RPAREN
 			{
-			printRule("LIST_EXPR", "LIST LPAREN CONST_LIST RPAREN");
+			printRule("LIST_EXPR", "LIST ( CONST_LIST )");
 			}
 			;
 N_CONST_LIST	: N_CONST T_COMMA N_CONST_LIST
 		{
-			printRule("CONST_lIST", "CONST COMMA CONST_LIST");
+			printRule("CONST_lIST", "CONST, CONST_LIST");
 			}
 		| N_CONST
 		{
@@ -202,21 +202,21 @@ N_INDEX		: T_LBRACKET T_LBRACKET N_EXPR T_RBRACKET T_RBRACKET
 			;
 N_QUIT_EXPR 	: T_QUIT T_LPAREN T_RPAREN
 			{
-			printRule("QUIT_EXPR", "QUIT LPAREN RPAREN");
+			printRule("QUIT_EXPR", "QUIT()");
 			}
 			;	
 N_OUTPUT_EXPR 	: T_PRINT T_LPAREN N_EXPR T_RPAREN
 			{
-			printRule("OUTPUT_EXPR", "PRINT LPAREN EXPR RPAREN");
+			printRule("OUTPUT_EXPR", "PRINT ( EXPR )");
 			}		
 		 | T_CAT T_LPAREN N_EXPR T_RPAREN
 			{
-			printRule("OUTPUT_EXPR", "CAT LPAREN EXPR RPAREN");
+			printRule("OUTPUT_EXPR", "CAT ( EXPR )");
 			}
 			;	
 N_INPUT_EXPR 	: T_READ T_LPAREN N_VAR T_RPAREN
 			{
-			printRule("INPUT_EXPR", "READ LPAREN VAR RPAREN");
+			printRule("INPUT_EXPR", "READ ( VAR )");
 			}
 			;	
 N_FUNCTION_DEF 	: T_FUNCTION T_LPAREN N_PARAM_LIST T_RPAREN N_COMPOUND_EXPR
@@ -249,7 +249,7 @@ N_PARAMS 	: T_IDENT
 			;		
 N_FUNCTION_CALL : T_IDENT T_LPAREN N_ARG_LIST T_RPAREN
 			{
-			printRule("FUNCTION_CALL", "IDENT LPAREN ARG_LIST RPAREN");
+			printRule("FUNCTION_CALL", "IDENT ( ARG_LIST )");
 			}
 			;	
 N_ARG_LIST 	: N_ARGS
@@ -272,7 +272,7 @@ N_ARGS		: N_EXPR
 			}		
 		 | N_EXPR T_COMMA N_ARGS
 			{
-			printRule("ARGS", "EXPR COMMA ARGS");
+			printRule("ARGS", "EXPR, ARGS");
 			}
 			;	
 N_ARITHLOGIC_EXPR	: N_SIMPLE_ARITHLOGIC
@@ -322,11 +322,11 @@ N_FACTOR	: N_VAR
 			}
 		 | T_LPAREN N_EXPR T_RPAREN
 			{
-			printRule("FACTOR", "LPAREN EXPR RPAREN");
+			printRule("FACTOR", "( EXPR )");
 			}
 		 | T_NOT N_FACTOR
 			{
-			printRule("FACTOR", "FACTOR");
+			printRule("FACTOR", "! FACTOR");
 			}
 			;	
 N_ADD_OP	: T_ADD
@@ -399,13 +399,13 @@ N_VAR		: N_ENTIRE_VAR
 			;	
 N_SINGLE_ELEMENT	: T_IDENT T_LBRACKET T_LBRACKET N_EXPR T_RBRACKET T_RBRACKET
 			{
-			printRule("SINGLE_ELEMENT", "IDENT LBRACKET LBRACKET EXPR RBRACKET RBRACKET");
+			printRule("SINGLE_ELEMENT", "IDENT [[ EXPR ]]");
 			}		
 			;	
 N_ENTIRE_VAR	: T_IDENT
 			{
 			printRule("ENTIRE_VAR", "IDENT");
-			}		
+			}
 			;			
 %%
 
