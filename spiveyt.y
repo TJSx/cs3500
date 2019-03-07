@@ -12,11 +12,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "SymbolTable.h"
+#include <stack>
+
+stack<SYMBOL_TABLE>scopeStack;
 int line_num = 1;
 
 void printTokenInfo(const char* token_type, const char* lexeme);
 
 void printRule(const char *, const char *);
+bool findEntryInAnyScope(const string theName);
 
 int yyerror(const char *s) 
 {
@@ -43,13 +48,16 @@ extern "C"
 %token T_MULT T_DIV T_MOD
 %token T_POW T_LT T_LE T_GT T_GE T_EQ T_NE T_NOT T_AND 
 %token T_OR T_ASSIGN T_LIST
-
+%type <text>T_IDENT
 /*
  *  To eliminate ambiguity in if/else
  */
 %nonassoc   T_RPAREN 
 %nonassoc   T_ELSE
-
+%union
+{
+  char* text;
+}
 
 %start N_START
 
@@ -489,6 +497,7 @@ N_SINGLE_ELEMENT : T_IDENT T_LBRACKET T_LBRACKET N_EXPR
 N_ENTIRE_VAR    : T_IDENT
                 {
                     printRule("ENTIRE_VAR", "IDENT");
+                    bool found = findEntryInAnyScope(string($1));
                 }
                 ;
 
@@ -508,6 +517,33 @@ void printRule(const char *lhs, const char *rhs)
     return;
 }
 
+void beginScope()
+{
+  scopeStack.push(SYMBOL_TABLE());
+  printf("\n__Entering new scope... \n\n");
+}
+
+void endScope()
+{
+  scopeStack.pop();
+  printf("\n__Exiting scope...\n\n");
+}
+
+bool findEntryInAnyScope(const string theName)
+{
+  if(scopeStack.empty()) return(false);
+  bool found = scopeStack.top().findEntry(theName);
+  if(found)
+    return true;
+  else
+  {
+    SYMBOL_TABLE symbolTable = scopeStack.top();
+    scopeStack.pop();
+    found = findEntryInAnyScope(theName);
+    scopeStack.push(symbolTable);
+    return(found);
+  }
+}
 int main() 
 {
     do {

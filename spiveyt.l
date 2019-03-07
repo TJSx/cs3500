@@ -235,6 +235,7 @@ COMMENT #+.*
 }
 
 {IDENT} {
+    yylval.text = strdup(yytext);
     printTokenInfo("IDENT", yytext);
     return T_IDENT;
 }

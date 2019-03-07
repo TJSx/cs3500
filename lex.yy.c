@@ -1155,6 +1155,7 @@ case 43:
 YY_RULE_SETUP
 #line 237 "spiveyt.l"
 {
+    yylval.text = strdup(yytext);
     printTokenInfo("IDENT", yytext);
     return T_IDENT;
 }
@@ -1162,24 +1163,24 @@ YY_RULE_SETUP
 case 44:
 /* rule 44 can match eol */
 YY_RULE_SETUP
-#line 242 "spiveyt.l"
+#line 243 "spiveyt.l"
 {
     line_num++;
 }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 246 "spiveyt.l"
+#line 247 "spiveyt.l"
 {}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 248 "spiveyt.l"
+#line 249 "spiveyt.l"
 {}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 250 "spiveyt.l"
+#line 251 "spiveyt.l"
 {
     printTokenInfo("UNKNOWN", yytext);
     return T_UNKNOWN;
@@ -1187,10 +1188,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 255 "spiveyt.l"
+#line 256 "spiveyt.l"
 ECHO;
 	YY_BREAK
-#line 1194 "lex.yy.c"
+#line 1195 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2195,6 +2196,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 255 "spiveyt.l"
+#line 256 "spiveyt.l"
 
 
