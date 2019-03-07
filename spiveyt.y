@@ -21,6 +21,8 @@ int line_num = 1;
 void printTokenInfo(const char* token_type, const char* lexeme);
 
 void printRule(const char *, const char *);
+void beginScope();
+void endScope();
 bool findEntryInAnyScope(const string theName);
 
 int yyerror(const char *s) 
@@ -304,6 +306,11 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                 {
                     printRule("ASSIGNMENT_EXPR", 
                               "IDENT INDEX ASSIGN EXPR");
+                    bool found = findEntryInAnyScope(string($1));
+                    if(found != 1)
+                    {
+                      beginScope();
+                    }
                 }
 		T_ASSIGN N_EXPR
 		{
