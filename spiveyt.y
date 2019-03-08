@@ -311,6 +311,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                     {
                       beginScope();
                     }
+
                 }
 		T_ASSIGN N_EXPR
 		{
@@ -353,7 +354,8 @@ N_INPUT_EXPR    : T_READ T_LPAREN N_VAR T_RPAREN
                 }
                 ;
 
-N_FUNCTION_DEF  : T_FUNCTION T_LPAREN N_PARAM_LIST T_RPAREN 
+N_FUNCTION_DEF  : T_FUNCTION
+ T_LPAREN N_PARAM_LIST T_RPAREN 
                   N_COMPOUND_EXPR
                 {
                     printRule("FUNCTION_DEF",
