@@ -69,6 +69,7 @@ extern "C"
 N_START         : N_EXPR
                 {
                     printRule("START", "EXPR");
+		    endScope();	
                     printf("\n---- Completed parsing ----\n\n");
                     return 0;
                 }
@@ -256,10 +257,13 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT
                     printRule("FOR_EXPR", 
                               "FOR ( IDENT IN EXPR ) "
                               "LOOP_EXPR");
-                    printf("__Adding %s to symbol table\n", $3);
-                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($3,UNDEFINED)))
+                   // printf("__Adding %s to symbol table\n", $3);
+                    bool found = scopeStack.top().findEntry($3);
+                    if(!found)
                     {
-                      yyerror("Multiply defined identifiers\n");
+                    printf("__Adding %s to symbol table\n", $3);
+
+                      scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($3, UNDEFINED));
                     }
                 }
 		T_IN N_EXPR T_RPAREN N_LOOP_EXPR
@@ -316,12 +320,13 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                 {
                     printRule("ASSIGNMENT_EXPR", 
                               "IDENT INDEX ASSIGN EXPR");
-                    printf("__Adding %s to symbol table\n", $1);
-                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED)))
+                    bool found = scopeStack.top().findEntry($1);
+                    if(!found)
                     {
-                      yyerror("Multiply defined identifier\n");
-                    }
+                    printf("__Adding %s to symbol table\n", $1);
 
+                      scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED));
+                    }
                 }
 		T_ASSIGN N_EXPR
 		{
@@ -367,14 +372,15 @@ N_INPUT_EXPR    : T_READ T_LPAREN N_VAR T_RPAREN
 N_FUNCTION_DEF  : T_FUNCTION
                 {
 		
-                    printRule("FUNCTION_DEF",
-                              "FUNCTION ( PARAM_LIST )"
-                              " COMPOUND_EXPR");
 		    beginScope();
 		    			
                 }
 		T_LPAREN N_PARAM_LIST T_RPAREN N_COMPOUND_EXPR
 		{
+                  
+                    printRule("FUNCTION_DEF",
+                              "FUNCTION ( PARAM_LIST )"
+                              " COMPOUND_EXPR");
 		  endScope();
 		}
                 ;
@@ -600,6 +606,6 @@ int main()
     do {
         yyparse();
     } while (!feof(yyin));
-    endScope();
+  
     return 0;
 }
