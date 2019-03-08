@@ -249,13 +249,21 @@ N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR T_RPAREN N_LOOP_EXPR
                 }
                 ;
 
-N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN
-                  N_LOOP_EXPR
+N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT 
                 {
+		    bool found = findEntryInAnyScope(string($1));
+                    if(found != 1)
+                    {
+                      addEntry(T_IDENT);
+                    }
                     printRule("FOR_EXPR", 
                               "FOR ( IDENT IN EXPR ) "
                               "LOOP_EXPR");
                 }
+		T_IN N_EXPR T_RPAREN N_LOOP_EXPR
+		{
+		
+		}
                 ;
 
 N_LOOP_EXPR     : N_EXPR
@@ -309,7 +317,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                     bool found = findEntryInAnyScope(string($1));
                     if(found != 1)
                     {
-                      beginScope();
+                      addEntry(T_IDENT);
                     }
 
                 }
@@ -355,13 +363,16 @@ N_INPUT_EXPR    : T_READ T_LPAREN N_VAR T_RPAREN
                 ;
 
 N_FUNCTION_DEF  : T_FUNCTION
- T_LPAREN N_PARAM_LIST T_RPAREN 
-                  N_COMPOUND_EXPR
                 {
+		
                     printRule("FUNCTION_DEF",
                               "FUNCTION ( PARAM_LIST )"
                               " COMPOUND_EXPR");
                 }
+		T_LPAREN N_PARAM_LIST T_RPAREN N_COMPOUND_EXPR
+		{
+		
+		}
                 ;
 
 N_PARAM_LIST    : N_PARAMS
