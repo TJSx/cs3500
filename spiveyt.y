@@ -15,12 +15,13 @@
 #include "SymbolTable.h"
 #include <stack>
 
-stack<SYMBOL_TABLE>scopeStack;
+stack <SYMBOL_TABLE> scopeStack;
 int line_num = 1;
 
 void printTokenInfo(const char* token_type, const char* lexeme);
 
 void printRule(const char *, const char *);
+
 void beginScope();
 void endScope();
 bool findEntryInAnyScope(const string theName);
@@ -217,7 +218,8 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
                 {
                     printRule("COMPOUND_EXPR",
                               "{ EXPR EXPR_LIST }");
-                }
+                      
+		}
                 ;
 
 N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
@@ -251,14 +253,14 @@ N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR T_RPAREN N_LOOP_EXPR
 
 N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT 
                 {
-		    bool found = findEntryInAnyScope(string($1));
-                    if(found != 1)
-                    {
-                      addEntry(T_IDENT);
-                    }
                     printRule("FOR_EXPR", 
                               "FOR ( IDENT IN EXPR ) "
                               "LOOP_EXPR");
+                    printf("__Adding %s to symbol table\n", $3);
+                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($3,UNDEFINED)))
+                    {
+                      yyerror("Multiply defined identifiers\n");
+                    }
                 }
 		T_IN N_EXPR T_RPAREN N_LOOP_EXPR
 		{
@@ -314,10 +316,10 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                 {
                     printRule("ASSIGNMENT_EXPR", 
                               "IDENT INDEX ASSIGN EXPR");
-                    bool found = findEntryInAnyScope(string($1));
-                    if(found != 1)
+                    printf("__Adding %s to symbol table\n", $1);
+                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED)))
                     {
-                      addEntry(T_IDENT);
+                      yyerror("Multiply defined identifier\n");
                     }
 
                 }
@@ -368,10 +370,12 @@ N_FUNCTION_DEF  : T_FUNCTION
                     printRule("FUNCTION_DEF",
                               "FUNCTION ( PARAM_LIST )"
                               " COMPOUND_EXPR");
+		    beginScope();
+		    			
                 }
 		T_LPAREN N_PARAM_LIST T_RPAREN N_COMPOUND_EXPR
 		{
-		
+		  endScope();
 		}
                 ;
 
@@ -394,10 +398,20 @@ N_NO_PARAMS     : /* epsilon */
 N_PARAMS        : T_IDENT
                 {
                     printRule("PARAMS", "IDENT");
-                }
+                    printf("__Adding %s to symbol table\n", $1);
+                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED)))
+                    {
+                      yyerror("Multiply defined identifier\n");
+                    }
+		}
                 | T_IDENT T_COMMA N_PARAMS
                 {
                     printRule("PARAMS", "IDENT, PARAMS");
+                    printf("__Ading %s to symbol table\n", $1);
+                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED)))
+                    {
+                      yyerror("Multiply defined identifier\n");
+                    }
                 }
                 ;
 
@@ -405,7 +419,12 @@ N_FUNCTION_CALL : T_IDENT T_LPAREN N_ARG_LIST T_RPAREN
                 {
                     printRule("FUNCTION_CALL", "IDENT"
                               " ( ARG_LIST )");
-                }
+                    bool found = findEntryInAnyScope(string($1));
+		    if(!found)
+		    {
+                      yyerror("Unidentified identifier");
+		    }	
+		}
                 ;
 
 N_ARG_LIST      : N_ARGS
@@ -511,6 +530,12 @@ N_SINGLE_ELEMENT : T_IDENT T_LBRACKET T_LBRACKET N_EXPR
                 {
                     printRule("SINGLE_ELEMENT", "IDENT"
                               " [[ EXPR ]]");
+                    bool found = findEntryInAnyScope(string($1));
+		    if(!found)
+		    {
+                      yyerror("Unidentified identifier");
+		    }	
+
                 }
                 ;
 
@@ -518,6 +543,11 @@ N_ENTIRE_VAR    : T_IDENT
                 {
                     printRule("ENTIRE_VAR", "IDENT");
                     bool found = findEntryInAnyScope(string($1));
+			
+                    if(!found)
+                    {
+                      yyerror("Undefined identifier\n");
+                    }
                 }
                 ;
 
@@ -566,9 +596,10 @@ bool findEntryInAnyScope(const string theName)
 }
 int main() 
 {
+    beginScope();
     do {
         yyparse();
     } while (!feof(yyin));
-
+    endScope();
     return 0;
 }
