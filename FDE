@@ -1,14 +1,14 @@
 
-__Entering new scope... 
+___Entering new scope... 
 
 TOKEN: IDENT 		 LEXEME: red
 TOKEN: ASSIGN 		 LEXEME: =
 INDEX ->  epsilon
 ASSIGNMENT_EXPR -> IDENT INDEX ASSIGN EXPR
-__Adding red to symbol table
+___Adding red to symbol table
 TOKEN: FUNCTION 		 LEXEME: function
 
-__Entering new scope... 
+___Entering new scope... 
 
 TOKEN: LPAREN 		 LEXEME: (
 TOKEN: IDENT 		 LEXEME: black
@@ -18,11 +18,11 @@ TOKEN: COMMA 		 LEXEME: ,
 TOKEN: IDENT 		 LEXEME: white
 TOKEN: RPAREN 		 LEXEME: )
 PARAMS -> IDENT
-__Adding white to symbol table
+___Adding white to symbol table
 PARAMS -> IDENT, PARAMS
-__Ading gray to symbol table
+___Adding gray to symbol table
 PARAMS -> IDENT, PARAMS
-__Ading black to symbol table
+___Adding black to symbol table
 PARAM_LIST -> PARAMS
 TOKEN: LBRACE 		 LEXEME: {
 TOKEN: IDENT 		 LEXEME: black
@@ -74,7 +74,7 @@ TOKEN: IDENT 		 LEXEME: green
 TOKEN: ASSIGN 		 LEXEME: =
 INDEX ->  epsilon
 ASSIGNMENT_EXPR -> IDENT INDEX ASSIGN EXPR
-__Adding green to symbol table
+___Adding green to symbol table
 TOKEN: IDENT 		 LEXEME: yellow
 TOKEN: RBRACE 		 LEXEME: }
 ENTIRE_VAR -> IDENT

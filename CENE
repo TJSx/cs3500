@@ -1,12 +1,12 @@
 
-__Entering new scope... 
+___Entering new scope... 
 
 TOKEN: LBRACE 		 LEXEME: {
 TOKEN: IDENT 		 LEXEME: kitten
 TOKEN: ASSIGN 		 LEXEME: =
 INDEX ->  epsilon
 ASSIGNMENT_EXPR -> IDENT INDEX ASSIGN EXPR
-__Adding kitten to symbol table
+___Adding kitten to symbol table
 TOKEN: INTCONST 		 LEXEME: 3
 CONST -> INTCONST
 FACTOR -> CONST
@@ -22,7 +22,7 @@ TOKEN: IDENT 		 LEXEME: second
 TOKEN: ASSIGN 		 LEXEME: =
 INDEX ->  epsilon
 ASSIGNMENT_EXPR -> IDENT INDEX ASSIGN EXPR
-__Adding second to symbol table
+___Adding second to symbol table
 TOKEN: IDENT 		 LEXEME: kitten
 TOKEN: ADD 		 LEXEME: +
 ENTIRE_VAR -> IDENT
@@ -62,7 +62,7 @@ TOKEN: IDENT 		 LEXEME: third
 TOKEN: ASSIGN 		 LEXEME: =
 INDEX ->  epsilon
 ASSIGNMENT_EXPR -> IDENT INDEX ASSIGN EXPR
-__Adding third to symbol table
+___Adding third to symbol table
 TOKEN: LPAREN 		 LEXEME: (
 TOKEN: INTCONST 		 LEXEME: 7
 CONST -> INTCONST
@@ -124,7 +124,7 @@ COMPOUND_EXPR -> { EXPR EXPR_LIST }
 EXPR -> COMPOUND_EXPR
 START -> EXPR
 
-__Exiting scope...
+___Exiting scope...
 
 
 ---- Completed parsing ----

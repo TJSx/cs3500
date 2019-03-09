@@ -1,14 +1,14 @@
 
-__Entering new scope... 
+___Entering new scope... 
 
 TOKEN: IDENT 		 LEXEME: snack_time
 TOKEN: ASSIGN 		 LEXEME: =
 INDEX ->  epsilon
 ASSIGNMENT_EXPR -> IDENT INDEX ASSIGN EXPR
-__Adding snack_time to symbol table
+___Adding snack_time to symbol table
 TOKEN: FUNCTION 		 LEXEME: function
 
-__Entering new scope... 
+___Entering new scope... 
 
 TOKEN: LPAREN 		 LEXEME: (
 TOKEN: IDENT 		 LEXEME: apple
@@ -16,9 +16,9 @@ TOKEN: COMMA 		 LEXEME: ,
 TOKEN: IDENT 		 LEXEME: banana
 TOKEN: RPAREN 		 LEXEME: )
 PARAMS -> IDENT
-__Adding banana to symbol table
+___Adding banana to symbol table
 PARAMS -> IDENT, PARAMS
-__Ading apple to symbol table
+___Adding apple to symbol table
 PARAM_LIST -> PARAMS
 TOKEN: LBRACE 		 LEXEME: {
 TOKEN: IDENT 		 LEXEME: apple
@@ -56,4 +56,4 @@ EXPR -> ARITHLOGIC_EXPR
 TOKEN: RBRACKET 		 LEXEME: ]
 TOKEN: RBRACE 		 LEXEME: }
 SINGLE_ELEMENT -> IDENT [[ EXPR ]]
-Line 5: Unidentified identifier
+Line 5: Undefined identifier

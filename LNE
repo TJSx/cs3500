@@ -1,12 +1,12 @@
 
-__Entering new scope... 
+___Entering new scope... 
 
 TOKEN: LBRACE 		 LEXEME: {
 TOKEN: IDENT 		 LEXEME: banana
 TOKEN: ASSIGN 		 LEXEME: =
 INDEX ->  epsilon
 ASSIGNMENT_EXPR -> IDENT INDEX ASSIGN EXPR
-__Adding banana to symbol table
+___Adding banana to symbol table
 TOKEN: LIST 		 LEXEME: list
 TOKEN: LPAREN 		 LEXEME: (
 TOKEN: INTCONST 		 LEXEME: 5
@@ -33,7 +33,7 @@ TOKEN: IDENT 		 LEXEME: sixth_banana
 TOKEN: ASSIGN 		 LEXEME: =
 INDEX ->  epsilon
 ASSIGNMENT_EXPR -> IDENT INDEX ASSIGN EXPR
-__Adding sixth_banana to symbol table
+___Adding sixth_banana to symbol table
 TOKEN: IDENT 		 LEXEME: banana
 TOKEN: LBRACKET 		 LEXEME: [
 TOKEN: LBRACKET 		 LEXEME: [
@@ -82,7 +82,7 @@ COMPOUND_EXPR -> { EXPR EXPR_LIST }
 EXPR -> COMPOUND_EXPR
 START -> EXPR
 
-__Exiting scope...
+___Exiting scope...
 
 
 ---- Completed parsing ----

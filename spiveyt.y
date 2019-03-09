@@ -257,11 +257,10 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT
                     printRule("FOR_EXPR", 
                               "FOR ( IDENT IN EXPR ) "
                               "LOOP_EXPR");
-                   // printf("__Adding %s to symbol table\n", $3);
                     bool found = scopeStack.top().findEntry($3);
                     if(!found)
                     {
-                    printf("__Adding %s to symbol table\n", $3);
+                    printf("___Adding %s to symbol table\n", $3);
 
                       scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($3, UNDEFINED));
                     }
@@ -323,7 +322,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                     bool found = scopeStack.top().findEntry($1);
                     if(!found)
                     {
-                    printf("__Adding %s to symbol table\n", $1);
+                    printf("___Adding %s to symbol table\n", $1);
 
                       scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED));
                     }
@@ -404,7 +403,7 @@ N_NO_PARAMS     : /* epsilon */
 N_PARAMS        : T_IDENT
                 {
                     printRule("PARAMS", "IDENT");
-                    printf("__Adding %s to symbol table\n", $1);
+                    printf("___Adding %s to symbol table\n", $1);
                     if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED)))
                     {
                       yyerror("Multiply defined identifier\n");
@@ -413,7 +412,7 @@ N_PARAMS        : T_IDENT
                 | T_IDENT T_COMMA N_PARAMS
                 {
                     printRule("PARAMS", "IDENT, PARAMS");
-                    printf("__Ading %s to symbol table\n", $1);
+                    printf("___Adding %s to symbol table\n", $1);
                     if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED)))
                     {
                       yyerror("Multiply defined identifier\n");
@@ -428,7 +427,7 @@ N_FUNCTION_CALL : T_IDENT T_LPAREN N_ARG_LIST T_RPAREN
                     bool found = findEntryInAnyScope(string($1));
 		    if(!found)
 		    {
-                      yyerror("Unidentified identifier");
+                      yyerror("Undefined identifier");
 		    }	
 		}
                 ;
@@ -539,7 +538,7 @@ N_SINGLE_ELEMENT : T_IDENT T_LBRACKET T_LBRACKET N_EXPR
                     bool found = findEntryInAnyScope(string($1));
 		    if(!found)
 		    {
-                      yyerror("Unidentified identifier");
+                      yyerror("Undefined identifier");
 		    }	
 
                 }
@@ -576,13 +575,13 @@ void printRule(const char *lhs, const char *rhs)
 void beginScope()
 {
   scopeStack.push(SYMBOL_TABLE());
-  printf("\n__Entering new scope... \n\n");
+  printf("\n___Entering new scope... \n\n");
 }
 
 void endScope()
 {
   scopeStack.pop();
-  printf("\n__Exiting scope...\n\n");
+  printf("\n___Exiting scope...\n\n");
 }
 
 bool findEntryInAnyScope(const string theName)
