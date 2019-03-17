@@ -77,46 +77,58 @@ N_START         : N_EXPR
 N_EXPR          : N_IF_EXPR
                 {
                     printRule("EXPR", "IF_EXPR");
+		    $$.type = $1.type;
+		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_WHILE_EXPR
                 {
                     printRule("EXPR", "WHILE_EXPR");
+		    $$.type = $1.type;
                 }
                 | N_FOR_EXPR
                 {
                     printRule("EXPR", "FOR_EXPR");
+		    $$.type = $1.type;
                 }
                 | N_COMPOUND_EXPR
                 {
                     printRule("EXPR", "COMPOUND_EXPR");
+		    $$.type = $1.type;
                 }
                 | N_ARITHLOGIC_EXPR
                 {
                     printRule("EXPR", "ARITHLOGIC_EXPR");
+		    $$.type = $1.type;
                 }
                 | N_ASSIGNMENT_EXPR
                 {
                     printRule("EXPR", "ASSIGNMENT_EXPR");
+		    $$.type = $1.type;
                 }
                 | N_OUTPUT_EXPR
                 {
                     printRule("EXPR", "OUTPUT_EXPR");
+		    $$.type = $1.type;
                 }
                 | N_INPUT_EXPR
                 {
                     printRule("EXPR", "INPUT_EXPR");
+		    $$.type = $1.type;
                 }
                 | N_LIST_EXPR
                 {
                     printRule("EXPR", "LIST_EXPR");
+		    $$.type = $1.type;
                 }
                 | N_FUNCTION_DEF
                 {
                     printRule("EXPR", "FUNCTION_DEF");
+		    $$.type = $1.type;
                 }
                 | N_FUNCTION_CALL
                 {
                     printRule("EXPR", "FUNCTION_CALL");
+		    $$.type = $1.type;
                 }
                 | N_QUIT_EXPR
                 {
@@ -128,22 +140,27 @@ N_EXPR          : N_IF_EXPR
 N_CONST         : T_INTCONST
                 {
                     printRule("CONST", "INTCONST");
+		    $$.type = INT;
                 }
                 | T_STRCONST
                 {
                     printRule("CONST", "STRCONST");
+		    $$.type = STR;
                 }
                 | T_FLOATCONST
                 {
                     printRule("CONST", "FLOATCONST");
+		    $$.type = FLOAT;
                 }
                 | T_TRUE
                 {
                     printRule("CONST", "TRUE");
+		    $$.type = BOOL;
                 }
                 | T_FALSE
                 {
                     printRule("CONST", "FALSE");
+		    $$.type = BOOL;
                 }
                 ;
 
@@ -219,6 +236,7 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
                 {
                     printRule("COMPOUND_EXPR",
                               "{ EXPR EXPR_LIST }");
+			      $$.type = $2.type;
                       
 		}
                 ;
@@ -226,6 +244,7 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
 N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                 {
                     printRule("EXPR_LIST", "; EXPR EXPR_LIST");
+		    $$.type = $2.type;
                 }
                 | /* epsilon */
                 {
@@ -244,11 +263,31 @@ N_IF_EXPR       : T_IF T_LPAREN N_EXPR T_RPAREN N_EXPR
                 }
                 ;
 
-N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR T_RPAREN N_LOOP_EXPR
+N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR T_RPAREN N_EXPR
                 {
                     printRule("WHILE_EXPR", 
                               "WHILE ( EXPR ) "
                               "LOOP_EXPR");
+			      if($3.type == FUNCTION)
+			      {
+				yyerror("Arg 1 cannot be function");
+			      }
+			      else if($3.type == LIST)
+			      {
+				yyerror("Arg 1 cannot be list");
+			      }
+			      else if($3.type == NULL)
+			      {
+				yyerror("Arg 1 cannot be null");
+			      }
+			      else if($3.type == STR)
+			      {
+				yyerror("Arg 1 cannot be STR");
+			      }		    
+			      else
+			      {
+			        $$.type = $5.type;
+			      }
                 }
                 ;
 
@@ -265,12 +304,12 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT
                       scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($3, UNDEFINED));
                     }
                 }
-		T_IN N_EXPR T_RPAREN N_LOOP_EXPR
+		T_IN N_EXPR T_RPAREN N_EXPR
 		{
 		
 		}
                 ;
-
+/* don't need these anymore but keeping them just in case
 N_LOOP_EXPR     : N_EXPR
                 {
                     printRule("LOOP_EXPR", "EXPR");
@@ -296,11 +335,12 @@ N_NEXT_EXPR     : T_NEXT
                     printRule("NEXT_EXPR", "NEXT");
                 }
                 ;
-
+*/
 N_LIST_EXPR     : T_LIST T_LPAREN N_CONST_LIST T_RPAREN
                 {
                     printRule("LIST_EXPR", 
                               "LIST ( CONST_LIST )");
+			      $$.type = LIST;
                 }
                 ;
 
@@ -326,10 +366,14 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
 
                       scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED));
                     }
+		    
                 }
 		T_ASSIGN N_EXPR
 		{
-		
+		  if($4.type != LIST)
+		  {
+		    $$.type = $4.type;
+		  }
 		}
                 ;
 
@@ -346,6 +390,7 @@ N_INDEX :       T_LBRACKET T_LBRACKET N_EXPR T_RBRACKET T_RBRACKET
 N_QUIT_EXPR     : T_QUIT T_LPAREN T_RPAREN
                 {
                     printRule("QUIT_EXPR", "QUIT()");
+		    $$.type = NULL;
         		   exit(1);
                 }
                 ;
