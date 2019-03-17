@@ -1,5 +1,0 @@
-snack_time = function(apple, banana)
-{
-    apple = "yellow";
-    banana = fruit_salad[[2]]
-}
