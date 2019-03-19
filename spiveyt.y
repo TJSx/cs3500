@@ -60,7 +60,7 @@ extern "C"
  %type <typeInfo> N_COMPOUND_EXPR N_ARITHLOGIC_EXPR
  %type <typeInfo> N_ASSIGNMENT_EXPR N_OUTPUT_EXPR
  %type <typeInfo> N_INPUT_EXPR N_LIST_EXPR N_FUNCTION_DEF
- %type <typeInfo> N_FUNCTION_CALL
+ %type <typeInfo> N_FUNCTION_CALL N_EXPR_LIST N_QUIT
 %nonassoc   T_RPAREN 
 %nonassoc   T_ELSE
 %union
@@ -376,10 +376,10 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                 }
 		T_ASSIGN N_EXPR
 		{
-		  if($4.type != LIST)
+		 /* if($4.type != LIST)
 		  {
 		    $$.type = $4.type;
-		  }
+		  }*/
 		}
                 ;
 
