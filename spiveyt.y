@@ -75,7 +75,7 @@ extern "C"
 
 N_START         : N_EXPR
                 {
-                    printRule("START", "EXPR");
+                   // printRule("START", "EXPR");
 		    endScope();	
                     printf("\n---- Completed parsing ----\n\n");
                     return 0;
@@ -83,59 +83,80 @@ N_START         : N_EXPR
                 ;
 N_EXPR          : N_IF_EXPR
                 {
-                    printRule("EXPR", "IF_EXPR");
+                   // printRule("EXPR", "IF_EXPR");
 		    $$.type = $1.type;
+                    $$.numParams = $1.numParams;
 		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_WHILE_EXPR
                 {
-                    printRule("EXPR", "WHILE_EXPR");
+                   // printRule("EXPR", "WHILE_EXPR");
 		    $$.type = $1.type;
+                    $$.numParams = $1.numParams;
+		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_FOR_EXPR
                 {
-                    printRule("EXPR", "FOR_EXPR");
+                   // printRule("EXPR", "FOR_EXPR");
 		    $$.type = $1.type;
+                    $$.numParams = $1.numParams;
+		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_COMPOUND_EXPR
                 {
-                    printRule("EXPR", "COMPOUND_EXPR");
+                    //printRule("EXPR", "COMPOUND_EXPR");
 		    $$.type = $1.type;
+                    $$.numParams = $1.numParams;
+		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_ARITHLOGIC_EXPR
                 {
-                    printRule("EXPR", "ARITHLOGIC_EXPR");
+                    //printRule("EXPR", "ARITHLOGIC_EXPR");
 		    $$.type = $1.type;
+                    $$.numParams = $1.numParams;
+		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_ASSIGNMENT_EXPR
                 {
-                    printRule("EXPR", "ASSIGNMENT_EXPR");
+                    //printRule("EXPR", "ASSIGNMENT_EXPR");
 		    $$.type = $1.type;
+                    $$.numParams = $1.numParams;
+		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_OUTPUT_EXPR
                 {
                     printRule("EXPR", "OUTPUT_EXPR");
 		    $$.type = $1.type;
+                    $$.numParams = $1.numParams;
+		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_INPUT_EXPR
                 {
                     printRule("EXPR", "INPUT_EXPR");
 		    $$.type = $1.type;
+                    $$.numParams = $1.numParams;
+		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_LIST_EXPR
                 {
                     printRule("EXPR", "LIST_EXPR");
 		    $$.type = $1.type;
+                    $$.numParams = $1.numParams;
+		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_FUNCTION_DEF
                 {
                     printRule("EXPR", "FUNCTION_DEF");
 		    $$.type = $1.type;
+                    $$.numParams = $1.numParams;
+		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_FUNCTION_CALL
                 {
                     printRule("EXPR", "FUNCTION_CALL");
 		    $$.type = $1.type;
+                    $$.numParams = $1.numParams;
+		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_QUIT_EXPR
                 {
@@ -148,26 +169,36 @@ N_CONST         : T_INTCONST
                 {
                     printRule("CONST", "INTCONST");
 		    $$.type = INT;
+                    $$.numParams = 1;
+                    $$.returnType = INT;
                 }
                 | T_STRCONST
                 {
                     printRule("CONST", "STRCONST");
 		    $$.type = STR;
+                    $$.numParams = 1;
+                    $$.returnType = STR;
                 }
                 | T_FLOATCONST
                 {
                     printRule("CONST", "FLOATCONST");
 		    $$.type = FLOAT;
+                    $$.numParams = 1;
+                    $$.returnType = FLOAT;
                 }
                 | T_TRUE
                 {
                     printRule("CONST", "TRUE");
 		    $$.type = BOOL;
+                    $$.numParams = 1;
+                    $$.returnType = BOOL;
                 }
                 | T_FALSE
                 {
                     printRule("CONST", "FALSE");
 		    $$.type = BOOL;
+                    $$.numParams = 1;
+                    $$.returnType = BOOL;
                 }
                 ;
 
@@ -244,6 +275,8 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
                     printRule("COMPOUND_EXPR",
                               "{ EXPR EXPR_LIST }");
 			      $$.type = $2.type;
+                              $$.numParams = $2.numParams;
+                              $$.returnType = NOT_APPLICABLE;
                       
 		}
                 ;
@@ -252,6 +285,8 @@ N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                 {
                     printRule("EXPR_LIST", "; EXPR EXPR_LIST");
 		    $$.type = $2.type;
+                    $$.numParams = $2.numParams;
+                    $$.returnType = NOT_APPLICABLE;
                 }
                 | /* epsilon */
                 {
@@ -294,7 +329,9 @@ N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR T_RPAREN N_EXPR
 			      else
 			      {
 			        $$.type = $5.type;
-			      }
+			      	$$.numParams = $5.numParams;
+				$$.returnType = NOT_APPLICABLE;
+                              }
                 }
                 ;
 
