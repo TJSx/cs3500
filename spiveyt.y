@@ -66,6 +66,7 @@ extern "C"
 %union
 {
   char* text;
+  TYPE_INFO typeInfo;
 }
 
 %start N_START
@@ -307,7 +308,7 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT
                     {
                     printf("___Adding %s to symbol table\n", $3);
 
-                      scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($3, UNDEFINED));
+//                      scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($3, UNDEFINED));
                     }
                 }
 		T_IN N_EXPR T_RPAREN N_EXPR
@@ -370,7 +371,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                     {
                     printf("___Adding %s to symbol table\n", $1);
 
-                      scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED));
+//                      scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED));
                     }
 		    
                 }
@@ -455,8 +456,9 @@ N_PARAMS        : T_IDENT
                 {
                     printRule("PARAMS", "IDENT");
                     printf("___Adding %s to symbol table\n", $1);
-                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED)))
-                    {
+//                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED)))
+if(1 == 1)  
+                  {
                       yyerror("Multiply defined identifier\n");
                     }
 		}
@@ -464,8 +466,9 @@ N_PARAMS        : T_IDENT
                 {
                     printRule("PARAMS", "IDENT, PARAMS");
                     printf("___Adding %s to symbol table\n", $1);
-                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED)))
-                    {
+  //if(1==1)                  if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED)))
+if(1==1)           
+         {
                       yyerror("Multiply defined identifier\n");
                     }
                 }

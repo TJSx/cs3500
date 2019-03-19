@@ -11,7 +11,7 @@ using namespace std;
 #define FLOAT 3
 #define LIST 4
 #define NULL 5
-
+#define BOOL 6
 #define NOT_APPLICABLE -2
 
 typedef struct
@@ -19,7 +19,7 @@ typedef struct
   int type;
   int numParams;
   int returnType;
-}TYPE_INFO
+}TYPE_INFO;
 
 class SYMBOL_TABLE_ENTRY
 {
