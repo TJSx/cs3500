@@ -1,0 +1,5 @@
+{
+    hello = TRUE;
+    hello = 3.14;
+    hello = 54
+}

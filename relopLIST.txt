@@ -1,0 +1,4 @@
+{
+  winner = (list(1,2,3)) * 10;
+  print(winner)
+}
