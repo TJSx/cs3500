@@ -60,7 +60,7 @@ extern "C"
  %type <typeInfo> N_COMPOUND_EXPR N_ARITHLOGIC_EXPR
  %type <typeInfo> N_ASSIGNMENT_EXPR N_OUTPUT_EXPR
  %type <typeInfo> N_INPUT_EXPR N_LIST_EXPR N_FUNCTION_DEF
- %type <typeInfo> N_FUNCTION_CALL N_EXPR_LIST N_QUIT
+ %type <typeInfo> N_FUNCTION_CALL N_EXPR_LIST N_QUIT_EXPR
 %nonassoc   T_RPAREN 
 %nonassoc   T_ELSE
 %union
