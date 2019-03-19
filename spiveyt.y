@@ -51,10 +51,11 @@ extern "C"
 %token T_MULT T_DIV T_MOD
 %token T_POW T_LT T_LE T_GT T_GE T_EQ T_NE T_NOT T_AND 
 %token T_OR T_ASSIGN T_LIST
-%type <text>T_IDENT
+%type <text> T_IDENT
 /*
  *  To eliminate ambiguity in if/else
  */
+ %type <typeInfo> N_CONST N_EXPR N_IF_EXPR
 %nonassoc   T_RPAREN 
 %nonassoc   T_ELSE
 %union
