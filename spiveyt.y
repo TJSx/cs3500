@@ -56,6 +56,11 @@ extern "C"
  *  To eliminate ambiguity in if/else
  */
  %type <typeInfo> N_CONST N_EXPR N_IF_EXPR
+ %type <typeInfo> N_WHILE_EXPR N_FOR_EXPR
+ %type <typeInfo> N_COMPOUND_EXPR N_ARITHLOGIC_EXPR
+ %type <typeInfo> N_ASSIGNMENT_EXPR N_OUTPUT_EXPR
+ %type <typeInfo> N_INPUT_EXPR N_LIST_EXPR N_FUNCTION_DEF
+ %type <typeInfo> N_FUNCTION_CALL
 %nonassoc   T_RPAREN 
 %nonassoc   T_ELSE
 %union
