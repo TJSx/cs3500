@@ -25,218 +25,218 @@ COMMENT #+.*
 %%
 
 "(" {
-    printTokenInfo("LPAREN", yytext);
+//    printTokenInfo("LPAREN", yytext);
     return T_LPAREN;
 }
 
 ")" {
-    printTokenInfo("RPAREN", yytext);
+  //  printTokenInfo("RPAREN", yytext);
     return T_RPAREN;
 }
 
 "{" {
-    printTokenInfo("LBRACE", yytext);
+ //   printTokenInfo("LBRACE", yytext);
     return T_LBRACE;
 }
 
 "}" {
-    printTokenInfo("RBRACE", yytext);
+   // printTokenInfo("RBRACE", yytext);
     return T_RBRACE;
 }
 
 "[" {
-    printTokenInfo("LBRACKET", yytext);
+//    printTokenInfo("LBRACKET", yytext);
     return T_LBRACKET;
 }
 
 "]" {
-    printTokenInfo("RBRACKET", yytext);
+//    printTokenInfo("RBRACKET", yytext);
     return T_RBRACKET;
 }
 
 "+" {
-    printTokenInfo("ADD", yytext);
+  //  printTokenInfo("ADD", yytext);
     return T_ADD;
 }
 
 "-" {
-    printTokenInfo("SUB", yytext);
+    //printTokenInfo("SUB", yytext);
     return T_SUB;
 }
 
 "*" {
-    printTokenInfo("MULT", yytext);
+//    printTokenInfo("MULT", yytext);
     return T_MULT;
 }
 
 "/" {
-    printTokenInfo("DIV", yytext);
+  //  printTokenInfo("DIV", yytext);
     return T_DIV;
 }
 
 "%%" {
-    printTokenInfo("MOD", yytext);
+    //printTokenInfo("MOD", yytext);
     return T_MOD;
 }
 
 "^" {
-    printTokenInfo("POWER", yytext);
+//    printTokenInfo("POWER", yytext);
     return T_POW;
 }
 
 "<" {
-    printTokenInfo("LT", yytext);
+  //  printTokenInfo("LT", yytext);
     return T_LT;
 }
 
 "<=" {
-    printTokenInfo("LE", yytext);
+    //printTokenInfo("LE", yytext);
     return T_LE;
 }
 
 ">" {
-    printTokenInfo("GT", yytext);
+//    printTokenInfo("GT", yytext);
     return T_GT;
 }
 
 ">=" {
-    printTokenInfo("GE", yytext);
+  //  printTokenInfo("GE", yytext);
     return T_GE;
 }
 
 "==" {
-    printTokenInfo("EQ", yytext);
+    //printTokenInfo("EQ", yytext);
     return T_EQ;
 }
 
 "!=" {
-    printTokenInfo("NE", yytext);
+//    printTokenInfo("NE", yytext);
     return T_NE;
 }
 
 "!" {
-    printTokenInfo("NOT", yytext);
+  //  printTokenInfo("NOT", yytext);
     return T_NOT;
 }
 
 "&" {
-    printTokenInfo("AND", yytext);
+   // printTokenInfo("AND", yytext);
     return T_AND;
 }
 
 "|" {
-    printTokenInfo("OR", yytext);
+//    printTokenInfo("OR", yytext);
     return T_OR;
 }
 
 "=" {
-    printTokenInfo("ASSIGN", yytext);
+  //  printTokenInfo("ASSIGN", yytext);
     return T_ASSIGN;
 }
 
 ";" {
-    printTokenInfo("SEMICOLON", yytext);
+    //printTokenInfo("SEMICOLON", yytext);
     return T_SEMICOLON;
 }
 
 "," {
-    printTokenInfo("COMMA", yytext);
+//    printTokenInfo("COMMA", yytext);
     return T_COMMA;
 }
 
 "TRUE" {
-    printTokenInfo("TRUE", yytext);
+  //  printTokenInfo("TRUE", yytext);
     return T_TRUE;
 }
 
 "FALSE" {
-    printTokenInfo("FALSE", yytext);
+    //printTokenInfo("FALSE", yytext);
     return T_FALSE;
 }
 
 "if" {
-    printTokenInfo("IF", yytext);
+//    printTokenInfo("IF", yytext);
     return T_IF;
 }
 
 "else" {
-    printTokenInfo("ELSE", yytext);
+  //  printTokenInfo("ELSE", yytext);
     return T_ELSE;
 }
 
 "while" {
-    printTokenInfo("WHILE", yytext);
+    //printTokenInfo("WHILE", yytext);
     return T_WHILE;
 }
 
 "function" {
-    printTokenInfo("FUNCTION", yytext);
+//    printTokenInfo("FUNCTION", yytext);
     return T_FUNCTION;
 }
 
 "for" {
-    printTokenInfo("FOR", yytext);
+  //  printTokenInfo("FOR", yytext);
     return T_FOR;
 }
 
 "in" {
-    printTokenInfo("IN", yytext);
+    //printTokenInfo("IN", yytext);
     return T_IN;
 }
 
 "next" {
-    printTokenInfo("NEXT", yytext);
+//    printTokenInfo("NEXT", yytext);
     return T_NEXT;
 }
 
 "break" {
-    printTokenInfo("BREAK", yytext);
+  //  printTokenInfo("BREAK", yytext);
     return T_BREAK;
 }
 
 "quit" {
-    printTokenInfo("QUIT", yytext);
+    //printTokenInfo("QUIT", yytext);
     return T_QUIT;
 }
 
 "print" {
-    printTokenInfo("PRINT", yytext);
+   // printTokenInfo("PRINT", yytext);
     return T_PRINT;
 }
 
 "cat" {
-    printTokenInfo("CAT", yytext);
+//    printTokenInfo("CAT", yytext);
     return T_CAT;
 }
 
 "read" {
-    printTokenInfo("READ", yytext);
+  //  printTokenInfo("READ", yytext);
     return T_READ;
 }
 
 "list" {
-    printTokenInfo("LIST", yytext);
+    //printTokenInfo("LIST", yytext);
     return T_LIST;
 }
 
 {STRCONST} {
-    printTokenInfo("STRCONST", yytext);
+   // printTokenInfo("STRCONST", yytext);
     return T_STRCONST;
 }
 
 {INTCONST} {
-    printTokenInfo("INTCONST", yytext);
+//    printTokenInfo("INTCONST", yytext);
     return T_INTCONST;
 }
 
 {FLOATCONST} {
-    printTokenInfo("FLOATCONST", yytext);
+  //  printTokenInfo("FLOATCONST", yytext);
     return T_FLOATCONST;
 }
 
 {IDENT} {
     yylval.text = strdup(yytext);
-    printTokenInfo("IDENT", yytext);
+    //printTokenInfo("IDENT", yytext);
     return T_IDENT;
 }
 
@@ -249,7 +249,7 @@ COMMENT #+.*
 {COMMENT} {}
 
 . {
-    printTokenInfo("UNKNOWN", yytext);
+   // printTokenInfo("UNKNOWN", yytext);
     return T_UNKNOWN;
 }
 
