@@ -1,3 +1,8 @@
+
+*** Modified files in JOE when it aborted on Wed Mar 20 19:40:30 2019
+*** JOE was aborted because the terminal closed
+
+*** File 'spiveyt.y'
 /* 
     minir.y
 
@@ -25,8 +30,6 @@ bool isEpsilon = false;
 
 
 #define ARITH_OP 10
-#define REL_OP 9
-#define LOG_OP 8
 
 
 void printTokenInfo(const char* token_type, const char* lexeme);
@@ -72,10 +75,7 @@ extern "C"
  %type <typeInfo> N_ASSIGNMENT_EXPR N_OUTPUT_EXPR
  %type <typeInfo> N_INPUT_EXPR N_LIST_EXPR N_FUNCTION_DEF
  %type <typeInfo> N_FUNCTION_CALL N_EXPR_LIST N_QUIT_EXPR
- %type <typeInfo> N_CONST_LIST N_SIMPLE_ARITHLOGIC
- %type <typeInfo> N_TERM N_ADD_OP_LIST N_ADD_OP N_REL_OP
- %type <typeInfo> N_FACTOR N_MULT_OP_LIST N_MULT_OP N_VAR N_INDEX
- %type <typeInfo> N_SINGLE_ELEMENT
+ %type <typeInfo> N_CONST_LIST
 %nonassoc   T_RPAREN 
 %nonassoc   T_ELSE
 %union
@@ -176,9 +176,6 @@ N_EXPR          : N_IF_EXPR
                 | N_QUIT_EXPR
                 {
                    printRule("EXPR", "QUIT_EXPR");
-                    $$.type = $1.type;
-                    $$.numParams = $1.numParams;
-                    $$.returnType = NOT_APPLICABLE;
                     exit(1);
                 }
                 ;
@@ -188,35 +185,35 @@ N_CONST         : T_INTCONST
                     printRule("CONST", "INTCONST");
 		    $$.type = INT;
                     $$.numParams = 1;
-                    $$.returnType = NOT_APPLICABLE;
+                    $$.returnType = INT;
                 }
                 | T_STRCONST
                 {
                     printRule("CONST", "STRCONST");
 		    $$.type = STR;
                     $$.numParams = 1;
-                    $$.returnType = NOT_APPLICABLE;
+                    $$.returnType = STR;
                 }
                 | T_FLOATCONST
                 {
                   //  printRule("CONST", "FLOATCONST");
 		    $$.type = FLOAT;
                     $$.numParams = 1;
-                    $$.returnType = NOT_APPLICABLE;
+                    $$.returnType = FLOAT;
                 }
                 | T_TRUE
                 {
                    printRule("CONST", "TRUE");
 		    $$.type = BOOL;
                     $$.numParams = 1;
-                    $$.returnType = NOT_APPLICABLE;
+                    $$.returnType = BOOL;
                 }
                 | T_FALSE
                 {
                   printRule("CONST", "FALSE");
 		    $$.type = BOOL;
                     $$.numParams = 1;
-                    $$.returnType = NOT_APPLICABLE;
+                    $$.returnType = BOOL;
                 }
                 ;
 
@@ -224,25 +221,6 @@ N_ARITHLOGIC_EXPR : N_SIMPLE_ARITHLOGIC
                 {
                    printRule("ARITHLOGIC_EXPR", 
                              "SIMPLE_ARITHLOGIC");
-                  if($1.type == FUNCTION)
-                  {
-                    yyerror("Arg 1 cannot be function");
-                  }
-                  else if($1.type == NULL_TYPE)
-                  {
-                    yyerror("Arg 1 cannot be null");
-                  }
-                  else if($1.type == STR)
-                  {
-                    yyerror("Arg 1 cannot be string");
-                  }
-                  else if($1.type == LIST)
-                  {
-                    yyerror("Arg 1 cannot be list");
-                  }
-                  $$.type = $1.type;
-                  $$.numParams = NOT_APPLICABLE;
-			$$.returnType = NOT_APPLICABLE;
                 }
                 | N_SIMPLE_ARITHLOGIC N_REL_OP
                   N_SIMPLE_ARITHLOGIC
@@ -250,67 +228,6 @@ N_ARITHLOGIC_EXPR : N_SIMPLE_ARITHLOGIC
                     printRule("ARITHLOGIC_EXPR", 
                               "SIMPLE_ARITHLOGIC REL_OP "
                               "SIMPLE_ARITHLOGIC");
-                  if($1.type == FUNCTION)
-                  {
-                    yyerror("Arg 1 cannot be function");
-                  }
-                  else if($1.type == NULL_TYPE)
-                  {
-                    yyerror("Arg 1 cannot be null");
-                  }
-                  else if($1.type == STR)
-                  {
-                    yyerror("Arg 1 cannot be string");
-                  }
-                  else if($1.type == LIST)
-                  {
-                    yyerror("Arg 1 cannot be list");
-                  }
-                  if($3.type == FUNCTION)
-                  {
-                    yyerror("Arg 2 cannot be function");
-                  }
-                  else if($3.type == NULL_TYPE)
-                  {
-                    yyerror("Arg 2 cannot be null");
-                  }
-                  else if($3.type == STR)
-                  {
-                    yyerror("Arg 2 cannot be string");
-                  }
-                  else if($3.type == LIST)
-                  {
-                    yyerror("Arg 2 cannot be list");
-                  }
-                  
-                  if($2.type == ARITH_OP)
-                  {
-                    if($1.type != FLOAT && $3.type != FLOAT)
-                    {
-			$$.type = INT;
-			$$.numParams = $1.numParams + $3.numParams;
-			$$.returnType = INT;
-
-                    }
-                    else if($3.type == FLOAT || $1.type == FLOAT)
-                    {
-			$$.type = FLOAT;
-			$$.numParams = $1.numParams + $3.numParams;
-			$$.returnType = FLOAT;
-                    }
-                    else
-                    {
-                    //	cout << "test" << endl;  
-                    }
-                  }
-                  else if($2.type == REL_OP || $2.type == LOG_OP)
-                  {
-			$$.type == BOOL;
-		
-			$$.numParams = $1.numParams + $3.numParams;
-			$$.returnType = BOOL;
-
-                  }
                 }
                 ;
 
@@ -318,19 +235,6 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
                 {
                     printRule("SIMPLE_ARITHLOGIC", 
                               "TERM ADD_OP_LIST");
-                    if($1.type == FLOAT || $2.type == FLOAT)
-                    {
-                      	$$.type = FLOAT;
-			$$.numParams = $1.numParams + $2.numParams;
-			$$.returnType = FLOAT;
-                    }
-                    else
-                    {
-                      	$$.type = INT;
-			$$.numParams = $1.numParams + $2.numParams;
-			$$.returnType = INT;
-                    }
-
                 }
                 ;
 
@@ -338,37 +242,10 @@ N_ADD_OP_LIST	: N_ADD_OP N_TERM N_ADD_OP_LIST
                 {
                    printRule("ADD_OP_LIST", 
                               "ADD_OP TERM ADD_OP_LIST");
-                  if($1.type != LOG_OP)
-                  {
-			if($2.type == FLOAT || $3.type == FLOAT)
-			{
-				$$.type = FLOAT;
-				$$.numParams = $3.numParams + $2.numParams;
-				$$.returnType = FLOAT;
-			}
-			else if($2.type == INT && $3.type == INT)
-			{
-		           	$$.type = INT;
-				$$.numParams = $3.numParams + $2.numParams;
-				$$.returnType = INT;
-
-			}
-                  }
-                  else if($1.type == LOG_OP)
-                  {
-			
-		           	$$.type = BOOL;
-				$$.numParams = $3.numParams + $2.numParams;
-				$$.returnType = BOOL;
-                  }
                 }
                 | /* epsilon */
                 {
                    printRule("ADD_OP_LIST", "epsilon");
-                            
-		           	$$.type = EPSILON;
-				$$.numParams = NOT_APPLICABLE;
-				$$.returnType = NOT_APPLICABLE;
                 }
                 ;
 
@@ -376,29 +253,6 @@ N_TERM		: N_FACTOR N_MULT_OP_LIST
                 {
                    printRule("TERM", 
                               "FACTOR MULT_OP_LIST");
-                    if($2.type != EPSILON)
-                    {
-			if($1.type == FLOAT || $2.type == FLOAT)
-			{
-				$$.type = FLOAT;
-				$$.numParams = $1.numParams + $2.numParams;
-				$$.returnType = FLOAT;
-			}
-			else if($1.type == INT || $1.type == BOOL)
-			{
-				$$.type = INT;
-				$$.numParams = $1.numParams + $2.numParams;
-				$$.returnType = INT;
-			}
-			
-                    }
-                    else if($2.type == EPSILON)
-			{
-				$$.type = $1.type;
-				$$.numParams = $1.numParams;
-				$$.returnType = $1.returnType;
-			}
-                  
                 }
                 ;
 
@@ -406,67 +260,28 @@ N_MULT_OP_LIST	: N_MULT_OP N_FACTOR N_MULT_OP_LIST
                 {
                     printRule("MULT_OP_LIST", 
                               "MULT_OP FACTOR MULT_OP_LIST");
-                    if($1.type == ARITH_OP)
-                    {
-			if($2.type == FLOAT || $3.type == FLOAT)
-			{
-				$$.type = FLOAT;
-				$$.numParams = $1.numParams + $2.numParams;
-				$$.returnType = FLOAT;
-			}
-			else
-			{
-				
-				$$.type = INT;
-				$$.numParams = $1.numParams + $2.numParams;
-				$$.returnType = INT;
-			}                                                                                                                                                                           
-                    }
-                    if($1.type == LOG_OP)
-                    {
-
-				$$.type = BOOL;
-				$$.numParams = $1.numParams + $2.numParams;
-				$$.returnType = BOOL;
-                    }
                 }
                 | /* epsilon */
                 {
                     printRule("MULT_OP_LIST", "epsilon");
-
-		           	$$.type == EPSILON;
-				$$.numParams = NOT_APPLICABLE;
-				$$.returnType = NOT_APPLICABLE;
                 }
                 ;
 
 N_FACTOR		: N_VAR
                 {
                    printRule("FACTOR", "VAR");
-			$$.type = $1.type;
-			$$.numParams = NOT_APPLICABLE;
-			$$.returnType = NOT_APPLICABLE;
                 }
                 | N_CONST
                 {
                    printRule("FACTOR", "CONST");
-			$$.type = $1.type;
-			$$.numParams = NOT_APPLICABLE;
-			$$.returnType = NOT_APPLICABLE;
                 }
                 | T_LPAREN N_EXPR T_RPAREN
                 {
                    printRule("FACTOR", "( EXPR )");
-			$$.type = $2.type;
-			$$.numParams = NOT_APPLICABLE;
-			$$.returnType = NOT_APPLICABLE;
                 }
                 | T_NOT N_FACTOR
                 {
                    printRule("FACTOR", "! FACTOR");
-			$$.type = $2.type;
-			$$.numParams = NOT_APPLICABLE;
-			$$.returnType = NOT_APPLICABLE;
                 }
                 ;
 
@@ -491,9 +306,6 @@ N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                 | /* epsilon */
                 {
                     printRule("EXPR_LIST", "epsilon");
-		    $$.type = EPSILON;
-                    $$.numParams = NOT_APPLICABLE;
-                    $$.returnType = NOT_APPLICABLE;
                 }
                 ;
 
@@ -521,7 +333,7 @@ N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR T_RPAREN N_EXPR
 			      {
 				yyerror("Arg 1 cannot be list");
 			      }
-			      else if($3.type == UNDEFINED)
+			      else if($3.type == NULL)
 			      {
 				yyerror("Arg 1 cannot be null");
 			      }
@@ -588,7 +400,7 @@ N_LIST_EXPR     : T_LIST T_LPAREN N_CONST_LIST T_RPAREN
                     printRule("LIST_EXPR", 
                               "LIST ( CONST_LIST )");
 			      $$.type = LIST;
-                              $$.numParams = NOT_APPLICABLE;
+                              $$.numParams = $3.numParams;
                               $$.returnType = LIST;
 
                 }
@@ -609,52 +421,41 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                 {
                     printRule("ASSIGNMENT_EXPR", 
                               "IDENT INDEX ASSIGN EXPR");
-                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), $2.type, NOT_APPLICABLE, NOT_APPLICABLE)))
+                    bool found = scopeStack.top().findEntry($1);
+                    if(!found)
                     {
-			yyerror("Multiply defined identifier\n");
-                    }
-                    if($2.type == EPSILON)
-                    {
-			isEpsilon = true;
+                    printf("___Adding %s to symbol table\n", $1);
+
+//                      scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED));
                     }
 		    
                 }
 		T_ASSIGN N_EXPR
 		{
 		  
-		  if(isEpsilon)
+		 /* if($4.type != LIST)
 		  {
-		    yyerror("Arg 2 issue whatever");
-		  }
-                  else
-                  {
-			$$.type = $2.type;
-			$$.numParams = $2.numParams;
-			$$.returnType = $2.returnType;
-                  }
+		    $$.type = $4.type;
+		  }*/
 		}
                 ;
 
 N_INDEX :       T_LBRACKET T_LBRACKET N_EXPR T_RBRACKET T_RBRACKET
 			    {
                     printRule("INDEX", " [[ EXPR ]]");
-			$$.type = $3.type;
-			$$.numParams = NOT_APPLICABLE;
-			$$.returnType = $3.type;
 			    }
 			    | /* epsilon */
                 {
                     printRule("INDEX", " epsilon");
-			$$.type = EPSILON;
-			$$.numParams = NOT_APPLICABLE;
-			$$.returnType = EPSILON;
-                }
+               
+			$$.type = UNDEFINED;
+		 }
                 ;
 
 N_QUIT_EXPR     : T_QUIT T_LPAREN T_RPAREN
                 {
                     printRule("QUIT_EXPR", "QUIT()");
-                      $$.type = UNDEFINED;
+                      $$.type = NULL;
         		   exit(1);
                 }
                 ;
@@ -663,15 +464,7 @@ N_OUTPUT_EXPR   : T_PRINT T_LPAREN N_EXPR T_RPAREN
                 {
                     printRule("OUTPUT_EXPR", 
                               "PRINT ( EXPR )");
-                	if(($3.type == FUNCTION) || ($3.type == NULL_TYPE))
-			{
-				yyerror("Arg 1 cannot be function or null");
-			}
-			$$.type = $3.type;
-			$$.numParams = $3.numParams;
-			$$.returnType = $3.returnType;
-			
-		}
+                }
                 | T_CAT T_LPAREN N_EXPR T_RPAREN
                 {
                    printRule("OUTPUT_EXPR", 
@@ -697,9 +490,6 @@ N_FUNCTION_DEF  : T_FUNCTION
                    printRule("FUNCTION_DEF",
                               "FUNCTION ( PARAM_LIST )"
                               " COMPOUND_EXPR");
-		  	$$.type = FUNCTION;
-		//	$$.numParams = NOT_APPLICABLE;
-		//	$$.returnType = FUNCTION;
 		  endScope();
 		}
                 ;
@@ -724,19 +514,21 @@ N_PARAMS        : T_IDENT
                 {
                     printRule("PARAMS", "IDENT");
                     printf("___Adding %s to symbol table\n", $1);
-                   if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), INT, UNDEFINED, UNDEFINED)))  
-                  	{
+//                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED)))
+			/*if(1 == 1)  
+                  {
                       yyerror("Multiply defined identifier\n");
-                    	}
+                    }*/
 		}
                 | T_IDENT T_COMMA N_PARAMS
                 {
                  //   printRule("PARAMS", "IDENT, PARAMS");
                     printf("___Adding %s to symbol table\n", $1);
-                   if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), INT, UNDEFINED, UNDEFINED)))  
-		         {
+  //if(1==1)                  if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($1, UNDEFINED)))
+		/*if(1==1)           
+         {
                       yyerror("Multiply defined identifier\n");
-                    }
+                    }*/
                 }
                 ;
 
@@ -744,7 +536,8 @@ N_FUNCTION_CALL : T_IDENT T_LPAREN N_ARG_LIST T_RPAREN
                 {
                     printRule("FUNCTION_CALL", "IDENT"
                               " ( ARG_LIST )");
-                   if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), INT, UNDEFINED, UNDEFINED)))  
+                    bool found = findEntryInAnyScope(string($1));
+		    if(!found)
 		    {
                       yyerror("Undefined identifier");
 		    }	
@@ -780,44 +573,36 @@ N_ARGS          : N_EXPR
 N_ADD_OP	     : T_ADD
                 {
                     printRule("ADD_OP", "+");
-			$$.type = ARITH_OP;
                 }
                 | T_SUB
                 {
                     printRule("ADD_OP", "-");
-			$$.type = ARITH_OP;
                 }
                 | T_OR
                 {
                     printRule("ADD_OP", "|");
-			$$.type = LOG_OP;
                 }
                 ;
 
 N_MULT_OP      : T_MULT
                 {
                     printRule("MULT_OP", "*");
-			$$.type = ARITH_OP;
                 }
                 | T_DIV
                 {
                     printRule("MULT_OP", "/");
-			$$.type = ARITH_OP;
                 }
                 | T_AND
                 {
                     printRule("MULT_OP", "&");
-			$$.type = LOG_OP;
                 }
                 | T_MOD
                 {
                    printRule("MULT_OP", "\%\%");
-			$$.type = ARITH_OP;
                 }
                 | T_POW
                 {
                     printRule("MULT_OP", "^");
-			$$.type = ARITH_OP;
                 }
                 ;
 
@@ -862,21 +647,21 @@ N_SINGLE_ELEMENT : T_IDENT T_LBRACKET T_LBRACKET N_EXPR
                 {
                     printRule("SINGLE_ELEMENT", "IDENT"
                               " [[ EXPR ]]");
-                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), LIST, UNDEFINED, UNDEFINED)))  
+                    bool found = findEntryInAnyScope(string($1));
+		    if(!found)
 		    {
                       yyerror("Undefined identifier");
 		    }	
-			$$.type = INT_OR_STR_OR_BOOL_OR_FLOAT;
+
                 }
                 ;
 
 N_ENTIRE_VAR    : T_IDENT
                 {
                     printRule("ENTIRE_VAR", "IDENT");
-  //                  bool found = scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), $4.type,$4.numParams,$4.returnType)
+                    bool found = scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), $4.type,$4.numParams,$4.returnType)
 			
-                    
-                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), UNDEFINED, UNDEFINED, UNDEFINED)))  
+                    if(!found)
                     {
                       yyerror("Undefined identifier\n");
                     }

@@ -10,8 +10,10 @@ using namespace std;
 #define STR 2
 #define FLOAT 3
 #define LIST 4
-#define NULL 5
 #define BOOL 6
+#define NULL_TYPE 5
+#define INT_OR_STR_OR_BOOL_OR_FLOAT -5
+#define EPSILON -3
 #define NOT_APPLICABLE -2
 
 typedef struct
