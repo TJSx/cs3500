@@ -14,9 +14,18 @@
 
 #include "SymbolTable.h"
 #include <stack>
-
+#include <queue>
 stack <SYMBOL_TABLE> scopeStack;
 int line_num = 1;
+int gnum_params = 0;
+queue<int> num_param;
+
+bool isLet = false;
+bool isEpsilon = false;
+
+
+#define ARITH_OP 10
+
 
 void printTokenInfo(const char* token_type, const char* lexeme);
 
@@ -25,7 +34,7 @@ void printRule(const char *, const char *);
 void beginScope();
 void endScope();
 bool findEntryInAnyScope(const string theName);
-
+int get_num_param();
 int yyerror(const char *s) 
 {
     printf("Line %d: %s\n", line_num, s);
@@ -61,6 +70,7 @@ extern "C"
  %type <typeInfo> N_ASSIGNMENT_EXPR N_OUTPUT_EXPR
  %type <typeInfo> N_INPUT_EXPR N_LIST_EXPR N_FUNCTION_DEF
  %type <typeInfo> N_FUNCTION_CALL N_EXPR_LIST N_QUIT_EXPR
+ %type <typeInfo> N_CONST_LIST
 %nonassoc   T_RPAREN 
 %nonassoc   T_ELSE
 %union
@@ -385,6 +395,9 @@ N_LIST_EXPR     : T_LIST T_LPAREN N_CONST_LIST T_RPAREN
                 /*    printRule("LIST_EXPR", 
                               "LIST ( CONST_LIST )");*/
 			      $$.type = LIST;
+                              $$.numParams = $3.numParams;
+                              $$.returnType = LIST;
+
                 }
                 ;
 
@@ -434,7 +447,7 @@ N_INDEX :       T_LBRACKET T_LBRACKET N_EXPR T_RBRACKET T_RBRACKET
 N_QUIT_EXPR     : T_QUIT T_LPAREN T_RPAREN
                 {
                  //   printRule("QUIT_EXPR", "QUIT()");
-		    $$.type = NULL;
+                      $$.type = NULL;
         		   exit(1);
                 }
                 ;
@@ -652,6 +665,12 @@ N_ENTIRE_VAR    : T_IDENT
 #include "lex.yy.c"
 extern FILE *yyin;
 
+int get_num_param()
+{
+	int size = scopeStack.top().getHashTable().size();
+	return size;
+}
+
 void printTokenInfo(const char* token_type, const char* lexeme)
 {
     printf("TOKEN: %s \t\t LEXEME: %s\n", token_type, lexeme);
@@ -666,7 +685,7 @@ void printRule(const char *lhs, const char *rhs)
 void beginScope()
 {
   scopeStack.push(SYMBOL_TABLE());
-  printf("\n___Entering new scope... \n\n");
+//  printf("\n___Entering new scope... \n\n");
 }
 
 void endScope()

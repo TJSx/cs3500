@@ -69,9 +69,18 @@
 
 #include "SymbolTable.h"
 #include <stack>
-
+#include <queue>
 stack <SYMBOL_TABLE> scopeStack;
 int line_num = 1;
+int gnum_params = 0;
+queue<int> num_param;
+
+bool isLet = false;
+bool isEpsilon = false;
+
+
+#define ARITH_OP 10
+
 
 void printTokenInfo(const char* token_type, const char* lexeme);
 
@@ -80,7 +89,7 @@ void printRule(const char *, const char *);
 void beginScope();
 void endScope();
 bool findEntryInAnyScope(const string theName);
-
+int get_num_param();
 int yyerror(const char *s) 
 {
     printf("Line %d: %s\n", line_num, s);
@@ -95,7 +104,7 @@ extern "C"
 }
 
 
-#line 99 "spiveyt.tab.c" /* yacc.c:339  */
+#line 108 "spiveyt.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -179,12 +188,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 67 "spiveyt.y" /* yacc.c:355  */
+#line 77 "spiveyt.y" /* yacc.c:355  */
 
   char* text;
   TYPE_INFO typeInfo;
 
-#line 188 "spiveyt.tab.c" /* yacc.c:355  */
+#line 197 "spiveyt.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -201,7 +210,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 205 "spiveyt.tab.c" /* yacc.c:358  */
+#line 214 "spiveyt.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -503,15 +512,15 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    76,    76,    84,    91,    98,   105,   112,   119,   126,
-     133,   140,   147,   154,   161,   168,   175,   182,   189,   196,
-     205,   210,   219,   226,   232,   237,   244,   250,   255,   259,
-     263,   267,   273,   284,   292,   297,   301,   308,   339,   338,
-     383,   391,   396,   403,   402,   424,   429,   434,   442,   447,
-     454,   461,   460,   476,   480,   487,   492,   502,   514,   526,
-     530,   537,   542,   546,   552,   556,   560,   566,   570,   574,
-     578,   582,   588,   592,   596,   600,   604,   608,   614,   618,
-     624,   638
+       0,    86,    86,    94,   101,   108,   115,   122,   129,   136,
+     143,   150,   157,   164,   171,   178,   185,   192,   199,   206,
+     215,   220,   229,   236,   242,   247,   254,   260,   265,   269,
+     273,   277,   283,   294,   302,   307,   311,   318,   349,   348,
+     393,   404,   409,   416,   415,   437,   442,   447,   455,   460,
+     467,   474,   473,   489,   493,   500,   505,   515,   527,   539,
+     543,   550,   555,   559,   565,   569,   573,   579,   583,   587,
+     591,   595,   601,   605,   609,   613,   617,   621,   627,   631,
+     637,   651
 };
 #endif
 
@@ -1385,306 +1394,306 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 77 "spiveyt.y" /* yacc.c:1646  */
+#line 87 "spiveyt.y" /* yacc.c:1646  */
     {
                    // printRule("START", "EXPR");
 		    endScope();	
                     printf("\n---- Completed parsing ----\n\n");
                     return 0;
                 }
-#line 1396 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1405 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 85 "spiveyt.y" /* yacc.c:1646  */
+#line 95 "spiveyt.y" /* yacc.c:1646  */
     {
                    // printRule("EXPR", "IF_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
                 }
-#line 1407 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1416 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 92 "spiveyt.y" /* yacc.c:1646  */
+#line 102 "spiveyt.y" /* yacc.c:1646  */
     {
                    // printRule("EXPR", "WHILE_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
                 }
-#line 1418 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1427 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 99 "spiveyt.y" /* yacc.c:1646  */
+#line 109 "spiveyt.y" /* yacc.c:1646  */
     {
                    // printRule("EXPR", "FOR_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
                 }
-#line 1429 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1438 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 106 "spiveyt.y" /* yacc.c:1646  */
+#line 116 "spiveyt.y" /* yacc.c:1646  */
     {
                     //printRule("EXPR", "COMPOUND_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
                 }
-#line 1440 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1449 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 113 "spiveyt.y" /* yacc.c:1646  */
+#line 123 "spiveyt.y" /* yacc.c:1646  */
     {
                     //printRule("EXPR", "ARITHLOGIC_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
                 }
-#line 1451 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1460 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 120 "spiveyt.y" /* yacc.c:1646  */
+#line 130 "spiveyt.y" /* yacc.c:1646  */
     {
                     //printRule("EXPR", "ASSIGNMENT_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
                 }
-#line 1462 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1471 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 127 "spiveyt.y" /* yacc.c:1646  */
+#line 137 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("EXPR", "OUTPUT_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
                 }
-#line 1473 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1482 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 134 "spiveyt.y" /* yacc.c:1646  */
+#line 144 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("EXPR", "INPUT_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
                 }
-#line 1484 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1493 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 141 "spiveyt.y" /* yacc.c:1646  */
+#line 151 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("EXPR", "LIST_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
                 }
-#line 1495 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1504 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 148 "spiveyt.y" /* yacc.c:1646  */
+#line 158 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("EXPR", "FUNCTION_DEF");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
                 }
-#line 1506 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1515 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 155 "spiveyt.y" /* yacc.c:1646  */
+#line 165 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("EXPR", "FUNCTION_CALL");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
                 }
-#line 1517 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1526 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 162 "spiveyt.y" /* yacc.c:1646  */
+#line 172 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("EXPR", "QUIT_EXPR");
                     exit(1);
                 }
-#line 1526 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1535 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 169 "spiveyt.y" /* yacc.c:1646  */
+#line 179 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("CONST", "INTCONST");
 		    (yyval.typeInfo).type = INT;
                     (yyval.typeInfo).numParams = 1;
                     (yyval.typeInfo).returnType = INT;
                 }
-#line 1537 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1546 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 176 "spiveyt.y" /* yacc.c:1646  */
+#line 186 "spiveyt.y" /* yacc.c:1646  */
     {
                    // printRule("CONST", "STRCONST");
 		    (yyval.typeInfo).type = STR;
                     (yyval.typeInfo).numParams = 1;
                     (yyval.typeInfo).returnType = STR;
                 }
-#line 1548 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1557 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 183 "spiveyt.y" /* yacc.c:1646  */
+#line 193 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("CONST", "FLOATCONST");
 		    (yyval.typeInfo).type = FLOAT;
                     (yyval.typeInfo).numParams = 1;
                     (yyval.typeInfo).returnType = FLOAT;
                 }
-#line 1559 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1568 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 190 "spiveyt.y" /* yacc.c:1646  */
+#line 200 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("CONST", "TRUE");
 		    (yyval.typeInfo).type = BOOL;
                     (yyval.typeInfo).numParams = 1;
                     (yyval.typeInfo).returnType = BOOL;
                 }
-#line 1570 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1579 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 197 "spiveyt.y" /* yacc.c:1646  */
+#line 207 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("CONST", "FALSE");
 		    (yyval.typeInfo).type = BOOL;
                     (yyval.typeInfo).numParams = 1;
                     (yyval.typeInfo).returnType = BOOL;
                 }
-#line 1581 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1590 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 206 "spiveyt.y" /* yacc.c:1646  */
+#line 216 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("ARITHLOGIC_EXPR", 
                    //           "SIMPLE_ARITHLOGIC");
                 }
-#line 1590 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1599 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 212 "spiveyt.y" /* yacc.c:1646  */
+#line 222 "spiveyt.y" /* yacc.c:1646  */
     {
                   /*  printRule("ARITHLOGIC_EXPR", 
                               "SIMPLE_ARITHLOGIC REL_OP "
                               "SIMPLE_ARITHLOGIC");*/
                 }
-#line 1600 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1609 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 220 "spiveyt.y" /* yacc.c:1646  */
+#line 230 "spiveyt.y" /* yacc.c:1646  */
     {
                    /* printRule("SIMPLE_ARITHLOGIC", 
                               "TERM ADD_OP_LIST");*/
                 }
-#line 1609 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1618 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 227 "spiveyt.y" /* yacc.c:1646  */
+#line 237 "spiveyt.y" /* yacc.c:1646  */
     {
                 /*    printRule("ADD_OP_LIST", 
                               "ADD_OP TERM ADD_OP_LIST");*/
                 }
-#line 1618 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1627 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 232 "spiveyt.y" /* yacc.c:1646  */
+#line 242 "spiveyt.y" /* yacc.c:1646  */
     {
                    // printRule("ADD_OP_LIST", "epsilon");
-                }
-#line 1626 "spiveyt.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 25:
-#line 238 "spiveyt.y" /* yacc.c:1646  */
-    {
-                  /*  printRule("TERM", 
-                              "FACTOR MULT_OP_LIST");*/
                 }
 #line 1635 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
-  case 26:
-#line 245 "spiveyt.y" /* yacc.c:1646  */
+  case 25:
+#line 248 "spiveyt.y" /* yacc.c:1646  */
     {
-                 /*   printRule("MULT_OP_LIST", 
-                              "MULT_OP FACTOR MULT_OP_LIST");*/
+                  /*  printRule("TERM", 
+                              "FACTOR MULT_OP_LIST");*/
                 }
 #line 1644 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
+  case 26:
+#line 255 "spiveyt.y" /* yacc.c:1646  */
+    {
+                 /*   printRule("MULT_OP_LIST", 
+                              "MULT_OP FACTOR MULT_OP_LIST");*/
+                }
+#line 1653 "spiveyt.tab.c" /* yacc.c:1646  */
+    break;
+
   case 27:
-#line 250 "spiveyt.y" /* yacc.c:1646  */
+#line 260 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("MULT_OP_LIST", "epsilon");
                 }
-#line 1652 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1661 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 256 "spiveyt.y" /* yacc.c:1646  */
+#line 266 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("FACTOR", "VAR");
                 }
-#line 1660 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1669 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 260 "spiveyt.y" /* yacc.c:1646  */
+#line 270 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("FACTOR", "CONST");
                 }
-#line 1668 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1677 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 264 "spiveyt.y" /* yacc.c:1646  */
+#line 274 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("FACTOR", "( EXPR )");
                 }
-#line 1676 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1685 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 268 "spiveyt.y" /* yacc.c:1646  */
+#line 278 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("FACTOR", "! FACTOR");
                 }
-#line 1684 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1693 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 274 "spiveyt.y" /* yacc.c:1646  */
+#line 284 "spiveyt.y" /* yacc.c:1646  */
     {
                  /*   printRule("COMPOUND_EXPR",
                               "{ EXPR EXPR_LIST }");*/
@@ -1693,46 +1702,46 @@ yyreduce:
                               (yyval.typeInfo).returnType = NOT_APPLICABLE;
                       
 		}
-#line 1697 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1706 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 285 "spiveyt.y" /* yacc.c:1646  */
+#line 295 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("EXPR_LIST", "; EXPR EXPR_LIST");
 		    (yyval.typeInfo).type = (yyvsp[-1].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[-1].typeInfo).numParams;
                     (yyval.typeInfo).returnType = NOT_APPLICABLE;
                 }
-#line 1708 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1717 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 292 "spiveyt.y" /* yacc.c:1646  */
+#line 302 "spiveyt.y" /* yacc.c:1646  */
     {
                 //    printRule("EXPR_LIST", "epsilon");
                 }
-#line 1716 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1725 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 298 "spiveyt.y" /* yacc.c:1646  */
+#line 308 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("IF_EXPR", "IF ( EXPR ) EXPR");
                 }
-#line 1724 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1733 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 303 "spiveyt.y" /* yacc.c:1646  */
+#line 313 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("IF_EXPR", "IF ( EXPR ) EXPR ELSE EXPR");
                 }
-#line 1732 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1741 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 309 "spiveyt.y" /* yacc.c:1646  */
+#line 319 "spiveyt.y" /* yacc.c:1646  */
     {
                   /*  printRule("WHILE_EXPR", 
                               "WHILE ( EXPR ) "
@@ -1760,11 +1769,11 @@ yyreduce:
 				(yyval.typeInfo).returnType = NOT_APPLICABLE;
                               }
                 }
-#line 1764 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1773 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 339 "spiveyt.y" /* yacc.c:1646  */
+#line 349 "spiveyt.y" /* yacc.c:1646  */
     {
                  /*   printRule("FOR_EXPR", 
                               "FOR ( IDENT IN EXPR ) "
@@ -1777,46 +1786,49 @@ yyreduce:
 //                      scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($3, UNDEFINED));
                     }
                 }
-#line 1781 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1790 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 352 "spiveyt.y" /* yacc.c:1646  */
+#line 362 "spiveyt.y" /* yacc.c:1646  */
     {
 		
 		}
-#line 1789 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1798 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 384 "spiveyt.y" /* yacc.c:1646  */
+#line 394 "spiveyt.y" /* yacc.c:1646  */
     {
                 /*    printRule("LIST_EXPR", 
                               "LIST ( CONST_LIST )");*/
 			      (yyval.typeInfo).type = LIST;
+                              (yyval.typeInfo).numParams = (yyvsp[-1].typeInfo).numParams;
+                              (yyval.typeInfo).returnType = LIST;
+
                 }
-#line 1799 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1811 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 392 "spiveyt.y" /* yacc.c:1646  */
+#line 405 "spiveyt.y" /* yacc.c:1646  */
     {
                   /*  printRule("CONST_LIST", 
                               "CONST, CONST_LIST");*/
                 }
-#line 1808 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1820 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 397 "spiveyt.y" /* yacc.c:1646  */
+#line 410 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("CONST_LIST", "CONST");
                 }
-#line 1816 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1828 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 403 "spiveyt.y" /* yacc.c:1646  */
+#line 416 "spiveyt.y" /* yacc.c:1646  */
     {
                    /* printRule("ASSIGNMENT_EXPR", 
                               "IDENT INDEX ASSIGN EXPR");*/
@@ -1829,84 +1841,84 @@ yyreduce:
                     }
 		    
                 }
-#line 1833 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1845 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 416 "spiveyt.y" /* yacc.c:1646  */
+#line 429 "spiveyt.y" /* yacc.c:1646  */
     {
 		 /* if($4.type != LIST)
 		  {
 		    $$.type = $4.type;
 		  }*/
 		}
-#line 1844 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1856 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 425 "spiveyt.y" /* yacc.c:1646  */
+#line 438 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("INDEX", " [[ EXPR ]]");
 			    }
-#line 1852 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1864 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 429 "spiveyt.y" /* yacc.c:1646  */
+#line 442 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("INDEX", " epsilon");
                 }
-#line 1860 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1872 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 435 "spiveyt.y" /* yacc.c:1646  */
+#line 448 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("QUIT_EXPR", "QUIT()");
-		    (yyval.typeInfo).type = NULL;
+                      (yyval.typeInfo).type = NULL;
         		   exit(1);
                 }
-#line 1870 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1882 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 443 "spiveyt.y" /* yacc.c:1646  */
+#line 456 "spiveyt.y" /* yacc.c:1646  */
     {
                  /*   printRule("OUTPUT_EXPR", 
                               "PRINT ( EXPR )");*/
                 }
-#line 1879 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1891 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 448 "spiveyt.y" /* yacc.c:1646  */
+#line 461 "spiveyt.y" /* yacc.c:1646  */
     {
                  /*   printRule("OUTPUT_EXPR", 
                               "CAT ( EXPR )");*/
                 }
-#line 1888 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1900 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 455 "spiveyt.y" /* yacc.c:1646  */
+#line 468 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("INPUT_EXPR", "READ ( VAR )");
                 }
-#line 1896 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1908 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 461 "spiveyt.y" /* yacc.c:1646  */
+#line 474 "spiveyt.y" /* yacc.c:1646  */
     {
 		
 		    beginScope();
 		    			
                 }
-#line 1906 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1918 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 467 "spiveyt.y" /* yacc.c:1646  */
+#line 480 "spiveyt.y" /* yacc.c:1646  */
     {
                   
                   /*  printRule("FUNCTION_DEF",
@@ -1914,35 +1926,35 @@ yyreduce:
                               " COMPOUND_EXPR");*/
 		  endScope();
 		}
-#line 1918 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1930 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 477 "spiveyt.y" /* yacc.c:1646  */
+#line 490 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("PARAM_LIST", "PARAMS");
                 }
-#line 1926 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1938 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 481 "spiveyt.y" /* yacc.c:1646  */
+#line 494 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("PARAM_LIST", "NO PARAMS");
                 }
-#line 1934 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1946 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 487 "spiveyt.y" /* yacc.c:1646  */
+#line 500 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("NO_PARAMS", "epsilon");
                 }
-#line 1942 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1954 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 493 "spiveyt.y" /* yacc.c:1646  */
+#line 506 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("PARAMS", "IDENT");
                     printf("___Adding %s to symbol table\n", (yyvsp[0].text));
@@ -1952,11 +1964,11 @@ if(1 == 1)
                       yyerror("Multiply defined identifier\n");
                     }
 		}
-#line 1956 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1968 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 503 "spiveyt.y" /* yacc.c:1646  */
+#line 516 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("PARAMS", "IDENT, PARAMS");
                     printf("___Adding %s to symbol table\n", (yyvsp[-2].text));
@@ -1966,11 +1978,11 @@ if(1==1)
                       yyerror("Multiply defined identifier\n");
                     }
                 }
-#line 1970 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1982 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 515 "spiveyt.y" /* yacc.c:1646  */
+#line 528 "spiveyt.y" /* yacc.c:1646  */
     {
                   /*  printRule("FUNCTION_CALL", "IDENT"
                               " ( ARG_LIST )");*/
@@ -1980,179 +1992,179 @@ if(1==1)
                       yyerror("Undefined identifier");
 		    }	
 		}
-#line 1984 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 1996 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 527 "spiveyt.y" /* yacc.c:1646  */
+#line 540 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("ARG_LIST", "ARGS");
                 }
-#line 1992 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2004 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 531 "spiveyt.y" /* yacc.c:1646  */
+#line 544 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("ARG_LIST", "NO_ARGS");
                 }
-#line 2000 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2012 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 537 "spiveyt.y" /* yacc.c:1646  */
+#line 550 "spiveyt.y" /* yacc.c:1646  */
     {
                 //    printRule("NO_ARGS", "epsilon");
                 }
-#line 2008 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2020 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 543 "spiveyt.y" /* yacc.c:1646  */
+#line 556 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("ARGS", "EXPR");
                 }
-#line 2016 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2028 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 547 "spiveyt.y" /* yacc.c:1646  */
+#line 560 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("ARGS", "EXPR, ARGS");
                 }
-#line 2024 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2036 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 553 "spiveyt.y" /* yacc.c:1646  */
+#line 566 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("ADD_OP", "+");
                 }
-#line 2032 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2044 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 557 "spiveyt.y" /* yacc.c:1646  */
+#line 570 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("ADD_OP", "-");
                 }
-#line 2040 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2052 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 561 "spiveyt.y" /* yacc.c:1646  */
+#line 574 "spiveyt.y" /* yacc.c:1646  */
     {
                //     printRule("ADD_OP", "|");
                 }
-#line 2048 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2060 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 567 "spiveyt.y" /* yacc.c:1646  */
+#line 580 "spiveyt.y" /* yacc.c:1646  */
     {
                 //    printRule("MULT_OP", "*");
                 }
-#line 2056 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2068 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 571 "spiveyt.y" /* yacc.c:1646  */
+#line 584 "spiveyt.y" /* yacc.c:1646  */
     {
                //     printRule("MULT_OP", "/");
                 }
-#line 2064 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2076 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 575 "spiveyt.y" /* yacc.c:1646  */
+#line 588 "spiveyt.y" /* yacc.c:1646  */
     {
                 //    printRule("MULT_OP", "&");
                 }
-#line 2072 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2084 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 579 "spiveyt.y" /* yacc.c:1646  */
+#line 592 "spiveyt.y" /* yacc.c:1646  */
     {
                 //   printRule("MULT_OP", "\%\%");
                 }
-#line 2080 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2092 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 583 "spiveyt.y" /* yacc.c:1646  */
+#line 596 "spiveyt.y" /* yacc.c:1646  */
     {
                 //    printRule("MULT_OP", "^");
                 }
-#line 2088 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2100 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 589 "spiveyt.y" /* yacc.c:1646  */
+#line 602 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("REL_OP", "<");
                 }
-#line 2096 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2108 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 593 "spiveyt.y" /* yacc.c:1646  */
+#line 606 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("REL_OP", ">");
                 }
-#line 2104 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2116 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 597 "spiveyt.y" /* yacc.c:1646  */
+#line 610 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("REL_OP", "<=");
                 }
-#line 2112 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2124 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 601 "spiveyt.y" /* yacc.c:1646  */
+#line 614 "spiveyt.y" /* yacc.c:1646  */
     {
                 //    printRule("REL_OP", ">=");
                 }
-#line 2120 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2132 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 605 "spiveyt.y" /* yacc.c:1646  */
+#line 618 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("REL_OP", "==");
                 }
-#line 2128 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2140 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 609 "spiveyt.y" /* yacc.c:1646  */
+#line 622 "spiveyt.y" /* yacc.c:1646  */
     {
                 //    printRule("REL_OP", "!=");
                 }
-#line 2136 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2148 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 78:
-#line 615 "spiveyt.y" /* yacc.c:1646  */
+#line 628 "spiveyt.y" /* yacc.c:1646  */
     {
                   //  printRule("VAR", "ENTIRE_VAR");
                 }
-#line 2144 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2156 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 79:
-#line 619 "spiveyt.y" /* yacc.c:1646  */
+#line 632 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("VAR", "SINGLE_ELEMENT");
                 }
-#line 2152 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2164 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 80:
-#line 626 "spiveyt.y" /* yacc.c:1646  */
+#line 639 "spiveyt.y" /* yacc.c:1646  */
     {
                  /*   printRule("SINGLE_ELEMENT", "IDENT"
                               " [[ EXPR ]]");*/
@@ -2163,11 +2175,11 @@ if(1==1)
 		    }	
 
                 }
-#line 2167 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2179 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 81:
-#line 639 "spiveyt.y" /* yacc.c:1646  */
+#line 652 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("ENTIRE_VAR", "IDENT");
                     bool found = findEntryInAnyScope(string((yyvsp[0].text)));
@@ -2177,11 +2189,11 @@ if(1==1)
                       yyerror("Undefined identifier\n");
                     }
                 }
-#line 2181 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2193 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2185 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2197 "spiveyt.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2409,11 +2421,17 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 650 "spiveyt.y" /* yacc.c:1906  */
+#line 663 "spiveyt.y" /* yacc.c:1906  */
 
 
 #include "lex.yy.c"
 extern FILE *yyin;
+
+int get_num_param()
+{
+	int size = scopeStack.top().getHashTable().size();
+	return size;
+}
 
 void printTokenInfo(const char* token_type, const char* lexeme)
 {
@@ -2429,7 +2447,7 @@ void printRule(const char *lhs, const char *rhs)
 void beginScope()
 {
   scopeStack.push(SYMBOL_TABLE());
-  printf("\n___Entering new scope... \n\n");
+//  printf("\n___Entering new scope... \n\n");
 }
 
 void endScope()
