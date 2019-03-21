@@ -1420,7 +1420,7 @@ yyreduce:
   case 4:
 #line 107 "spiveyt.y" /* yacc.c:1646  */
     {
-                  //  printRule("EXPR", "WHILE_EXPR");
+                    printRule("EXPR", "WHILE_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -2022,7 +2022,7 @@ yyreduce:
     {
                   /*  printRule("ASSIGNMENT_EXPR", 
                               "IDENT INDEX ASSIGN EXPR");*/
-                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string((yyvsp[-1].text)), (yyvsp[0].typeInfo).type, NOT_APPLICABLE, NOT_APPLICABLE)))
+                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string((yyvsp[-1].text)), (yyvsp[0].typeInfo).type, UNDEFINED, UNDEFINED)))
                     {
 			yyerror("Multiply defined identifier\n");
                     }
@@ -2039,7 +2039,7 @@ yyreduce:
 #line 623 "spiveyt.y" /* yacc.c:1646  */
     {
 		  
-		  if(isEpsilon)
+		  if(!isEpsilon)
 		  {
 		    yyerror("Arg 2 issue whatever");
 		  }
@@ -2137,7 +2137,7 @@ yyreduce:
                               "FUNCTION ( PARAM_LIST )"
                               " COMPOUND_EXPR");*/
 		  	(yyval.typeInfo).type = FUNCTION;
-		//	$$.numParams = NOT_APPLICABLE;
+			(yyval.typeInfo).numParams = NOT_APPLICABLE;
 		//	$$.returnType = FUNCTION;
 		  endScope();
 		}
@@ -2409,8 +2409,8 @@ yyreduce:
                    // printRule("ENTIRE_VAR", "IDENT");
   //                  bool found = scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), $4.type,$4.numParams,$4.returnType)
 			
-                    
-                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string((yyvsp[0].text)), UNDEFINED, UNDEFINED, UNDEFINED)))  
+                    bool check = findEntryInAnyScope(string((yyvsp[0].text)));
+                    if(!check)  
                     {
                       yyerror("Undefined identifier\n");
                     }
@@ -2679,7 +2679,7 @@ void beginScope()
 void endScope()
 {
   scopeStack.pop();
-  printf("\n___Exiting scope...\n\n");
+//  printf("\n___Exiting scope...\n\n");
 }
 
 bool findEntryInAnyScope(const string theName)

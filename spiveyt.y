@@ -98,14 +98,14 @@ N_START         : N_EXPR
                 ;
 N_EXPR          : N_IF_EXPR
                 {
-                   // printRule("EXPR", "IF_EXPR");
+                    printRule("EXPR", "IF_EXPR");
 		    $$.type = $1.type;
                     $$.numParams = $1.numParams;
 		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_WHILE_EXPR
                 {
-                  //  printRule("EXPR", "WHILE_EXPR");
+                    printRule("EXPR", "WHILE_EXPR");
 		    $$.type = $1.type;
                     $$.numParams = $1.numParams;
 		    $$.returnType = NOT_APPLICABLE;
@@ -609,7 +609,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                 {
                   /*  printRule("ASSIGNMENT_EXPR", 
                               "IDENT INDEX ASSIGN EXPR");*/
-                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), $2.type, NOT_APPLICABLE, NOT_APPLICABLE)))
+                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), $2.type, UNDEFINED, UNDEFINED)))
                     {
 			yyerror("Multiply defined identifier\n");
                     }
@@ -622,7 +622,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
 		T_ASSIGN N_EXPR
 		{
 		  
-		  if(isEpsilon)
+		  if(!isEpsilon)
 		  {
 		    yyerror("Arg 2 issue whatever");
 		  }
@@ -698,7 +698,7 @@ N_FUNCTION_DEF  : T_FUNCTION
                               "FUNCTION ( PARAM_LIST )"
                               " COMPOUND_EXPR");*/
 		  	$$.type = FUNCTION;
-		//	$$.numParams = NOT_APPLICABLE;
+			$$.numParams = NOT_APPLICABLE;
 		//	$$.returnType = FUNCTION;
 		  endScope();
 		}
@@ -881,8 +881,8 @@ N_ENTIRE_VAR    : T_IDENT
                    // printRule("ENTIRE_VAR", "IDENT");
   //                  bool found = scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), $4.type,$4.numParams,$4.returnType)
 			
-                    
-                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), UNDEFINED, UNDEFINED, UNDEFINED)))  
+                    bool check = findEntryInAnyScope(string($1));
+                    if(!check)  
                     {
                       yyerror("Undefined identifier\n");
                     }
@@ -920,7 +920,7 @@ void beginScope()
 void endScope()
 {
   scopeStack.pop();
-  printf("\n___Exiting scope...\n\n");
+//  printf("\n___Exiting scope...\n\n");
 }
 
 bool findEntryInAnyScope(const string theName)
