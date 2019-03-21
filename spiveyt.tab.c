@@ -521,8 +521,8 @@ static const yytype_uint16 yyrline[] =
      586,   597,   602,   609,   608,   638,   646,   654,   662,   675,
      682,   689,   688,   707,   711,   718,   723,   732,   743,   754,
      758,   765,   770,   774,   780,   785,   790,   797,   802,   807,
-     812,   817,   824,   828,   832,   836,   840,   844,   850,   854,
-     860,   873
+     812,   817,   824,   829,   834,   839,   844,   849,   856,   860,
+     866,   879
 };
 #endif
 
@@ -1398,7 +1398,7 @@ yyreduce:
         case 2:
 #line 92 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("START", "EXPR");
+                  //  printRule("START", "EXPR");
 		    endScope();	
                     printf("\n---- Completed parsing ----\n\n");
                     return 0;
@@ -1409,7 +1409,7 @@ yyreduce:
   case 3:
 #line 100 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("EXPR", "IF_EXPR");
+                   // printRule("EXPR", "IF_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1420,7 +1420,7 @@ yyreduce:
   case 4:
 #line 107 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("EXPR", "WHILE_EXPR");
+                  //  printRule("EXPR", "WHILE_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1431,7 +1431,7 @@ yyreduce:
   case 5:
 #line 114 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("EXPR", "FOR_EXPR");
+                   // printRule("EXPR", "FOR_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1442,7 +1442,7 @@ yyreduce:
   case 6:
 #line 121 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("EXPR", "COMPOUND_EXPR");
+                  //  printRule("EXPR", "COMPOUND_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1453,7 +1453,7 @@ yyreduce:
   case 7:
 #line 128 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("EXPR", "ARITHLOGIC_EXPR");
+                  //  printRule("EXPR", "ARITHLOGIC_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1464,7 +1464,7 @@ yyreduce:
   case 8:
 #line 135 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("EXPR", "ASSIGNMENT_EXPR");
+                //    printRule("EXPR", "ASSIGNMENT_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1475,7 +1475,7 @@ yyreduce:
   case 9:
 #line 142 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("EXPR", "OUTPUT_EXPR");
+                 //  printRule("EXPR", "OUTPUT_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1486,7 +1486,7 @@ yyreduce:
   case 10:
 #line 149 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("EXPR", "INPUT_EXPR");
+                 //  printRule("EXPR", "INPUT_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1497,7 +1497,7 @@ yyreduce:
   case 11:
 #line 156 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("EXPR", "LIST_EXPR");
+                  // printRule("EXPR", "LIST_EXPR");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1508,7 +1508,7 @@ yyreduce:
   case 12:
 #line 163 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("EXPR", "FUNCTION_DEF");
+                  // printRule("EXPR", "FUNCTION_DEF");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1519,7 +1519,7 @@ yyreduce:
   case 13:
 #line 170 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("EXPR", "FUNCTION_CALL");
+                 //  printRule("EXPR", "FUNCTION_CALL");
 		    (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
 		    (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1530,7 +1530,7 @@ yyreduce:
   case 14:
 #line 177 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("EXPR", "QUIT_EXPR");
+                 //  printRule("EXPR", "QUIT_EXPR");
                     (yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[0].typeInfo).numParams;
                     (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1542,7 +1542,7 @@ yyreduce:
   case 15:
 #line 187 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("CONST", "INTCONST");
+                  //  printRule("CONST", "INTCONST");
 		    (yyval.typeInfo).type = INT;
                     (yyval.typeInfo).numParams = 1;
                     (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1553,7 +1553,7 @@ yyreduce:
   case 16:
 #line 194 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("CONST", "STRCONST");
+                 //   printRule("CONST", "STRCONST");
 		    (yyval.typeInfo).type = STR;
                     (yyval.typeInfo).numParams = 1;
                     (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1575,7 +1575,7 @@ yyreduce:
   case 18:
 #line 208 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("CONST", "TRUE");
+                  // printRule("CONST", "TRUE");
 		    (yyval.typeInfo).type = BOOL;
                     (yyval.typeInfo).numParams = 1;
                     (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1586,7 +1586,7 @@ yyreduce:
   case 19:
 #line 215 "spiveyt.y" /* yacc.c:1646  */
     {
-                  printRule("CONST", "FALSE");
+                 // printRule("CONST", "FALSE");
 		    (yyval.typeInfo).type = BOOL;
                     (yyval.typeInfo).numParams = 1;
                     (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1597,8 +1597,8 @@ yyreduce:
   case 20:
 #line 224 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("ARITHLOGIC_EXPR", 
-                             "SIMPLE_ARITHLOGIC");
+                  // printRule("ARITHLOGIC_EXPR", 
+                      //       "SIMPLE_ARITHLOGIC");
                   if((yyvsp[0].typeInfo).type == FUNCTION)
                   {
                     yyerror("Arg 1 cannot be function");
@@ -1625,9 +1625,9 @@ yyreduce:
   case 21:
 #line 249 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("ARITHLOGIC_EXPR", 
+                  /*  printRule("ARITHLOGIC_EXPR", 
                               "SIMPLE_ARITHLOGIC REL_OP "
-                              "SIMPLE_ARITHLOGIC");
+                              "SIMPLE_ARITHLOGIC");*/
                   if((yyvsp[-2].typeInfo).type == FUNCTION)
                   {
                     yyerror("Arg 1 cannot be function");
@@ -1696,8 +1696,8 @@ yyreduce:
   case 22:
 #line 318 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("SIMPLE_ARITHLOGIC", 
-                              "TERM ADD_OP_LIST");
+                   /* printRule("SIMPLE_ARITHLOGIC", 
+                              "TERM ADD_OP_LIST");*/
                     if((yyvsp[-1].typeInfo).type == FLOAT || (yyvsp[0].typeInfo).type == FLOAT)
                     {
                       	(yyval.typeInfo).type = FLOAT;
@@ -1718,8 +1718,8 @@ yyreduce:
   case 23:
 #line 338 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("ADD_OP_LIST", 
-                              "ADD_OP TERM ADD_OP_LIST");
+                 /*  printRule("ADD_OP_LIST", 
+                              "ADD_OP TERM ADD_OP_LIST");*/
                   if((yyvsp[-2].typeInfo).type != LOG_OP)
                   {
 			if((yyvsp[-1].typeInfo).type == FLOAT || (yyvsp[0].typeInfo).type == FLOAT)
@@ -1750,7 +1750,7 @@ yyreduce:
   case 24:
 #line 366 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("ADD_OP_LIST", "epsilon");
+                 //  printRule("ADD_OP_LIST", "epsilon");
                             
 		           	(yyval.typeInfo).type = EPSILON;
 				(yyval.typeInfo).numParams = NOT_APPLICABLE;
@@ -1762,8 +1762,8 @@ yyreduce:
   case 25:
 #line 376 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("TERM", 
-                              "FACTOR MULT_OP_LIST");
+                 /*  printRule("TERM", 
+                              "FACTOR MULT_OP_LIST");*/
                     if((yyvsp[0].typeInfo).type != EPSILON)
                     {
 			if((yyvsp[-1].typeInfo).type == FLOAT || (yyvsp[0].typeInfo).type == FLOAT)
@@ -1794,8 +1794,8 @@ yyreduce:
   case 26:
 #line 406 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("MULT_OP_LIST", 
-                              "MULT_OP FACTOR MULT_OP_LIST");
+                  /*  printRule("MULT_OP_LIST", 
+                              "MULT_OP FACTOR MULT_OP_LIST");*/
                     if((yyvsp[-2].typeInfo).type == ARITH_OP)
                     {
 			if((yyvsp[-1].typeInfo).type == FLOAT || (yyvsp[0].typeInfo).type == FLOAT)
@@ -1826,7 +1826,7 @@ yyreduce:
   case 27:
 #line 434 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("MULT_OP_LIST", "epsilon");
+                  //  printRule("MULT_OP_LIST", "epsilon");
 
 		           	(yyval.typeInfo).type == EPSILON;
 				(yyval.typeInfo).numParams = NOT_APPLICABLE;
@@ -1838,7 +1838,7 @@ yyreduce:
   case 28:
 #line 444 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("FACTOR", "VAR");
+                 //  printRule("FACTOR", "VAR");
 			(yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
 			(yyval.typeInfo).numParams = NOT_APPLICABLE;
 			(yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1849,7 +1849,7 @@ yyreduce:
   case 29:
 #line 451 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("FACTOR", "CONST");
+                 //  printRule("FACTOR", "CONST");
 			(yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
 			(yyval.typeInfo).numParams = NOT_APPLICABLE;
 			(yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1860,7 +1860,7 @@ yyreduce:
   case 30:
 #line 458 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("FACTOR", "( EXPR )");
+                   //printRule("FACTOR", "( EXPR )");
 			(yyval.typeInfo).type = (yyvsp[-1].typeInfo).type;
 			(yyval.typeInfo).numParams = NOT_APPLICABLE;
 			(yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1871,7 +1871,7 @@ yyreduce:
   case 31:
 #line 465 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("FACTOR", "! FACTOR");
+                //  printRule("FACTOR", "! FACTOR");
 			(yyval.typeInfo).type = (yyvsp[0].typeInfo).type;
 			(yyval.typeInfo).numParams = NOT_APPLICABLE;
 			(yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1882,8 +1882,8 @@ yyreduce:
   case 32:
 #line 474 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("COMPOUND_EXPR",
-                              "{ EXPR EXPR_LIST }");
+                   /* printRule("COMPOUND_EXPR",
+                              "{ EXPR EXPR_LIST }");*/
 			      (yyval.typeInfo).type = (yyvsp[-2].typeInfo).type;
                               (yyval.typeInfo).numParams = (yyvsp[-2].typeInfo).numParams;
                               (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1895,7 +1895,7 @@ yyreduce:
   case 33:
 #line 485 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("EXPR_LIST", "; EXPR EXPR_LIST");
+                    //printRule("EXPR_LIST", "; EXPR EXPR_LIST");
 		    (yyval.typeInfo).type = (yyvsp[-1].typeInfo).type;
                     (yyval.typeInfo).numParams = (yyvsp[-1].typeInfo).numParams;
                     (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1906,7 +1906,7 @@ yyreduce:
   case 34:
 #line 492 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("EXPR_LIST", "epsilon");
+                   // printRule("EXPR_LIST", "epsilon");
 		    (yyval.typeInfo).type = EPSILON;
                     (yyval.typeInfo).numParams = NOT_APPLICABLE;
                     (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -1917,7 +1917,7 @@ yyreduce:
   case 35:
 #line 501 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("IF_EXPR", "IF ( EXPR ) EXPR");
+                   // printRule("IF_EXPR", "IF ( EXPR ) EXPR");
                 }
 #line 1923 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -1925,7 +1925,7 @@ yyreduce:
   case 36:
 #line 506 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("IF_EXPR", "IF ( EXPR ) EXPR ELSE EXPR");
+                  // printRule("IF_EXPR", "IF ( EXPR ) EXPR ELSE EXPR");
                 }
 #line 1931 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -1933,9 +1933,9 @@ yyreduce:
   case 37:
 #line 512 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("WHILE_EXPR", 
+                  /*  printRule("WHILE_EXPR", 
                               "WHILE ( EXPR ) "
-                              "LOOP_EXPR");
+                              "LOOP_EXPR");*/
 			      if((yyvsp[-2].typeInfo).type == FUNCTION)
 			      {
 				yyerror("Arg 1 cannot be function");
@@ -1965,13 +1965,13 @@ yyreduce:
   case 38:
 #line 542 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("FOR_EXPR", 
+                   /* printRule("FOR_EXPR", 
                               "FOR ( IDENT IN EXPR ) "
-                              "LOOP_EXPR");
+                              "LOOP_EXPR");*/
                     bool found = scopeStack.top().findEntry((yyvsp[0].text));
                     if(!found)
                     {
-                    printf("___Adding %s to symbol table\n", (yyvsp[0].text));
+                   // printf("___Adding %s to symbol table\n", $3);
 
 //                      scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($3, UNDEFINED));
                     }
@@ -2003,8 +2003,8 @@ yyreduce:
   case 41:
 #line 598 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("CONST_LIST", 
-                              "CONST, CONST_LIST");
+                   /* printRule("CONST_LIST", 
+                              "CONST, CONST_LIST");*/
                 }
 #line 2010 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -2012,7 +2012,7 @@ yyreduce:
   case 42:
 #line 603 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("CONST_LIST", "CONST");
+                  //  printRule("CONST_LIST", "CONST");
                 }
 #line 2018 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -2020,8 +2020,8 @@ yyreduce:
   case 43:
 #line 609 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("ASSIGNMENT_EXPR", 
-                              "IDENT INDEX ASSIGN EXPR");
+                  /*  printRule("ASSIGNMENT_EXPR", 
+                              "IDENT INDEX ASSIGN EXPR");*/
                     if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string((yyvsp[-1].text)), (yyvsp[0].typeInfo).type, NOT_APPLICABLE, NOT_APPLICABLE)))
                     {
 			yyerror("Multiply defined identifier\n");
@@ -2056,7 +2056,7 @@ yyreduce:
   case 45:
 #line 639 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("INDEX", " [[ EXPR ]]");
+                 /*   printRule("INDEX", " [[ EXPR ]]");*/
 			(yyval.typeInfo).type = (yyvsp[-2].typeInfo).type;
 			(yyval.typeInfo).numParams = NOT_APPLICABLE;
 			(yyval.typeInfo).returnType = (yyvsp[-2].typeInfo).type;
@@ -2067,7 +2067,7 @@ yyreduce:
   case 46:
 #line 646 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("INDEX", " epsilon");
+                //    printRule("INDEX", " epsilon");
 			(yyval.typeInfo).type = EPSILON;
 			(yyval.typeInfo).numParams = NOT_APPLICABLE;
 			(yyval.typeInfo).returnType = EPSILON;
@@ -2078,7 +2078,7 @@ yyreduce:
   case 47:
 #line 655 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("QUIT_EXPR", "QUIT()");
+                 //   printRule("QUIT_EXPR", "QUIT()");
                       (yyval.typeInfo).type = UNDEFINED;
         		   exit(1);
                 }
@@ -2088,8 +2088,8 @@ yyreduce:
   case 48:
 #line 663 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("OUTPUT_EXPR", 
-                              "PRINT ( EXPR )");
+                   /* printRule("OUTPUT_EXPR", 
+                              "PRINT ( EXPR )");*/
                 	if(((yyvsp[-1].typeInfo).type == FUNCTION) || ((yyvsp[-1].typeInfo).type == NULL_TYPE))
 			{
 				yyerror("Arg 1 cannot be function or null");
@@ -2105,8 +2105,8 @@ yyreduce:
   case 49:
 #line 676 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("OUTPUT_EXPR", 
-                              "CAT ( EXPR )");
+                  /* printRule("OUTPUT_EXPR", 
+                              "CAT ( EXPR )");*/
                 }
 #line 2112 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -2114,7 +2114,7 @@ yyreduce:
   case 50:
 #line 683 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("INPUT_EXPR", "READ ( VAR )");
+                  //  printRule("INPUT_EXPR", "READ ( VAR )");
                 }
 #line 2120 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -2133,9 +2133,9 @@ yyreduce:
 #line 695 "spiveyt.y" /* yacc.c:1646  */
     {
                   
-                   printRule("FUNCTION_DEF",
+                 /*  printRule("FUNCTION_DEF",
                               "FUNCTION ( PARAM_LIST )"
-                              " COMPOUND_EXPR");
+                              " COMPOUND_EXPR");*/
 		  	(yyval.typeInfo).type = FUNCTION;
 		//	$$.numParams = NOT_APPLICABLE;
 		//	$$.returnType = FUNCTION;
@@ -2147,7 +2147,7 @@ yyreduce:
   case 53:
 #line 708 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("PARAM_LIST", "PARAMS");
+                 //   printRule("PARAM_LIST", "PARAMS");
                 }
 #line 2153 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -2155,7 +2155,7 @@ yyreduce:
   case 54:
 #line 712 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("PARAM_LIST", "NO PARAMS");
+                 //  printRule("PARAM_LIST", "NO PARAMS");
                 }
 #line 2161 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -2163,7 +2163,7 @@ yyreduce:
   case 55:
 #line 718 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("NO_PARAMS", "epsilon");
+                  //  printRule("NO_PARAMS", "epsilon");
                 }
 #line 2169 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -2171,8 +2171,8 @@ yyreduce:
   case 56:
 #line 724 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("PARAMS", "IDENT");
-                    printf("___Adding %s to symbol table\n", (yyvsp[0].text));
+                  //  printRule("PARAMS", "IDENT");
+                  //  printf("___Adding %s to symbol table\n", $1);
                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string((yyvsp[0].text)), INT, UNDEFINED, UNDEFINED)))  
                   	{
                       yyerror("Multiply defined identifier\n");
@@ -2185,7 +2185,7 @@ yyreduce:
 #line 733 "spiveyt.y" /* yacc.c:1646  */
     {
                  //   printRule("PARAMS", "IDENT, PARAMS");
-                    printf("___Adding %s to symbol table\n", (yyvsp[-2].text));
+                  //  printf("___Adding %s to symbol table\n", $1);
                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string((yyvsp[-2].text)), INT, UNDEFINED, UNDEFINED)))  
 		         {
                       yyerror("Multiply defined identifier\n");
@@ -2197,8 +2197,8 @@ yyreduce:
   case 58:
 #line 744 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("FUNCTION_CALL", "IDENT"
-                              " ( ARG_LIST )");
+                  /*  printRule("FUNCTION_CALL", "IDENT"
+                              " ( ARG_LIST )");*/
                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string((yyvsp[-3].text)), INT, UNDEFINED, UNDEFINED)))  
 		    {
                       yyerror("Undefined identifier");
@@ -2210,7 +2210,7 @@ yyreduce:
   case 59:
 #line 755 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("ARG_LIST", "ARGS");
+                //    printRule("ARG_LIST", "ARGS");
                 }
 #line 2216 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -2218,7 +2218,7 @@ yyreduce:
   case 60:
 #line 759 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("ARG_LIST", "NO_ARGS");
+                 //   printRule("ARG_LIST", "NO_ARGS");
                 }
 #line 2224 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -2226,7 +2226,7 @@ yyreduce:
   case 61:
 #line 765 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("NO_ARGS", "epsilon");
+                 //   printRule("NO_ARGS", "epsilon");
                 }
 #line 2232 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -2234,7 +2234,7 @@ yyreduce:
   case 62:
 #line 771 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("ARGS", "EXPR");
+                   // printRule("ARGS", "EXPR");
                 }
 #line 2240 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -2242,7 +2242,7 @@ yyreduce:
   case 63:
 #line 775 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("ARGS", "EXPR, ARGS");
+                   // printRule("ARGS", "EXPR, ARGS");
                 }
 #line 2248 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
@@ -2250,7 +2250,7 @@ yyreduce:
   case 64:
 #line 781 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("ADD_OP", "+");
+                  /*  printRule("ADD_OP", "+");*/
 			(yyval.typeInfo).type = ARITH_OP;
                 }
 #line 2257 "spiveyt.tab.c" /* yacc.c:1646  */
@@ -2259,7 +2259,7 @@ yyreduce:
   case 65:
 #line 786 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("ADD_OP", "-");
+                 //   printRule("ADD_OP", "-");
 			(yyval.typeInfo).type = ARITH_OP;
                 }
 #line 2266 "spiveyt.tab.c" /* yacc.c:1646  */
@@ -2268,7 +2268,7 @@ yyreduce:
   case 66:
 #line 791 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("ADD_OP", "|");
+                   // printRule("ADD_OP", "|");
 			(yyval.typeInfo).type = LOG_OP;
                 }
 #line 2275 "spiveyt.tab.c" /* yacc.c:1646  */
@@ -2277,7 +2277,7 @@ yyreduce:
   case 67:
 #line 798 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("MULT_OP", "*");
+                 //   printRule("MULT_OP", "*");
 			(yyval.typeInfo).type = ARITH_OP;
                 }
 #line 2284 "spiveyt.tab.c" /* yacc.c:1646  */
@@ -2286,7 +2286,7 @@ yyreduce:
   case 68:
 #line 803 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("MULT_OP", "/");
+                  //  printRule("MULT_OP", "/");
 			(yyval.typeInfo).type = ARITH_OP;
                 }
 #line 2293 "spiveyt.tab.c" /* yacc.c:1646  */
@@ -2295,7 +2295,7 @@ yyreduce:
   case 69:
 #line 808 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("MULT_OP", "&");
+                //    printRule("MULT_OP", "&");
 			(yyval.typeInfo).type = LOG_OP;
                 }
 #line 2302 "spiveyt.tab.c" /* yacc.c:1646  */
@@ -2304,7 +2304,7 @@ yyreduce:
   case 70:
 #line 813 "spiveyt.y" /* yacc.c:1646  */
     {
-                   printRule("MULT_OP", "\%\%");
+                  // printRule("MULT_OP", "\%\%");
 			(yyval.typeInfo).type = ARITH_OP;
                 }
 #line 2311 "spiveyt.tab.c" /* yacc.c:1646  */
@@ -2313,7 +2313,7 @@ yyreduce:
   case 71:
 #line 818 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("MULT_OP", "^");
+                 //   printRule("MULT_OP", "^");
 			(yyval.typeInfo).type = ARITH_OP;
                 }
 #line 2320 "spiveyt.tab.c" /* yacc.c:1646  */
@@ -2322,85 +2322,91 @@ yyreduce:
   case 72:
 #line 825 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("REL_OP", "<");
+                 //   printRule("REL_OP", "<");
+		 (yyval.typeInfo).type = REL_OP;
                 }
-#line 2328 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2329 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 829 "spiveyt.y" /* yacc.c:1646  */
+#line 830 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("REL_OP", ">");
+                //    printRule("REL_OP", ">");
+		(yyval.typeInfo).type = REL_OP;
                 }
-#line 2336 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2338 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 833 "spiveyt.y" /* yacc.c:1646  */
+#line 835 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("REL_OP", "<=");
+                 //   printRule("REL_OP", "<=");
+		 (yyval.typeInfo).type = REL_OP;
                 }
-#line 2344 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2347 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 837 "spiveyt.y" /* yacc.c:1646  */
+#line 840 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("REL_OP", ">=");
+                  //  printRule("REL_OP", ">=");
+		  (yyval.typeInfo).type = REL_OP;
                 }
-#line 2352 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2356 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 841 "spiveyt.y" /* yacc.c:1646  */
+#line 845 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("REL_OP", "==");
+                  //  printRule("REL_OP", "==");
+		  (yyval.typeInfo).type = REL_OP;
                 }
-#line 2360 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2365 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 845 "spiveyt.y" /* yacc.c:1646  */
+#line 850 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("REL_OP", "!=");
+                 //   printRule("REL_OP", "!=");
+		 (yyval.typeInfo).type = REL_OP;
                 }
-#line 2368 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2374 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 78:
-#line 851 "spiveyt.y" /* yacc.c:1646  */
+#line 857 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("VAR", "ENTIRE_VAR");
+                  //  printRule("VAR", "ENTIRE_VAR");
                 }
-#line 2376 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2382 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 79:
-#line 855 "spiveyt.y" /* yacc.c:1646  */
+#line 861 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("VAR", "SINGLE_ELEMENT");
+                 //   printRule("VAR", "SINGLE_ELEMENT");
                 }
-#line 2384 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2390 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 80:
-#line 862 "spiveyt.y" /* yacc.c:1646  */
+#line 868 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("SINGLE_ELEMENT", "IDENT"
-                              " [[ EXPR ]]");
+                   /* printRule("SINGLE_ELEMENT", "IDENT"
+                              " [[ EXPR ]]");*/
                     if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string((yyvsp[-5].text)), LIST, UNDEFINED, UNDEFINED)))  
 		    {
                       yyerror("Undefined identifier");
 		    }	
 			(yyval.typeInfo).type = INT_OR_STR_OR_BOOL_OR_FLOAT;
                 }
-#line 2398 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2404 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
   case 81:
-#line 874 "spiveyt.y" /* yacc.c:1646  */
+#line 880 "spiveyt.y" /* yacc.c:1646  */
     {
-                    printRule("ENTIRE_VAR", "IDENT");
+                   // printRule("ENTIRE_VAR", "IDENT");
   //                  bool found = scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), $4.type,$4.numParams,$4.returnType)
 			
                     
@@ -2409,11 +2415,11 @@ yyreduce:
                       yyerror("Undefined identifier\n");
                     }
                 }
-#line 2413 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2419 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2417 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 2423 "spiveyt.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2641,7 +2647,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 886 "spiveyt.y" /* yacc.c:1906  */
+#line 892 "spiveyt.y" /* yacc.c:1906  */
 
 
 #include "lex.yy.c"
