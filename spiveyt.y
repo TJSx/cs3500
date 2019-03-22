@@ -237,11 +237,11 @@ N_ARITHLOGIC_EXPR : N_SIMPLE_ARITHLOGIC
                 {
                    printRule("ARITHLOGIC_EXPR", 
                              "SIMPLE_ARITHLOGIC");
-                  if($1.type == FUNCTION)
+                  if(!arithCompatible($1.type)
                   {
                     yyerror("Arg 1 cannot be function");
                   }
-                  else if($1.type == NULL_TYPE)
+                 /* else if($1.type == NULL_TYPE)
                   {
                     yyerror("Arg 1 cannot be null");
                   }
@@ -252,7 +252,7 @@ N_ARITHLOGIC_EXPR : N_SIMPLE_ARITHLOGIC
                   else if($1.type == LIST)
                   {
                     yyerror("Arg 1 cannot be list");
-                  }
+                  }*/
                   $$.type = $1.type;
                   $$.numParams = NOT_APPLICABLE;
 			$$.returnType = NOT_APPLICABLE;
@@ -528,11 +528,11 @@ N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR T_RPAREN N_EXPR
 				cout << "the fuck is going on" << endl;
 				cout << $3.type << endl;
 				cout << $5.type << endl;
-			      if($3.type == FUNCTION)
+			      if(!whileCompatible($3.type))
 			      {
 				yyerror("Arg 1 cannot be function or null or list or string");
 			      }
-			      else if($3.type == LIST)
+			     /* else if($3.type == LIST)
 			      {
 				yyerror("Arg 1 cannot be function or null or list or string");
 			      }
@@ -543,13 +543,11 @@ N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR T_RPAREN N_EXPR
 			      else if($3.type == STR)
 			      {
 				yyerror("Arg 1 cannot be function or null or list or string");
-			      }		    
-			      else if($3.type != FUNCTION)
-			      {
+			      }		    */
 			        $$.type = $5.type;
 			      	$$.numParams = $5.numParams;
 				$$.returnType = NOT_APPLICABLE;
-                              }
+                              
                 }
                 ;
 
@@ -930,7 +928,19 @@ void printRule(const char *lhs, const char *rhs)
     printf("%s -> %s\n", lhs, rhs);
     return;
 }
-
+bool arithCompatible(const int theType) 
+{
+  return((theType == INT) || (theType == FLOAT) ||
+         (theType == BOOL) || 
+         (theType == INT_OR_STR_OR_BOOL_OR_FLOAT));
+}
+bool whileCompatible(const int theType) 
+{
+  return((theType == INT) || (theType == FLOAT) ||
+         (theType == BOOL) || 
+         (theType == INT_OR_STR_OR_BOOL_OR_FLOAT)
+	 || (theType == EPSILON));
+}
 void beginScope()
 {
   scopeStack.push(SYMBOL_TABLE());
