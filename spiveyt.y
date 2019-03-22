@@ -11,7 +11,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <iostream>
 #include "SymbolTable.h"
 #include <stack>
 #include <queue>
@@ -66,16 +66,16 @@ extern "C"
 /*
  *  To eliminate ambiguity in if/else
  */
- %type <typeInfo> N_CONST N_EXPR N_IF_EXPR
+ %type <typeInfo> N_CONST N_IF_EXPR
  %type <typeInfo> N_WHILE_EXPR N_FOR_EXPR
  %type <typeInfo> N_COMPOUND_EXPR N_ARITHLOGIC_EXPR
- %type <typeInfo> N_ASSIGNMENT_EXPR N_OUTPUT_EXPR
+ %type <typeInfo> N_ASSIGNMENT_EXPR N_EXPR N_OUTPUT_EXPR
  %type <typeInfo> N_INPUT_EXPR N_LIST_EXPR N_FUNCTION_DEF
  %type <typeInfo> N_FUNCTION_CALL N_EXPR_LIST N_QUIT_EXPR
  %type <typeInfo> N_CONST_LIST N_SIMPLE_ARITHLOGIC
  %type <typeInfo> N_TERM N_ADD_OP_LIST N_ADD_OP N_REL_OP
  %type <typeInfo> N_FACTOR N_MULT_OP_LIST N_MULT_OP N_VAR N_INDEX
- %type <typeInfo> N_SINGLE_ELEMENT
+ %type <typeInfo> N_SINGLE_ELEMENT N_ENTIRE_VAR
 %nonassoc   T_RPAREN 
 %nonassoc   T_ELSE
 %union
@@ -98,6 +98,7 @@ N_START         : N_EXPR
                 ;
 N_EXPR          : N_IF_EXPR
                 {
+			cout << $1.type << endl;
                     printRule("EXPR", "IF_EXPR");
 		    $$.type = $1.type;
                     $$.numParams = $1.numParams;
@@ -105,13 +106,16 @@ N_EXPR          : N_IF_EXPR
                 }
                 | N_WHILE_EXPR
                 {
+			cout << $1.type << endl;
                     printRule("EXPR", "WHILE_EXPR");
 		    $$.type = $1.type;
                     $$.numParams = $1.numParams;
 		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_FOR_EXPR
-                {
+                {	
+		cout << $1.type << endl;
+
                     printRule("EXPR", "FOR_EXPR");
 		    $$.type = $1.type;
                     $$.numParams = $1.numParams;
@@ -119,6 +123,7 @@ N_EXPR          : N_IF_EXPR
                 }
                 | N_COMPOUND_EXPR
                 {
+		cout << $1.type << endl;
                    printRule("EXPR", "COMPOUND_EXPR");
 		    $$.type = $1.type;
                     $$.numParams = $1.numParams;
@@ -126,6 +131,7 @@ N_EXPR          : N_IF_EXPR
                 }
                 | N_ARITHLOGIC_EXPR
                 {
+		cout << $1.type << endl;
                     printRule("EXPR", "ARITHLOGIC_EXPR");
 		    $$.type = $1.type;
                     $$.numParams = $1.numParams;
@@ -134,12 +140,14 @@ N_EXPR          : N_IF_EXPR
                 | N_ASSIGNMENT_EXPR
                 {
                     printRule("EXPR", "ASSIGNMENT_EXPR");
+		cout << $1.type << endl;
 		    $$.type = $1.type;
                     $$.numParams = $1.numParams;
 		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_OUTPUT_EXPR
                 {
+		cout << $1.type << endl;
                    printRule("EXPR", "OUTPUT_EXPR");
 		    $$.type = $1.type;
                     $$.numParams = $1.numParams;
@@ -148,6 +156,7 @@ N_EXPR          : N_IF_EXPR
                 | N_INPUT_EXPR
                 {
                    printRule("EXPR", "INPUT_EXPR");
+		cout << $1.type << endl;
 		    $$.type = $1.type;
                     $$.numParams = $1.numParams;
 		    $$.returnType = NOT_APPLICABLE;
@@ -155,6 +164,7 @@ N_EXPR          : N_IF_EXPR
                 | N_LIST_EXPR
                 {
                    printRule("EXPR", "LIST_EXPR");
+		cout << $1.type << endl;
 		    $$.type = $1.type;
                     $$.numParams = $1.numParams;
 		    $$.returnType = NOT_APPLICABLE;
@@ -162,13 +172,15 @@ N_EXPR          : N_IF_EXPR
                 | N_FUNCTION_DEF
                 {
                    printRule("EXPR", "FUNCTION_DEF");
-		    $$.type = $1.type;
+		    $$.type = FUNCTION;
+		cout << $1.type << endl;
                     $$.numParams = $1.numParams;
 		    $$.returnType = NOT_APPLICABLE;
                 }
                 | N_FUNCTION_CALL
                 {
                    printRule("EXPR", "FUNCTION_CALL");
+		cout << $1.type << endl;
 		    $$.type = $1.type;
                     $$.numParams = $1.numParams;
 		    $$.returnType = NOT_APPLICABLE;
@@ -176,6 +188,7 @@ N_EXPR          : N_IF_EXPR
                 | N_QUIT_EXPR
                 {
                    printRule("EXPR", "QUIT_EXPR");
+		cout << $1.type << endl;
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = NOT_APPLICABLE;
@@ -187,35 +200,35 @@ N_CONST         : T_INTCONST
                 {
                    printRule("CONST", "INTCONST");
 		    $$.type = INT;
-                    $$.numParams = 1;
+                    $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
                 }
                 | T_STRCONST
                 {
                     printRule("CONST", "STRCONST");
 		    $$.type = STR;
-                    $$.numParams = 1;
+                    $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
                 }
                 | T_FLOATCONST
                 {
                     printRule("CONST", "FLOATCONST");
 		    $$.type = FLOAT;
-                    $$.numParams = 1;
+                    $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
                 }
                 | T_TRUE
                 {
                  printRule("CONST", "TRUE");
 		    $$.type = BOOL;
-                    $$.numParams = 1;
+                    $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
                 }
                 | T_FALSE
                 {
                   printRule("CONST", "FALSE");
 		    $$.type = BOOL;
-                    $$.numParams = 1;
+                    $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
                 }
                 ;
@@ -300,13 +313,12 @@ N_ARITHLOGIC_EXPR : N_SIMPLE_ARITHLOGIC
                     }
                     else
                     {
-                    //	cout << "test" << endl;  
+                    	cout << "test" << endl;  
                     }
                   }
                   else if($2.type == REL_OP || $2.type == LOG_OP)
                   {
 			$$.type == BOOL;
-		
 			$$.numParams = $1.numParams + $3.numParams;
 			$$.returnType = BOOL;
 
@@ -513,23 +525,26 @@ N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR T_RPAREN N_EXPR
                     printRule("WHILE_EXPR", 
                               "WHILE ( EXPR ) "
                               "LOOP_EXPR");
+				cout << "the fuck is going on" << endl;
+				cout << $3.type << endl;
+				cout << $5.type << endl;
 			      if($3.type == FUNCTION)
 			      {
-				yyerror("Arg 1 cannot be function");
+				yyerror("Arg 1 cannot be function or null or list or string");
 			      }
 			      else if($3.type == LIST)
 			      {
-				yyerror("Arg 1 cannot be list");
+				yyerror("Arg 1 cannot be function or null or list or string");
 			      }
-			      else if($3.type == UNDEFINED)
+			      else if($3.type == NULL_TYPE)
 			      {
-				yyerror("Arg 1 cannot be null");
+				yyerror("Arg 1 cannot be function or null or list or string");
 			      }
 			      else if($3.type == STR)
 			      {
-				yyerror("Arg 1 cannot be STR");
+				yyerror("Arg 1 cannot be function or null or list or string");
 			      }		    
-			      else
+			      else if($3.type != FUNCTION)
 			      {
 			        $$.type = $5.type;
 			      	$$.numParams = $5.numParams;
@@ -609,7 +624,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                 {
                     printRule("ASSIGNMENT_EXPR", 
                               "IDENT INDEX ASSIGN EXPR");
-                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), $2.type, UNDEFINED, UNDEFINED)))
+                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), UNDEFINED, UNDEFINED, UNDEFINED)))
                     {
 			yyerror("Multiply defined identifier\n");
                     }
@@ -627,8 +642,10 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
 		    yyerror("Arg 2 issue whatever");
 		  }
                   else
-                  {
-			$$.type = $2.type;
+                  {	
+                      
+			printf("check\n");
+			$$.type = FUNCTION;
 			$$.numParams = $2.numParams;
 			$$.returnType = $2.returnType;
                   }
@@ -724,7 +741,7 @@ N_PARAMS        : T_IDENT
                 {
                     printRule("PARAMS", "IDENT");
                     printf("___Adding %s to symbol table\n", $1);
-                   if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), INT, UNDEFINED, UNDEFINED)))  
+                   if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), UNDEFINED, UNDEFINED, UNDEFINED)))  
                   	{
                       yyerror("Multiply defined identifier\n");
                     	}
@@ -733,7 +750,7 @@ N_PARAMS        : T_IDENT
                 {
                     printRule("PARAMS", "IDENT, PARAMS");
                    printf("___Adding %s to symbol table\n", $1);
-                   if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), INT, UNDEFINED, UNDEFINED)))  
+                   if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), UNDEFINED, UNDEFINED, UNDEFINED)))  
 		         {
                       yyerror("Multiply defined identifier\n");
                     }
@@ -859,7 +876,7 @@ N_VAR           : N_ENTIRE_VAR
                 }
                 | N_SINGLE_ELEMENT
                 {
-                 /  printRule("VAR", "SINGLE_ELEMENT");
+                   printRule("VAR", "SINGLE_ELEMENT");
                 }
                 ;
 
@@ -868,7 +885,8 @@ N_SINGLE_ELEMENT : T_IDENT T_LBRACKET T_LBRACKET N_EXPR
                 {
                     printRule("SINGLE_ELEMENT", "IDENT"
                               " [[ EXPR ]]");
-                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), LIST, UNDEFINED, UNDEFINED)))  
+                    bool check = findEntryInAnyScope(string($1));
+                    if(!check)  
 		    {
                       yyerror("Undefined identifier");
 		    }	
@@ -886,6 +904,8 @@ N_ENTIRE_VAR    : T_IDENT
                     {
                       yyerror("Undefined identifier\n");
                     }
+			$$.type = INT_OR_STR_OR_BOOL_OR_FLOAT;
+				
                 }
                 ;
 
