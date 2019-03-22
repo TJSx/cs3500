@@ -40,14 +40,11 @@ public:
     type_struct.returnType = NOT_APPLICABLE;
 }
 
-  SYMBOL_TABLE_ENTRY(const string theName, const int theType, const int numParams, const int returnType)
+  SYMBOL_TABLE_ENTRY(const string theName, TYPE_INFO theType) 
   {
     name = theName;
-   // typeCode = theType;
-    type_struct.type = NOT_APPLICABLE; 
-    type_struct.numParams = NOT_APPLICABLE;
-    type_struct.returnType = NOT_APPLICABLE;
-  }
+    updateTypeInfo(typeInfo, theType);
+}
 
   // Accessors
   int getNumParams() const {return type_struct.numParams;}
