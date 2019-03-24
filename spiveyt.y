@@ -956,19 +956,19 @@ void endScope()
 //  printf("\n___Exiting scope...\n\n");
 }
 
-bool findEntryInAnyScope(const string theName)
+TYPE_INFO findEntryInAnyScope(const string theName)
 {
-  if(scopeStack.empty()) return(false);
-  bool found = scopeStack.top().findEntry(theName);
-  if(found)
-    return true;
-  else
-  {
-    SYMBOL_TABLE symbolTable = scopeStack.top();
-    scopeStack.pop();
-    found = findEntryInAnyScope(theName);
-    scopeStack.push(symbolTable);
-    return(found);
+  TYPE_INFO info = {UNDEFINED};
+  if (scopeStack.empty( )) return(info);
+  info = scopeStack.top().findEntry(theName);
+  if (info.type != UNDEFINED)
+    return(info);
+  else { // check in "next higher" scope
+	   SYMBOL_TABLE symbolTable = scopeStack.top( );
+	   scopeStack.pop( );
+	   info = findEntryInAnyScope(theName);
+	   scopeStack.push(symbolTable); // restore the stack
+	   return(info);
   }
 }
 int main() 
