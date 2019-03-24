@@ -27,7 +27,7 @@ class SYMBOL_TABLE_ENTRY
 {
 private:
   // Member variables
-  TYPE_INFO type_struct;
+  TYPE_INFO typeInfo;
   string name;
 
 public:
@@ -35,24 +35,25 @@ public:
   SYMBOL_TABLE_ENTRY( ) 
   { 
 	  name = ""; 
-    type_struct.type = NOT_APPLICABLE; 
-    type_struct.numParams = NOT_APPLICABLE;
-    type_struct.returnType = NOT_APPLICABLE;
+    typeInfo.type = NOT_APPLICABLE; 
+    typeInfo.numParams = NOT_APPLICABLE;
+    typeInfo.returnType = NOT_APPLICABLE;
 }
 
-  SYMBOL_TABLE_ENTRY(const string theName, TYPE_INFO theType) 
+  SYMBOL_TABLE_ENTRY(const string theName, const int theType) 
   {
     name = theName;
-    updateTypeInfo(typeInfo, theType);
+  
+	typeInfo.type = theType;
 }
 
   // Accessors
-  int getNumParams() const {return type_struct.numParams;}
-  int getReturnType() const{return type_struct.returnType;}
-  int getTheType() const {return type_struct.type;}
-  
+  int getNumParams() const {return typeInfo.numParams;}
+  int getReturnType() const{return typeInfo.returnType;}
+  int getTheType() const {return typeInfo.type;}
+  TYPE_INFO getTypeInfo() const {return typeInfo;}  
   string getName() const { return name; }
-  TYPE_INFO getTypeStruct() const { return type_struct; }
+  TYPE_INFO getTypeStruct() const { return typeInfo; }
 };
 
 #endif  // SYMBOL_TABLE_ENTRY_H

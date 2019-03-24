@@ -56,8 +56,8 @@ public:
   {
     map<string, SYMBOL_TABLE_ENTRY>::iterator itr;
     if ((itr = hashTable.find(theName)) == hashTable.end())
-      return(false);
-    else return(true);
+      return(info);
+    else return(itr->second.getTypeInfo());
   }
 
 };
