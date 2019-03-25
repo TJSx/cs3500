@@ -819,7 +819,7 @@ case 1:
 YY_RULE_SETUP
 #line 27 "spiveyt.l"
 {
-    printTokenInfo("LPAREN", yytext);
+//    printTokenInfo("LPAREN", yytext);
     return T_LPAREN;
 }
 	YY_BREAK
@@ -827,7 +827,7 @@ case 2:
 YY_RULE_SETUP
 #line 32 "spiveyt.l"
 {
-    printTokenInfo("RPAREN", yytext);
+  //  printTokenInfo("RPAREN", yytext);
     return T_RPAREN;
 }
 	YY_BREAK
@@ -835,7 +835,7 @@ case 3:
 YY_RULE_SETUP
 #line 37 "spiveyt.l"
 {
-    printTokenInfo("LBRACE", yytext);
+  //  printTokenInfo("LBRACE", yytext);
     return T_LBRACE;
 }
 	YY_BREAK
@@ -843,7 +843,7 @@ case 4:
 YY_RULE_SETUP
 #line 42 "spiveyt.l"
 {
-    printTokenInfo("RBRACE", yytext);
+    //printTokenInfo("RBRACE", yytext);
     return T_RBRACE;
 }
 	YY_BREAK
@@ -851,7 +851,7 @@ case 5:
 YY_RULE_SETUP
 #line 47 "spiveyt.l"
 {
-   printTokenInfo("LBRACKET", yytext);
+//   printTokenInfo("LBRACKET", yytext);
     return T_LBRACKET;
 }
 	YY_BREAK
@@ -859,7 +859,7 @@ case 6:
 YY_RULE_SETUP
 #line 52 "spiveyt.l"
 {
-    printTokenInfo("RBRACKET", yytext);
+  //  printTokenInfo("RBRACKET", yytext);
     return T_RBRACKET;
 }
 	YY_BREAK
@@ -875,7 +875,7 @@ case 8:
 YY_RULE_SETUP
 #line 62 "spiveyt.l"
 {
-     printTokenInfo("SUB", yytext);
+    // printTokenInfo("SUB", yytext);
     return T_SUB;
 }
 	YY_BREAK
@@ -883,7 +883,7 @@ case 9:
 YY_RULE_SETUP
 #line 67 "spiveyt.l"
 {
-     printTokenInfo("MULT", yytext);
+    // printTokenInfo("MULT", yytext);
     return T_MULT;
 }
 	YY_BREAK
@@ -891,7 +891,7 @@ case 10:
 YY_RULE_SETUP
 #line 72 "spiveyt.l"
 {
-     printTokenInfo("DIV", yytext);
+   //  printTokenInfo("DIV", yytext);
     return T_DIV;
 }
 	YY_BREAK
@@ -899,7 +899,7 @@ case 11:
 YY_RULE_SETUP
 #line 77 "spiveyt.l"
 {
-     printTokenInfo("MOD", yytext);
+     //printTokenInfo("MOD", yytext);
     return T_MOD;
 }
 	YY_BREAK
@@ -907,7 +907,7 @@ case 12:
 YY_RULE_SETUP
 #line 82 "spiveyt.l"
 {
-     printTokenInfo("POWER", yytext);
+    // printTokenInfo("POWER", yytext);
     return T_POW;
 }
 	YY_BREAK
@@ -915,7 +915,7 @@ case 13:
 YY_RULE_SETUP
 #line 87 "spiveyt.l"
 {
-     printTokenInfo("LT", yytext);
+    // printTokenInfo("LT", yytext);
     return T_LT;
 }
 	YY_BREAK
@@ -923,7 +923,7 @@ case 14:
 YY_RULE_SETUP
 #line 92 "spiveyt.l"
 {
-     printTokenInfo("LE", yytext);
+//     printTokenInfo("LE", yytext);
     return T_LE;
 }
 	YY_BREAK
@@ -931,7 +931,7 @@ case 15:
 YY_RULE_SETUP
 #line 97 "spiveyt.l"
 {
-     printTokenInfo("GT", yytext);
+  //   printTokenInfo("GT", yytext);
     return T_GT;
 }
 	YY_BREAK
@@ -939,7 +939,7 @@ case 16:
 YY_RULE_SETUP
 #line 102 "spiveyt.l"
 {
-     printTokenInfo("GE", yytext);
+    // printTokenInfo("GE", yytext);
     return T_GE;
 }
 	YY_BREAK
@@ -947,7 +947,7 @@ case 17:
 YY_RULE_SETUP
 #line 107 "spiveyt.l"
 {
-     printTokenInfo("EQ", yytext);
+    // printTokenInfo("EQ", yytext);
     return T_EQ;
 }
 	YY_BREAK
@@ -955,7 +955,7 @@ case 18:
 YY_RULE_SETUP
 #line 112 "spiveyt.l"
 {
-     printTokenInfo("NE", yytext);
+   //  printTokenInfo("NE", yytext);
     return T_NE;
 }
 	YY_BREAK
@@ -963,7 +963,7 @@ case 19:
 YY_RULE_SETUP
 #line 117 "spiveyt.l"
 {
-     printTokenInfo("NOT", yytext);
+    // printTokenInfo("NOT", yytext);
     return T_NOT;
 }
 	YY_BREAK
@@ -971,7 +971,7 @@ case 20:
 YY_RULE_SETUP
 #line 122 "spiveyt.l"
 {
-     printTokenInfo("AND", yytext);
+//     printTokenInfo("AND", yytext);
     return T_AND;
 }
 	YY_BREAK
@@ -979,7 +979,7 @@ case 21:
 YY_RULE_SETUP
 #line 127 "spiveyt.l"
 {
-     printTokenInfo("OR", yytext);
+  //   printTokenInfo("OR", yytext);
     return T_OR;
 }
 	YY_BREAK
@@ -987,7 +987,7 @@ case 22:
 YY_RULE_SETUP
 #line 132 "spiveyt.l"
 {
-     printTokenInfo("ASSIGN", yytext);
+    // printTokenInfo("ASSIGN", yytext);
     return T_ASSIGN;
 }
 	YY_BREAK
@@ -995,7 +995,7 @@ case 23:
 YY_RULE_SETUP
 #line 137 "spiveyt.l"
 {
-     printTokenInfo("SEMICOLON", yytext);
+//     printTokenInfo("SEMICOLON", yytext);
     return T_SEMICOLON;
 }
 	YY_BREAK
@@ -1003,7 +1003,7 @@ case 24:
 YY_RULE_SETUP
 #line 142 "spiveyt.l"
 {
-     printTokenInfo("COMMA", yytext);
+//     printTokenInfo("COMMA", yytext);
     return T_COMMA;
 }
 	YY_BREAK
@@ -1011,7 +1011,7 @@ case 25:
 YY_RULE_SETUP
 #line 147 "spiveyt.l"
 {
-     printTokenInfo("TRUE", yytext);
+  //   printTokenInfo("TRUE", yytext);
     return T_TRUE;
 }
 	YY_BREAK
@@ -1019,7 +1019,7 @@ case 26:
 YY_RULE_SETUP
 #line 152 "spiveyt.l"
 {
-     printTokenInfo("FALSE", yytext);
+    // printTokenInfo("FALSE", yytext);
     return T_FALSE;
 }
 	YY_BREAK
@@ -1027,7 +1027,7 @@ case 27:
 YY_RULE_SETUP
 #line 157 "spiveyt.l"
 {
-     printTokenInfo("IF", yytext);
+ //    printTokenInfo("IF", yytext);
     return T_IF;
 }
 	YY_BREAK
@@ -1035,7 +1035,7 @@ case 28:
 YY_RULE_SETUP
 #line 162 "spiveyt.l"
 {
-     printTokenInfo("ELSE", yytext);
+   //  printTokenInfo("ELSE", yytext);
     return T_ELSE;
 }
 	YY_BREAK
@@ -1043,7 +1043,7 @@ case 29:
 YY_RULE_SETUP
 #line 167 "spiveyt.l"
 {
-     printTokenInfo("WHILE", yytext);
+     //printTokenInfo("WHILE", yytext);
     return T_WHILE;
 }
 	YY_BREAK
@@ -1051,7 +1051,7 @@ case 30:
 YY_RULE_SETUP
 #line 172 "spiveyt.l"
 {
-     printTokenInfo("FUNCTION", yytext);
+ //    printTokenInfo("FUNCTION", yytext);
     return T_FUNCTION;
 }
 	YY_BREAK
@@ -1059,7 +1059,7 @@ case 31:
 YY_RULE_SETUP
 #line 177 "spiveyt.l"
 {
-     printTokenInfo("FOR", yytext);
+   //  printTokenInfo("FOR", yytext);
     return T_FOR;
 }
 	YY_BREAK
@@ -1067,7 +1067,7 @@ case 32:
 YY_RULE_SETUP
 #line 182 "spiveyt.l"
 {
-     printTokenInfo("IN", yytext);
+//     printTokenInfo("IN", yytext);
     return T_IN;
 }
 	YY_BREAK
@@ -1075,7 +1075,7 @@ case 33:
 YY_RULE_SETUP
 #line 187 "spiveyt.l"
 {
-     printTokenInfo("NEXT", yytext);
+  //   printTokenInfo("NEXT", yytext);
     return T_NEXT;
 }
 	YY_BREAK
@@ -1083,7 +1083,7 @@ case 34:
 YY_RULE_SETUP
 #line 192 "spiveyt.l"
 {
-     printTokenInfo("BREAK", yytext);
+    // printTokenInfo("BREAK", yytext);
     return T_BREAK;
 }
 	YY_BREAK
@@ -1091,7 +1091,7 @@ case 35:
 YY_RULE_SETUP
 #line 197 "spiveyt.l"
 {
-     printTokenInfo("QUIT", yytext);
+   //  printTokenInfo("QUIT", yytext);
     return T_QUIT;
 }
 	YY_BREAK
@@ -1099,7 +1099,7 @@ case 36:
 YY_RULE_SETUP
 #line 202 "spiveyt.l"
 {
-     printTokenInfo("PRINT", yytext);
+ //    printTokenInfo("PRINT", yytext);
     return T_PRINT;
 }
 	YY_BREAK
@@ -1107,7 +1107,7 @@ case 37:
 YY_RULE_SETUP
 #line 207 "spiveyt.l"
 {
-     printTokenInfo("CAT", yytext);
+   //  printTokenInfo("CAT", yytext);
     return T_CAT;
 }
 	YY_BREAK
@@ -1115,7 +1115,7 @@ case 38:
 YY_RULE_SETUP
 #line 212 "spiveyt.l"
 {
-     printTokenInfo("READ", yytext);
+    // printTokenInfo("READ", yytext);
     return T_READ;
 }
 	YY_BREAK
@@ -1123,7 +1123,7 @@ case 39:
 YY_RULE_SETUP
 #line 217 "spiveyt.l"
 {
-     printTokenInfo("LIST", yytext);
+//     printTokenInfo("LIST", yytext);
     return T_LIST;
 }
 	YY_BREAK
@@ -1131,7 +1131,7 @@ case 40:
 YY_RULE_SETUP
 #line 222 "spiveyt.l"
 {
-     printTokenInfo("STRCONST", yytext);
+  //   printTokenInfo("STRCONST", yytext);
     return T_STRCONST;
 }
 	YY_BREAK
@@ -1139,7 +1139,7 @@ case 41:
 YY_RULE_SETUP
 #line 227 "spiveyt.l"
 {
-     printTokenInfo("INTCONST", yytext);
+    // printTokenInfo("INTCONST", yytext);
     return T_INTCONST;
 }
 	YY_BREAK
@@ -1147,7 +1147,7 @@ case 42:
 YY_RULE_SETUP
 #line 232 "spiveyt.l"
 {
-     printTokenInfo("FLOATCONST", yytext);
+    // printTokenInfo("FLOATCONST", yytext);
     return T_FLOATCONST;
 }
 	YY_BREAK
@@ -1156,7 +1156,7 @@ YY_RULE_SETUP
 #line 237 "spiveyt.l"
 {
     yylval.text = strdup(yytext);
-     printTokenInfo("IDENT", yytext);
+    // printTokenInfo("IDENT", yytext);
     return T_IDENT;
 }
 	YY_BREAK
@@ -1182,7 +1182,7 @@ case 47:
 YY_RULE_SETUP
 #line 251 "spiveyt.l"
 {
-     printTokenInfo("UNKNOWN", yytext);
+   //  printTokenInfo("UNKNOWN", yytext);
     return T_UNKNOWN;
 }
 	YY_BREAK
