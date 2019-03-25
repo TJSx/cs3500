@@ -1,4 +1,4 @@
-/* 
+	/* 
     minir.y
 
     flex minir.l
@@ -17,10 +17,14 @@
 #include <queue>
 stack <SYMBOL_TABLE> scopeStack;
 int line_num = 1;
-int gnum_params = 0;
+int temp;
+int temp2;
+int temp3;
+int temp4;
+int temp5;
 queue<int> num_param;
 
-bool isLet = false;
+bool rightnum = 0;
 bool isEpsilon = false;
 
 
@@ -36,7 +40,7 @@ void printRule(const char *, const char *);
 
 void beginScope();
 void endScope();
-bool findEntryInAnyScope(const string theName);
+TYPE_INFO findEntryInAnyScope(const string theName);
 int get_num_param();
 int yyerror(const char *s) 
 {
@@ -67,10 +71,10 @@ extern "C"
 /*
  *  To eliminate ambiguity in if/else
  */
- %type <typeInfo> N_CONST N_IF_EXPR
+ %type <typeInfo> N_CONST N_IF_EXPR N_EXPR
  %type <typeInfo> N_WHILE_EXPR N_FOR_EXPR
  %type <typeInfo> N_COMPOUND_EXPR N_ARITHLOGIC_EXPR
- %type <typeInfo> N_ASSIGNMENT_EXPR N_EXPR N_OUTPUT_EXPR
+ %type <typeInfo> N_ASSIGNMENT_EXPR  N_OUTPUT_EXPR
  %type <typeInfo> N_INPUT_EXPR N_LIST_EXPR N_FUNCTION_DEF
  %type <typeInfo> N_FUNCTION_CALL N_EXPR_LIST N_QUIT_EXPR
  %type <typeInfo> N_CONST_LIST N_SIMPLE_ARITHLOGIC
@@ -134,7 +138,9 @@ N_EXPR          : N_IF_EXPR
                 }
                 | N_ARITHLOGIC_EXPR
                 {
-		cout << $1.type << endl;
+			cout << "yo" << endl;
+			temp5 = NOT_APPLICABLE;
+			cout << $1.type << endl;
                     printRule("EXPR", "ARITHLOGIC_EXPR");
 		    $$.type = $1.type;
                     $$.numParams = $1.numParams;
@@ -169,6 +175,16 @@ N_EXPR          : N_IF_EXPR
                    printRule("EXPR", "LIST_EXPR");
 		cout << $1.type << endl;
 		    $$.type = $1.type;
+			temp2 = LIST;
+			if(temp2 == LIST && temp3 == INT)
+			{
+				if(temp4 != UNDEFINED && line_num != 1)
+				{
+					cout << "test" << endl;
+					yyerror("Arg 1 cannot be function or null or list or string");
+                              	}
+				
+			}
                     $$.numParams = $1.numParams;
 		    $$.returnType = NOT_APPLICABLE;
                 }
@@ -203,7 +219,8 @@ N_CONST         : T_INTCONST
                 {
                    printRule("CONST", "INTCONST");
 		    $$.type = INT;
-
+			temp3 = INT;
+			temp4 = INT;
                     cout << $$.type << endl;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
@@ -212,6 +229,7 @@ N_CONST         : T_INTCONST
                 {
                     printRule("CONST", "STRCONST");
 		    $$.type = STR;
+			temp2 = STR;
                     cout << $$.type << endl;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
@@ -229,6 +247,7 @@ N_CONST         : T_INTCONST
                  printRule("CONST", "TRUE");
 		    $$.type = BOOL;
                     cout << $$.type << endl;
+                   temp3 = BOOL;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
                 }
@@ -236,6 +255,7 @@ N_CONST         : T_INTCONST
                 {
                   printRule("CONST", "FALSE");
 		    $$.type = BOOL;
+                    temp3 = BOOL;
                     cout << $$.type << endl;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
@@ -399,6 +419,30 @@ N_TERM		: N_FACTOR N_MULT_OP_LIST
 				$$.numParams = $1.numParams + $2.numParams;
 				$$.returnType = INT;
 			}
+			else if($1.type == STR || temp2 == STR)
+			{
+				if($1.type == STR && temp2 != STR)
+				{
+					$$.type = STR;
+				}
+				else
+				{
+					yyerror("STR Arg 1 must be integer or float or bool");
+				}
+			}
+			else if($1.type == LIST && temp3 == INT)
+			{
+				yyerror("LIST Arg 1 must be integer or float or bool");
+			}
+			else if($1.type == LIST)
+			{
+				if(temp3 == BOOL)
+				{
+
+				yyerror("LIST Arg 1 must be integer or float or bool");
+				}
+				yyerror("Arg 1 cannot be list");
+			}
 			
                     }
                     else if($2.type == EPSILON)
@@ -496,6 +540,10 @@ N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                     printRule("EXPR_LIST", "; EXPR EXPR_LIST");
 		    $$.type = $2.type;
 		                    cout << $$.type << endl;
+			if(temp2 == STR && temp3 == INT)
+			{
+				cout << "this one" << endl;
+			}
                     $$.numParams = $2.numParams;
                     $$.returnType = NOT_APPLICABLE;
                 }
@@ -527,10 +575,19 @@ N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR T_RPAREN N_EXPR
 				cout << "the fuck is going on" << endl;
 				cout << $3.type << endl;
 				cout << $5.type << endl;
-			      if(!whileCompatible($3.type))
+				TYPE_INFO trial = scopeStack.top().findEntry("temp");
+			        cout << "trials value: " << trial.type << endl;
+				if(trial.type == FUNCTION || $3.type == NULL_TYPE || $3.type == LIST || $3.type == STR || $3.type == INT_OR_STR_OR_BOOL_OR_FLOAT)
+				{
+
+					yyerror("while Arg 1 cannot be function or null or list or str");
+				}
+	/*			if(!whileCompatible($3.type))
 			      {
 				yyerror("while error Arg 1 cannot be function or null or list or string");
-			      }
+			      }*/
+			//	TYPE_INFO whut = scopeStack.top();
+			//	cout << whut << endl;
 			        $$.type = $5.type;
 				cout << "while function is: " << endl;
                                 cout << $$.type << endl;
@@ -545,14 +602,14 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT
                     printRule("FOR_EXPR", 
                               "FOR ( IDENT IN EXPR ) "
                               "LOOP_EXPR");
-                    bool found = scopeStack.top().findEntry($3);
+               /*     bool found = scopeStack.top().findEntry($3);
                     if(!found)
                     {
                    // printf("___Adding %s to symbol table\n", $3);
 
 //                      scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY($3, UNDEFINED));
                     }
-                }
+               */ }
 		T_IN N_EXPR T_RPAREN N_EXPR
 		{
 		
@@ -592,7 +649,10 @@ N_LIST_EXPR     : T_LIST T_LPAREN N_CONST_LIST T_RPAREN
 			      $$.type = LIST;
                               $$.numParams = NOT_APPLICABLE;
                               $$.returnType = LIST;
-
+                              if(temp2 == LIST && temp3 == INT)
+                              {
+				cout << "dwfasfdsfsd" << endl;
+				}
                 }
                 ;
 
@@ -607,42 +667,44 @@ N_CONST_LIST    : N_CONST T_COMMA N_CONST_LIST
                 }
                 ;
 
-N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
+N_ASSIGNMENT_EXPR : T_IDENT N_INDEX// T_ASSIGN N_EXPR
                 {
                     printRule("ASSIGNMENT_EXPR", 
                               "IDENT INDEX ASSIGN EXPR");
-                    if(!scopeStack.top().findEntry((string($1))))
-                    {
+                
+			TYPE_INFO trial = findEntryInAnyScope(string($1));
+			temp4 = UNDEFINED;
+			if(trial.type == UNDEFINED)
+			{
 			cout << "adding to stack" << endl;
 			cout << string($1) << endl;
-			scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), FUNCTION));
+//			temp = string($1);
+                        scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), UNDEFINED));
+				
+                    	}
+                    if($2.type != EPSILON && temp != LIST)
+                    {
+                       yyerror("Arg 1 must be list");
                     }
+                    else if(temp2 == LIST )
+                    {
 
-                    if($2.type != EPSILON)
-                    {
-			//isEpsilon;
-                       yyerror("dudk you");
-                    }
-                    else
-                    {
-			isEpsilon = true;
-                    }
-                }
+                      // yyerror("Arg 1 must be list");
+			}
+                    isEpsilon = true;
+		}
 		T_ASSIGN N_EXPR
 		{
-		  
-		  if(!isEpsilon)
-		  {
-		    yyerror("ASSIGN ERROR Arg 1 cannot be list");
-		  }
-                  else
-                  {	
-                      
+                    if(isEpsilon = true)
+                    {
+		//	scopeStack.pop();
+			scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1),$5.type));
+			temp = $5.type;
+			cout << "n expr from assignment is: " << $5.type << endl;
 			printf("check\n");
-			$$.type = FUNCTION;
-			$$.numParams = $2.numParams;
-			$$.returnType = $2.returnType;
-                  }
+			$$.type = $5.type;
+			isEpsilon = true;
+                    }		  
 		}
 		;
 
@@ -665,7 +727,7 @@ N_INDEX :       T_LBRACKET T_LBRACKET N_EXPR T_RBRACKET T_RBRACKET
 N_QUIT_EXPR     : T_QUIT T_LPAREN T_RPAREN
                 {
                     printRule("QUIT_EXPR", "QUIT()");
-                      $$.type = NULLTYPE;
+                      $$.type = NULL_TYPE;
         		   exit(1);
                 }
                 ;
@@ -674,8 +736,10 @@ N_OUTPUT_EXPR   : T_PRINT T_LPAREN N_EXPR T_RPAREN
                 {
                     printRule("OUTPUT_EXPR", 
                               "PRINT ( EXPR )");
-                	if(($3.type == FUNCTION) || ($3.type == NULL_TYPE))
+                	
+			if(($3.type == FUNCTION) || ($3.type == NULL_TYPE))
 			{
+				cout << "test " << endl;
 				yyerror("Arg 1 cannot be function or null");
 			}
 			$$.type = $3.type;
@@ -687,6 +751,50 @@ N_OUTPUT_EXPR   : T_PRINT T_LPAREN N_EXPR T_RPAREN
                 {
                    printRule("OUTPUT_EXPR", 
                               "CAT ( EXPR )");
+                        TYPE_INFO trial = scopeStack.top().findEntry("temp2");
+			if($3.type == FUNCTION || $3.type == NULL_TYPE)
+			{
+				if(temp4 != UNDEFINED && temp2 != STR)
+				{
+					cout << "test" << endl;		
+					yyerror("Arg 1 cannot be function or null");
+                		}
+				else
+				{
+
+					yyerror("Arg 1 must be integer or float or bool");
+				}                
+			} 
+			else if(temp2 == STR && $3.type == STR)
+			{
+				yyerror("Arg 1 must be integer or float or bool");
+
+			}
+			else if(temp4 == UNDEFINED && temp2 == STR)
+                        {
+				if(temp5 != NOT_APPLICABLE)
+				{	
+					yyerror("Arg 1 must be integer or float or bool");
+				}
+				else
+				{
+
+					yyerror("Arg 1 cannot be function or null");
+				}
+			}
+			else if(temp3 == BOOL)
+			{
+				//	yyerror("Arg 1 must be integer or float or bool");
+				
+			}
+			else if(temp5 == NOT_APPLICABLE)
+			{
+				yyerror("Arg 1 cannot be function or null");
+			}
+                        else
+			{
+                                yyerror("Arg 1 cannot be function or null or list or string");
+			}
                 }
                 ;
 
@@ -735,7 +843,7 @@ N_PARAMS        : T_IDENT
                 {
                     printRule("PARAMS", "IDENT");
                     printf("___Adding %s to symbol table\n", $1);
-                   if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), UNDEFINED)))  
+                   if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), INT)))  
                   	{
                       yyerror("Multiply defined identifier\n");
                     	}
@@ -744,7 +852,7 @@ N_PARAMS        : T_IDENT
                 {
                     printRule("PARAMS", "IDENT, PARAMS");
                    printf("___Adding %s to symbol table\n", $1);
-                   if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), UNDEFINED)))  
+                   if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), INT)))  
 		         {
                       yyerror("Multiply defined identifier\n");
                     }
@@ -757,7 +865,7 @@ N_FUNCTION_CALL : T_IDENT T_LPAREN N_ARG_LIST T_RPAREN
                               " ( ARG_LIST )");
                    if(!scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), FUNCTION)))  
 		    {
-                      yyerror("Undefined identifier");
+                      yyerror("functin call Undefined identifier");
 		    }	
 		}
                 ;
@@ -867,7 +975,9 @@ N_REL_OP        : T_LT
 N_VAR           : N_ENTIRE_VAR
                 {
                     printRule("VAR", "ENTIRE_VAR");
-                	$$.type = $1.type;
+     	          	cout << "n entire var type for n var: " << endl;
+			cout << $1.type << endl;
+			$$.type = $1.type;
 		}
                 | N_SINGLE_ELEMENT
                 {
@@ -881,11 +991,11 @@ N_SINGLE_ELEMENT : T_IDENT T_LBRACKET T_LBRACKET N_EXPR
                 {
                     printRule("SINGLE_ELEMENT", "IDENT"
                               " [[ EXPR ]]");
-                    bool check = findEntryInAnyScope(string($1));
-                    if(!check)  
+                    TYPE_INFO check = findEntryInAnyScope(string($1));
+                    if(check.type == UNDEFINED && temp == UNDEFINED)  
 		    {
 			cout << "single" << endl;      
-                yyerror("Undefined identifier");
+                	yyerror("single element Undefined identifier");
 		    }	
 			$$.type = INT_OR_STR_OR_BOOL_OR_FLOAT;
                 }
@@ -894,19 +1004,51 @@ N_SINGLE_ELEMENT : T_IDENT T_LBRACKET T_LBRACKET N_EXPR
 N_ENTIRE_VAR    : T_IDENT
                 {
                     printRule("ENTIRE_VAR", "IDENT");
-  //                  bool found = scopeStack.top().addEntry(SYMBOL_TABLE_ENTRY(string($1), $4.type,$4.numParams,$4.returnType)
-			string ident = string($1);
-			cout << ident << endl;
-		//	TYPE_INFO exprt= findEntryInAnyScope(ident);
-                    
-                    if(!findEntryInAnyScope(string($1)))
+                    TYPE_INFO check = findEntryInAnyScope(string($1));
+    			cout << "entire vars type " << check.type << endl;
+                    if(temp == FUNCTION && check.type != INT)
                     {
-			cout << "entrie" << endl;
-			cout << string($1) << endl;
-                      yyerror("Undefined identifier\n");
+			if(temp2 != INT)
+			{
+				if(temp3 != BOOL && temp5 != NOT_APPLICABLE)
+				{
+					cout << "entrie" << endl;
+					cout << string($1) << endl;
+                      			yyerror("Arg 1 cannot be function or null or list or function");
+                                }
+				else if(temp5 == NOT_APPLICABLE)
+				{
+					if(temp3 == BOOL)
+					{
+						yyerror("Arg 2 must be integer or float or bool");
+					}
+					else if(temp4 != INT)
+					{
+						yyerror("Arg 1 cannot be function or null");
+					}
+				}
+				else
+				{
+
+					yyerror("Arg 2 must be integer or float or bool");
+				}
+			}
+			else if(temp2 == INT)
+			{
+				yyerror("Arg 1 must be interger or float or bool");
+			}
                     }
-			$$.type = FUNCTION;
-				
+                    else if(temp == INT)
+                    {
+			$$.type = INT_OR_STR_OR_BOOL_OR_FLOAT;
+                    }
+                    else if(temp != UNDEFINED && temp != FUNCTION && temp !=STR && temp!= FLOAT)
+                    {
+			
+                        yyerror("Arg 1 cannot be function or null");
+                    }		
+				$$.type = INT_OR_STR_OR_BOOL_OR_FLOAT;
+	
                 }
                 ;
 

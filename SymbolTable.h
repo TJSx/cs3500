@@ -17,19 +17,19 @@ public:
 
   int getEntryTypeST(string theName)
   {
-    return hashTable[theName].getTheType();     // defn STEntry.h: int getTheType() const {return type_struct.type;}
+   // return hashTable[theName].getTheType();     // defn STEntry.h: int getTheType() const {return type_struct.type;}
   }
   
     // Find symbol table entry index with theName, return numParams
   int getNumParamsST(string theName)
   {
-    return hashTable[theName].getNumParams();
+//    return hashTable[theName].getNumParams();
   }
 
   // Find symbol table entry index with theName, return returnType
   int getReturnTypeST(string theName)
   {
-    return hashTable[theName].getReturnType();
+  //  return hashTable[theName].getReturnType();
   }
   
   // Add SYMBOL_TABLE_ENTRY x to this symbol table.
@@ -52,12 +52,13 @@ public:
   // If a SYMBOL_TABLE_ENTRY with name theName is
   // found in this symbol table, then return true;
   // otherwise, return false.
-  bool findEntry(string theName)
+  TYPE_INFO findEntry(string theName)
   {
+	TYPE_INFO info = {UNDEFINED};
     map<string, SYMBOL_TABLE_ENTRY>::iterator itr;
     if ((itr = hashTable.find(theName)) == hashTable.end())
       return(info);
-    else return(itr->second.getTypeInfo());
+    else return(itr->second.getTheType());
   }
 
 };

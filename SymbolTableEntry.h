@@ -35,25 +35,22 @@ public:
   SYMBOL_TABLE_ENTRY( ) 
   { 
 	  name = ""; 
-    typeInfo.type = NOT_APPLICABLE; 
-    typeInfo.numParams = NOT_APPLICABLE;
-    typeInfo.returnType = NOT_APPLICABLE;
+    typeInfo.type = UNDEFINED; 
 }
 
-  SYMBOL_TABLE_ENTRY(const string theName, const int theType) 
+  SYMBOL_TABLE_ENTRY(const string theName, int const theType) 
   {
     name = theName;
-  
-	typeInfo.type = theType;
+  	updatetype(typeInfo, theType);
+   //   typeInfo.type = theType;
 }
-
+  void updatetype(TYPE_INFO& thenew, int const theold)
+  {
+	thenew.type = theold;
+  }
   // Accessors
-  int getNumParams() const {return typeInfo.numParams;}
-  int getReturnType() const{return typeInfo.returnType;}
-  int getTheType() const {return typeInfo.type;}
-  TYPE_INFO getTypeInfo() const {return typeInfo;}  
+  TYPE_INFO getTheType() const {return typeInfo;}
   string getName() const { return name; }
-  TYPE_INFO getTypeStruct() const { return typeInfo; }
 };
 
 #endif  // SYMBOL_TABLE_ENTRY_H
