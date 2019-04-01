@@ -15,23 +15,6 @@ public:
   //Constructor
   SYMBOL_TABLE( ) { }
 
-  int getEntryTypeST(string theName)
-  {
-   // return hashTable[theName].getTheType();     // defn STEntry.h: int getTheType() const {return type_struct.type;}
-  }
-  
-    // Find symbol table entry index with theName, return numParams
-  int getNumParamsST(string theName)
-  {
-//    return hashTable[theName].getNumParams();
-  }
-
-  // Find symbol table entry index with theName, return returnType
-  int getReturnTypeST(string theName)
-  {
-  //  return hashTable[theName].getReturnType();
-  }
-  
   // Add SYMBOL_TABLE_ENTRY x to this symbol table.
   // If successful, return true; otherwise, return false.
   bool addEntry(SYMBOL_TABLE_ENTRY x)
@@ -45,20 +28,31 @@ public:
     }
     else return(false);
   }
-  std::map<string, SYMBOL_TABLE_ENTRY> getHashTable()
+
+  bool changeEntry(SYMBOL_TABLE_ENTRY x)
   {
-	 return hashTable; 
+    // Make sure the entry we want to change in the symbol table 
+    // is actually in the symbol table.
+    map<string, SYMBOL_TABLE_ENTRY>::iterator itr;
+    if ((itr = hashTable.find(x.getName())) != hashTable.end())
+    {
+      hashTable.erase(itr);
+      hashTable.insert(make_pair(x.getName(), x));
+      return true;
+    }
+    else return(false);
   }
+
   // If a SYMBOL_TABLE_ENTRY with name theName is
-  // found in this symbol table, then return true;
-  // otherwise, return false.
+  // found in this symbol table, then return its type info;
+  // otherwise, return undefined.
   TYPE_INFO findEntry(string theName)
   {
-	TYPE_INFO info = {UNDEFINED};
+    TYPE_INFO info = {UNDEFINED, NOT_APPLICABLE, NOT_APPLICABLE};
     map<string, SYMBOL_TABLE_ENTRY>::iterator itr;
     if ((itr = hashTable.find(theName)) == hashTable.end())
       return(info);
-    else return(itr->second.getTheType());
+    else return(itr->second.getTypeInfo());
   }
 
 };
