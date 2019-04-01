@@ -4,53 +4,55 @@
 #include <string>
 using namespace std;
 
-#define UNDEFINED  -1
-#define FUNCTION 0
-#define INT 1
-#define STR 2
-#define FLOAT 3
-#define LIST 4
-#define BOOL 6
-#define NULL_TYPE 5
-#define INT_OR_STR_OR_BOOL_OR_FLOAT -5
-#define EPSILON -3
-#define NOT_APPLICABLE -2
 
-typedef struct
-{
-  int type;
-  int numParams;
-  int returnType;
-}TYPE_INFO;
+// type code declarations
+#define UNDEFINED  -1
+#define NULL_TYPE   0
+#define INT         2
+#define STR         4
+#define BOOL        8
+#define FLOAT       16
+#define LIST        32
+#define FUNCTION    64
+#define INT_OR_STR_OR_FLOAT_OR_BOOL     30
+
+#define NOT_APPLICABLE  -1
+
+typedef struct {
+  int type;         // one of the above type codes
+  int numParams;    // # of parameters if function type
+  int returnType;   // return type if function
+} TYPE_INFO;
 
 class SYMBOL_TABLE_ENTRY
 {
 private:
   // Member variables
-  TYPE_INFO typeInfo;
   string name;
+  TYPE_INFO typeInfo;
 
 public:
   // Constructors
-  SYMBOL_TABLE_ENTRY( ) 
-  { 
-	  name = ""; 
-    typeInfo.type = UNDEFINED; 
-}
+  SYMBOL_TABLE_ENTRY( ) {
+    name = "";
+    typeInfo.type = UNDEFINED;
+    typeInfo.numParams = UNDEFINED;
+    typeInfo.returnType = UNDEFINED;
+  }
 
-  SYMBOL_TABLE_ENTRY(const string theName, int const theType) 
+  SYMBOL_TABLE_ENTRY(const string theName, 
+                     const TYPE_INFO theType)
   {
     name = theName;
-  	updatetype(typeInfo, theType);
-   //   typeInfo.type = theType;
-}
-  void updatetype(TYPE_INFO& thenew, int const theold)
-  {
-	thenew.type = theold;
+    typeInfo.type = theType.type;
+    typeInfo.numParams = theType.numParams;
+    typeInfo.returnType = theType.returnType;
   }
+
   // Accessors
-  TYPE_INFO getTheType() const {return typeInfo;}
   string getName() const { return name; }
+  TYPE_INFO getTypeInfo() const { return typeInfo; }
+
 };
 
 #endif  // SYMBOL_TABLE_ENTRY_H
