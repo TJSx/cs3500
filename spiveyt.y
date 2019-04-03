@@ -95,7 +95,6 @@ extern "C"
 }
 
 %}
-
 %union {
     char* text;
     int num;
@@ -328,8 +327,13 @@ N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR
 N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN
 			  N_EXPR
                 {
-                    printRule("FOR_EXPR", 
+        	  if($5.type != LIST)
+                  {
+			printf("error");
+                  }
+	        	  printRule("FOR_EXPR", 
                               "FOR ( IDENT IN EXPR ) EXPR");
+
                 }
                 ;
 
@@ -372,9 +376,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                       scopeStack.top().addEntry(
                             SYMBOL_TABLE_ENTRY(lexeme,
                             {NOT_APPLICABLE, NOT_APPLICABLE,
-                             NOT_APPLICABLE}));
-                      // set flag that ident didn't already
-				 // exist
+                             NOT_APPLICABLE}, false));
 			      $<flag>$ = false;
                     }
                     else 
@@ -397,14 +399,25 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
 			    existed by seeing if $<flag>3 == true.
 			    This might be useful in HW 4b.
 			    */
-                    scopeStack.top().changeEntry(
-                         SYMBOL_TABLE_ENTRY(lexeme,
-                           {$5.type, $5.numParams,
-                            $5.returnType}));
+                    if(exprTypeInfo.is_param == true)
+                    {
+			scopeStack.top().changeEntry(SYMBOL_TABLE_ENTRY(lexeme,
+                                        {INT, $5.numParams, INT}, true));
 			    if (($2 == INDEX_PROD) && 
 			        ($5.type == LIST))
 				semanticError(1, ERR_CANNOT_BE_LIST);
-                    $$.type = $5.type;
+                    }
+                    else
+                    {
+                    scopeStack.top().changeEntry(
+                         SYMBOL_TABLE_ENTRY(lexeme,
+                           {$5.type, $5.numParams,
+                            $5.returnType}, false));
+			    if (($2 == INDEX_PROD) && 
+			        ($5.type == LIST))
+				semanticError(1, ERR_CANNOT_BE_LIST);
+                 	}   
+	            $$.type = $5.type;
                     $$.numParams = $5.numParams;
                     $$.returnType = $5.returnType;
                 }
@@ -458,10 +471,13 @@ N_OUTPUT_EXPR   : T_PRINT T_LPAREN N_EXPR T_RPAREN
                 }
                 ;
 
-N_INPUT_EXPR    : T_READ T_LPAREN N_VAR T_RPAREN
+N_INPUT_EXPR    : T_READ T_LPAREN T_RPAREN
                 {
                     printRule("INPUT_EXPR", "READ ( VAR )");
-                }
+                	$$.type = INT_OR_STR_OR_FLOAT;
+			$$.numParams = NOT_APPLICABLE;
+			$$.returnType = NOT_APPLICABLE;
+		}
                 ;
 
 N_FUNCTION_DEF  : T_FUNCTION
@@ -510,7 +526,7 @@ N_PARAMS        : T_IDENT
                     bool success = 
                      scopeStack.top().
                       addEntry(SYMBOL_TABLE_ENTRY
-                        (lexeme, exprTypeInfo));
+                        (lexeme, exprTypeInfo, true));
                     if(!success) 
                     {
 				semanticError(0,
@@ -529,7 +545,7 @@ N_PARAMS        : T_IDENT
                      {INT, NOT_APPLICABLE, NOT_APPLICABLE};
                     bool success =
                      scopeStack.top().addEntry(
-                      SYMBOL_TABLE_ENTRY(lexeme, exprTypeInfo));
+                      SYMBOL_TABLE_ENTRY(lexeme, exprTypeInfo, true));
                     if(!success) 
 				semanticError(0,
 				 ERR_MULTIPLY_DEFINED_IDENT);

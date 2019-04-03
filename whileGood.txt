@@ -1,4 +1,0 @@
-while(3 < 4) {
-    palace = 3 ^ 8;
-    print(palace)
-}

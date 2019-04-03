@@ -1,5 +1,0 @@
-{
-    apple = 7;
-    apple[[7]] = "green";
-    quit()
-}

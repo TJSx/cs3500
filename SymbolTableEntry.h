@@ -22,6 +22,7 @@ typedef struct {
   int type;         // one of the above type codes
   int numParams;    // # of parameters if function type
   int returnType;   // return type if function
+  bool is_param;
 } TYPE_INFO;
 
 class SYMBOL_TABLE_ENTRY
@@ -29,6 +30,7 @@ class SYMBOL_TABLE_ENTRY
 private:
   // Member variables
   string name;
+  bool param_check;
   TYPE_INFO typeInfo;
 
 public:
@@ -38,21 +40,24 @@ public:
     typeInfo.type = UNDEFINED;
     typeInfo.numParams = UNDEFINED;
     typeInfo.returnType = UNDEFINED;
+    typeInfo.is_param = false;
   }
 
   SYMBOL_TABLE_ENTRY(const string theName, 
-                     const TYPE_INFO theType)
+                     const TYPE_INFO theType, const bool param)
   {
     name = theName;
+    param_check = param;
     typeInfo.type = theType.type;
     typeInfo.numParams = theType.numParams;
     typeInfo.returnType = theType.returnType;
+    typeInfo.is_param = param;	
   }
 
   // Accessors
   string getName() const { return name; }
   TYPE_INFO getTypeInfo() const { return typeInfo; }
-
+  bool getParam() const { return param_check;}
 };
 
 #endif  // SYMBOL_TABLE_ENTRY_H

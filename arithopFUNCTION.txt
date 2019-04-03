@@ -1,4 +1,0 @@
-{
-    fuzzy_socks = function() { -2.71 };
-    clock = TRUE & fuzzy_socks
-}

@@ -1,5 +1,0 @@
-{
-    five_ = function() { 5 };
-    test = (five_ > 4);
-    print(test)
-}

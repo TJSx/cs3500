@@ -1,4 +1,0 @@
-{
-    cocktail = 177;
-    sketchbook = (cat("mug")) > cocktail
-}

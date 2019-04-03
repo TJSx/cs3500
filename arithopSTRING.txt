@@ -1,4 +1,0 @@
-{
-    dist = 20;
-    speed = "a" / dist
-}

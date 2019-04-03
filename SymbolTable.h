@@ -48,13 +48,16 @@ public:
   // otherwise, return undefined.
   TYPE_INFO findEntry(string theName)
   {
-    TYPE_INFO info = {UNDEFINED, NOT_APPLICABLE, NOT_APPLICABLE};
+    TYPE_INFO info = {UNDEFINED, NOT_APPLICABLE, NOT_APPLICABLE, false};
     map<string, SYMBOL_TABLE_ENTRY>::iterator itr;
     if ((itr = hashTable.find(theName)) == hashTable.end())
       return(info);
     else return(itr->second.getTypeInfo());
   }
-
+  bool find_param(string theName)
+  {
+    return hashTable[theName].getParam();
+  }
 };
 
 #endif  // SYMBOL_TABLE_H
