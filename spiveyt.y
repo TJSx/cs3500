@@ -292,7 +292,36 @@ N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                     printRule("EXPR_LIST", "epsilon");
                 }
                 ;
-
+N_IF_EXPR	: N_COND_IF R_PAREN N_THEN_EXPR
+		{
+			printRule("IF_EXPR", "IF ) THEN_EXPR"); 
+			if($3.type == FUNCTION ||$3.type == LIST ||$3.type == NULL ||$3.type == STR)
+			{
+				printf("error");
+			}	
+			
+			if($3.type == FUNCTION)
+			{
+				printf("error");
+			}
+		}
+		| N_COND_IF R_PAREN N_THEN_EXPR T_ELSE N_EXPR
+		{
+			printRule("IF_EXPR" , " COND_IF ) THEN_EXPR ELSE EXPR");
+		}
+		;
+N_COND_IF	: T_IF L_PAREN N_EXPR
+		{
+			printRule("COND_IF" , "IF ( EXPR ");
+	
+		}
+		;
+N_THEN_EXPR	: N_EXPR
+		{
+			printRule("THEN_EXPR" , "EXPR" );
+		}
+		;
+/*
 N_IF_EXPR       : T_IF T_LPAREN N_EXPR T_RPAREN N_EXPR
                 {
                     printRule("IF_EXPR", "IF ( EXPR ) EXPR");
@@ -304,7 +333,7 @@ N_IF_EXPR       : T_IF T_LPAREN N_EXPR T_RPAREN N_EXPR
                               "IF ( EXPR ) EXPR ELSE EXPR");
 		     }
                 ;
-
+*/
 N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR
                 {
                     if(($3.type == FUNCTION) 
@@ -327,10 +356,41 @@ N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR
 N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN
 			  N_EXPR
                 {
+		
+			string lexeme = string($3);
+                    	TYPE_INFO exprTypeInfo = scopeStack.top().findEntry(lexeme);
+                    if(exprTypeInfo.type == UNDEFINED) 
+		    {
+                      if(!suppressTokenOutput)
+                        printf("___Adding %s to symbol table\n", $1);
+                      // add in as N/A type until the
+                      // N_EXPR can be processed below to 
+                      // get the correct type
+                      scopeStack.top().addEntry(
+                            SYMBOL_TABLE_ENTRY(lexeme,
+                            {INT_OR_STR_OR_FLOAT_OR_BOOL, NOT_APPLICABLE,
+                             NOT_APPLICABLE}, false));	  
+                    }
+                    else 
+		    {
+                    	bool check = isIntOrFloatOrBoolCompatible($3.type)//could be wrong
+			if(check != true)
+			{
+				printf("error");
+			}
+		    // set flag that ident already existed
+				$<flag>$ = true;
+                    }
+		
+		
+		
         	  if($5.type != LIST)
                   {
 			printf("error");
                   }
+		  $$.type = $7.type;
+		  $$.numParams = $7.numParams;
+		  $$.returnType = $7.returnType;
 	        	  printRule("FOR_EXPR", 
                               "FOR ( IDENT IN EXPR ) EXPR");
 
@@ -651,7 +711,8 @@ N_ADD_OP_LIST	: N_ADD_OP N_TERM N_ADD_OP_LIST
                               "ADD_OP TERM ADD_OP_LIST");
 			    int argWithErr =
 				($3.type == NOT_APPLICABLE)? 2: 1;
-                    if(isInvalidOperandType($2.type))                                          				semanticError(argWithErr,
+                    if(isInvalidOperandType($2.type))                                 //gygygygygygu       
+		    		semanticError(argWithErr,
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
 			    $$.numParams = NOT_APPLICABLE;
 			    $$.returnType = NOT_APPLICABLE;
