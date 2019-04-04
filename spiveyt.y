@@ -60,6 +60,8 @@ const bool suppressTokenOutput = true;
 
 int line_num = 1;
 int numExprs = 0;
+int trial = 0;
+int arg_count = 0;
 
 stack<SYMBOL_TABLE> scopeStack; // stack of scope hashtables
 
@@ -114,16 +116,16 @@ extern "C"
 %token T_OR T_ASSIGN T_LIST
 
 %type <text> T_IDENT
-
+%type <text> T_ELSE
 %type <typeInfo> N_EXPR N_WHILE_EXPR N_IF_EXPR N_FOR_EXPR
 %type <typeInfo> N_COMPOUND_EXPR N_ARITHLOGIC_EXPR
-%type <typeInfo> N_ASSIGNMENT_EXPR
+%type <typeInfo> N_ASSIGNMENT_EXPR N_COND_IF N_THEN_EXPR
 %type <typeInfo> N_INPUT_EXPR N_OUTPUT_EXPR N_LIST_EXPR
 %type <typeInfo> N_FUNCTION_DEF N_FUNCTION_CALL
 %type <typeInfo> N_QUIT_EXPR N_CONST N_EXPR_LIST
 %type <typeInfo> N_SIMPLE_ARITHLOGIC N_TERM N_ADD_OP_LIST
 %type <typeInfo> N_FACTOR N_MULT_OP_LIST N_VAR
-%type <typeInfo> N_SINGLE_ELEMENT N_ENTIRE_VAR
+%type <typeInfo> N_SINGLE_ELEMENT N_ENTIRE_VAR N_ARG_LIST
 
 %type <num> N_INDEX N_REL_OP N_ADD_OP N_MULT_OP
 
@@ -274,28 +276,52 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
                 {
                     printRule("COMPOUND_EXPR",
                               "{ EXPR EXPR_LIST }");
-                    $$.type = $2.type;
-                    $$.numParams = $2.numParams;
-                    $$.returnType = $2.returnType;
-                }
+                    if($3.type == EPSILON)
+                    {
+		    	$$.type = $2.type;
+                    	$$.numParams = $2.numParams;
+                    	$$.returnType = $2.returnType;
+                    }
+                    else
+                    {
+			    	$$.type = $3.type;
+                    	$$.numParams = $3.numParams;
+                    	$$.returnType = $3.returnType;
+		
+                    }
+		}
                 ;
 
 N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                 {
                     printRule("EXPR_LIST", "; EXPR EXPR_LIST");
-                    $$.type = $2.type;
-                    $$.numParams = $2.numParams;
-                    $$.returnType = $2.returnType;
+                    if($3.type == EPSILON)
+                    {
+                   	 $$.type = $2.type;
+               	     $$.numParams = $2.numParams;
+                	    $$.returnType = $2.returnType;
+                    }
+                    else
+                    {
+			    	$$.type = $3.type;
+                    	$$.numParams = $3.numParams;
+                    	$$.returnType = $3.returnType;
+		
+                    }
+                    
                 }
                 | /* epsilon */
                 {
                     printRule("EXPR_LIST", "epsilon");
+                    $$.type = EPSILON;
+                    $$.numParams = EPSILON;
+                    $$.returnType = EPSILON;
                 }
                 ;
-N_IF_EXPR	: N_COND_IF R_PAREN N_THEN_EXPR
+N_IF_EXPR	: N_COND_IF T_RPAREN N_THEN_EXPR
 		{
 			printRule("IF_EXPR", "IF ) THEN_EXPR"); 
-			if($3.type == FUNCTION ||$3.type == LIST ||$3.type == NULL ||$3.type == STR)
+			if($1.type == FUNCTION ||$1.type == LIST ||$1.type == NULL_TYPE ||$1.type == STR)
 			{
 				printf("error");
 			}	
@@ -304,21 +330,57 @@ N_IF_EXPR	: N_COND_IF R_PAREN N_THEN_EXPR
 			{
 				printf("error");
 			}
+			$$.type = $3.type;
+	                $$.numParams = $3.numParams;
+      		       $$.returnType = $3.returnType;
 		}
-		| N_COND_IF R_PAREN N_THEN_EXPR T_ELSE N_EXPR
+		| N_COND_IF T_RPAREN N_THEN_EXPR T_ELSE N_EXPR
 		{
+			string lexeme = string($4);
 			printRule("IF_EXPR" , " COND_IF ) THEN_EXPR ELSE EXPR");
+			if($1.type == FUNCTION ||$1.type == LIST ||$1.type == NULL_TYPE ||$1.type == STR)
+			{
+				printf("error");
+			}	
+			
+			if($3.type == FUNCTION)
+			{
+				printf("error");
+			}
+			TYPE_INFO exprTypeInfo = scopeStack.top().findEntry(lexeme);			
+			if(exprTypeInfo.type == FUNCTION)
+			{
+				printf("error");
+			}
+			$$.type = INT_OR_FLOAT_OR_BOOL;
+			$$.numParams = NOT_APPLICABLE;
+			$$.returnType = NOT_APPLICABLE;
 		}
 		;
-N_COND_IF	: T_IF L_PAREN N_EXPR
+
+N_COND_IF	: T_IF T_LPAREN N_EXPR
 		{
 			printRule("COND_IF" , "IF ( EXPR ");
-	
+			$$.type = $3.type;
+                   	 $$.numParams = $3.numParams;
+                   	 $$.returnType = $3.returnType;
+                      
 		}
 		;
+
 N_THEN_EXPR	: N_EXPR
 		{
 			printRule("THEN_EXPR" , "EXPR" );
+			if($1.type == FUNCTION)
+			{
+				printf("error");
+			}
+			else
+			{
+				$$.type = $1.type;
+	                   	 $$.numParams = $1.numParams;
+        	         	 $$.returnType = $1.returnType;
+			}
 		}
 		;
 /*
@@ -362,7 +424,7 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN
                     if(exprTypeInfo.type == UNDEFINED) 
 		    {
                       if(!suppressTokenOutput)
-                        printf("___Adding %s to symbol table\n", $1);
+                        printf("___Adding %s to symbol table\n", $3);
                       // add in as N/A type until the
                       // N_EXPR can be processed below to 
                       // get the correct type
@@ -373,7 +435,9 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN
                     }
                     else 
 		    {
-                    	bool check = isIntOrFloatOrBoolCompatible($3.type)//could be wrong
+			string lexeme = string($3);
+			TYPE_INFO checker = scopeStack.top().findEntry(lexeme);
+                    	bool check = isIntOrFloatOrBoolCompatible(checker.type);
 			if(check != true)
 			{
 				printf("error");
@@ -548,11 +612,19 @@ N_FUNCTION_DEF  : T_FUNCTION
                 	    beginScope();
                 }
                 T_LPAREN N_PARAM_LIST
-		     T_RPAREN N_COMPOUND_EXPR
+		{
+			trial = scopeStack.size();
+			cout << trial << endl;
+		}
+                T_RPAREN N_COMPOUND_EXPR
                 {
-                    $$.type = FUNCTION;
-                    $$.numParams = NOT_APPLICABLE;
-                    $$.returnType = NOT_APPLICABLE;
+              		if($7.type == FUNCTION)
+			{
+				printf("error");
+			}
+		      $$.type = FUNCTION;
+                    $$.numParams = trial;
+                    $$.returnType = $7.type;
 			    endScope();
                 }
                 ;
@@ -616,13 +688,30 @@ N_FUNCTION_CALL : T_IDENT T_LPAREN N_ARG_LIST T_RPAREN
                 {
                     printRule("FUNCTION_CALL", "IDENT"
                               " ( ARG_LIST )");
+			string lexeme = string($1);
+			TYPE_INFO check = findEntryInAnyScope($1);
+			if(check.type != FUNCTION)
+			{
+				printf("error");
+			}
+			else if(check.numParams != $3.numParams)
+			{
+				printf("error");
+			}
+			else
+			{
+				$$.type = check.returnType;
+				$$.numParams = check.numParams;
+			}
                 }
                 ;
 
 N_ARG_LIST      : N_ARGS
                 {
+			
                     printRule("ARG_LIST", "ARGS");
-                }
+			$$.numParams = arg_count; 
+               }
                 | N_NO_ARGS
                 {
                     printRule("ARG_LIST", "NO_ARGS");
@@ -637,11 +726,21 @@ N_NO_ARGS       : /* epsilon */
 
 N_ARGS          : N_EXPR
                 {
+                    arg_count++;
                     printRule("ARGS", "EXPR");
+                    if(!isIntCompatible($1.type))
+                    {
+			printf("error");
+                    }
                 }
                 | N_EXPR T_COMMA N_ARGS
                 {
+                    arg_count++;
                     printRule("ARGS", "EXPR, ARGS");
+                    if(!isIntCompatible($1.type))
+                    {
+			printf("error");
+                    }
                 }
                 ;
 

@@ -14,8 +14,11 @@ using namespace std;
 #define FLOAT       16
 #define LIST        32
 #define FUNCTION    64
+#define INT_OR_BOOL 10
+#define INT_OR_FLOAT_OR_BOOL 11
+#define INT_OR_STR_OR_FLOAT 15
 #define INT_OR_STR_OR_FLOAT_OR_BOOL     30
-
+#define EPSILON 99
 #define NOT_APPLICABLE  -1
 
 typedef struct {
