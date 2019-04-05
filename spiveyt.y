@@ -62,7 +62,7 @@ int line_num = 1;
 int numExprs = 0;
 int trial = 0;
 int arg_count = 0;
-
+int param_counter = 0;
 stack<SYMBOL_TABLE> scopeStack; // stack of scope hashtables
 
 bool isIntOrFloatOrBoolCompatible(const int theType);
@@ -321,37 +321,41 @@ N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
 N_IF_EXPR	: N_COND_IF T_RPAREN N_THEN_EXPR
 		{
 			printRule("IF_EXPR", "IF ) THEN_EXPR"); 
-			if($1.type == FUNCTION ||$1.type == LIST ||$1.type == NULL_TYPE ||$1.type == STR)
+/*			if($1.type == FUNCTION ||$1.type == LIST ||$1.type == NULL_TYPE ||$1.type == STR)
 			{
-				printf("error");
+				line_num--;
+				yyerror("Arg 1 cannot be function or null or list or string");
 			}	
-			
 			if($3.type == FUNCTION)
 			{
+				cout << "if expr error of then being a function" << endl;
 				printf("error");
-			}
+			}*/
 			$$.type = $3.type;
 	                $$.numParams = $3.numParams;
       		       $$.returnType = $3.returnType;
 		}
 		| N_COND_IF T_RPAREN N_THEN_EXPR T_ELSE N_EXPR
 		{
-			string lexeme = string($4);
+		//	string lexeme = string($4);
 			printRule("IF_EXPR" , " COND_IF ) THEN_EXPR ELSE EXPR");
 			if($1.type == FUNCTION ||$1.type == LIST ||$1.type == NULL_TYPE ||$1.type == STR)
 			{
-				printf("error");
+				cout << "it is this error" << endl;
+				yyerror("Arg 1 cannot be function or null or list or string");
 			}	
 			
 			if($3.type == FUNCTION)
 			{
+				cout << "if expr still can't be function" << endl;
 				printf("error");
 			}
-			TYPE_INFO exprTypeInfo = scopeStack.top().findEntry(lexeme);			
-			if(exprTypeInfo.type == FUNCTION)
+//			TYPE_INFO exprTypeInfo = scopeStack.top().findEntry(string($4));			
+			if($5.type == FUNCTION)
 			{
-				printf("error");
+				yyerror("Arg 3 cannot be function");
 			}
+			
 			$$.type = INT_OR_FLOAT_OR_BOOL;
 			$$.numParams = NOT_APPLICABLE;
 			$$.returnType = NOT_APPLICABLE;
@@ -361,6 +365,15 @@ N_IF_EXPR	: N_COND_IF T_RPAREN N_THEN_EXPR
 N_COND_IF	: T_IF T_LPAREN N_EXPR
 		{
 			printRule("COND_IF" , "IF ( EXPR ");
+			if($3.type == FUNCTION ||$3.type == LIST ||$3.type == NULL_TYPE ||$3.type == STR)
+			{
+				yyerror("Arg 1 cannot be function or null or list or string");
+			}	
+			if($3.type == FUNCTION)
+			{
+ 				cout << "if expr error of then being a function" << endl;
+				 printf("error");
+			}
 			$$.type = $3.type;
                    	 $$.numParams = $3.numParams;
                    	 $$.returnType = $3.returnType;
@@ -373,14 +386,11 @@ N_THEN_EXPR	: N_EXPR
 			printRule("THEN_EXPR" , "EXPR" );
 			if($1.type == FUNCTION)
 			{
-				printf("error");
+				yyerror("Arg 2 cannot be function");
 			}
-			else
-			{
 				$$.type = $1.type;
 	                   	 $$.numParams = $1.numParams;
         	         	 $$.returnType = $1.returnType;
-			}
 		}
 		;
 /*
@@ -435,13 +445,6 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN
                     }
                     else 
 		    {
-			string lexeme = string($3);
-			TYPE_INFO checker = scopeStack.top().findEntry(lexeme);
-                    	bool check = isIntOrFloatOrBoolCompatible(checker.type);
-			if(check != true)
-			{
-				printf("error");
-			}
 		    // set flag that ident already existed
 				$<flag>$ = true;
                     }
@@ -450,8 +453,17 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN
 		
         	  if($5.type != LIST)
                   {
-			printf("error");
+				line_num--;
+				yyerror("Arg 2 must be list");
                   }
+			TYPE_INFO checker = scopeStack.top().findEntry(lexeme);
+                    	bool check = isIntOrFloatOrBoolCompatible(checker.type);
+			if(check != true)
+			{
+				line_num--;
+				yyerror("Arg 1 cannot be function or null or list");
+			}
+
 		  $$.type = $7.type;
 		  $$.numParams = $7.numParams;
 		  $$.returnType = $7.returnType;
@@ -516,8 +528,9 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                         scopeStack.top().findEntry(lexeme);
                     if(($2 == INDEX_PROD) && 
                        (exprTypeInfo.type != LIST)) 
+			{
 				semanticError(1, ERR_MUST_BE_LIST);
-			    /*
+			}   /*
 			    Note:
 			    Can check whether ident already
 			    existed by seeing if $<flag>3 == true.
@@ -529,7 +542,13 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                                         {INT, $5.numParams, INT}, true));
 			    if (($2 == INDEX_PROD) && 
 			        ($5.type == LIST))
-				semanticError(1, ERR_CANNOT_BE_LIST);
+				{
+					semanticError(1, ERR_CANNOT_BE_LIST);
+				}
+			if(!isIntCompatible($5.type))
+			{
+				yyerror("Arg 1 must be integer");
+			}   
                     }
                     else
                     {
@@ -540,7 +559,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
 			    if (($2 == INDEX_PROD) && 
 			        ($5.type == LIST))
 				semanticError(1, ERR_CANNOT_BE_LIST);
-                 	}   
+                 	}
 	            $$.type = $5.type;
                     $$.numParams = $5.numParams;
                     $$.returnType = $5.returnType;
@@ -574,9 +593,12 @@ N_OUTPUT_EXPR   : T_PRINT T_LPAREN N_EXPR T_RPAREN
                     printRule("OUTPUT_EXPR", 
                               "PRINT ( EXPR )");
                     if(($3.type == FUNCTION) || 
-                      ($3.type == NULL_TYPE)) 
-				semanticError(1,
-				 ERR_CANNOT_BE_FUNCT_OR_NULL);
+                      ($3.type == NULL_TYPE)){ 
+//				semanticError(1,
+//				 ERR_CANNOT_BE_FUNCT_OR_NULL);
+			line_num--;
+  			yyerror("Arg 1 cannot be function or null or list");
+                   }
                     $$.type = $3.type;
                     $$.numParams = $3.numParams;
                     $$.returnType = $3.returnType;
@@ -589,7 +611,7 @@ N_OUTPUT_EXPR   : T_PRINT T_LPAREN N_EXPR T_RPAREN
                        ($3.type == NULL_TYPE)) 
 				semanticError(1,
 				 ERR_CANNOT_BE_FUNCT_OR_NULL);
-                    $$.type = NULL_TYPE;
+			 $$.type = NULL_TYPE;
                     $$.numParams = $3.numParams;
                     $$.returnType = $3.returnType;
                 }
@@ -614,13 +636,12 @@ N_FUNCTION_DEF  : T_FUNCTION
                 T_LPAREN N_PARAM_LIST
 		{
 			trial = scopeStack.size();
-			cout << trial << endl;
 		}
                 T_RPAREN N_COMPOUND_EXPR
                 {
               		if($7.type == FUNCTION)
 			{
-				printf("error");
+				yyerror("Arg 2 cannot be function");
 			}
 		      $$.type = FUNCTION;
                     $$.numParams = trial;
@@ -647,7 +668,8 @@ N_NO_PARAMS     : /* epsilon */
 
 N_PARAMS        : T_IDENT
                 {
-                    printRule("PARAMS", "IDENT");
+              		param_counter++;
+		      printRule("PARAMS", "IDENT");
                     string lexeme = string($1);
                     if(!suppressTokenOutput)
                       printf("___Adding %s to symbol table\n",
@@ -667,6 +689,7 @@ N_PARAMS        : T_IDENT
                 }
                 | T_IDENT T_COMMA N_PARAMS
                 {
+			param_counter++;
                     printRule("PARAMS", "IDENT, PARAMS");
                     string lexeme = string($1);
                     if(!suppressTokenOutput)
@@ -692,11 +715,19 @@ N_FUNCTION_CALL : T_IDENT T_LPAREN N_ARG_LIST T_RPAREN
 			TYPE_INFO check = findEntryInAnyScope($1);
 			if(check.type != FUNCTION)
 			{
+				cout << "function call can't be function" << endl;
 				printf("error");
 			}
-			else if(check.numParams != $3.numParams)
+			else if(arg_count != param_counter)
 			{
-				printf("error");
+				if(arg_count < param_counter)
+				{
+					yyerror("Too few parameters in function call");
+				}
+				else if(arg_count > param_counter)
+				{
+					yyerror("Too many parameters in function call");
+				}
 			}
 			else
 			{
@@ -730,7 +761,7 @@ N_ARGS          : N_EXPR
                     printRule("ARGS", "EXPR");
                     if(!isIntCompatible($1.type))
                     {
-			printf("error");
+			yyerror("Function parameters must be integer");
                     }
                 }
                 | N_EXPR T_COMMA N_ARGS
@@ -739,7 +770,7 @@ N_ARGS          : N_EXPR
                     printRule("ARGS", "EXPR, ARGS");
                     if(!isIntCompatible($1.type))
                     {
-			printf("error");
+			yyerror("Function parameters must be integer");
                     }
                 }
                 ;
@@ -1039,9 +1070,15 @@ N_SINGLE_ELEMENT : T_IDENT T_LBRACKET T_LBRACKET N_EXPR
                     TYPE_INFO exprTypeInfo =
                       findEntryInAnyScope($1);
                     if(exprTypeInfo.type == UNDEFINED) 
+                    {
+				cout << "single element issue" << endl;
 				semanticError(0, ERR_UNDEFINED_IDENT);
-                    if(exprTypeInfo.type != LIST) 
-				semanticError(1, ERR_MUST_BE_LIST);  
+                    }
+			if(exprTypeInfo.type != LIST) {
+			//	cout << "N-single-element is the issue" << endl;
+			//	semanticError(1, ERR_MUST_BE_LIST);  
+			}
+
 			    $$.type = INT_OR_STR_OR_FLOAT_OR_BOOL;
 			    $$.numParams = NOT_APPLICABLE;
 			    $$.returnType = NOT_APPLICABLE;
@@ -1053,8 +1090,10 @@ N_ENTIRE_VAR    : T_IDENT
                     printRule("ENTIRE_VAR", "IDENT");
                     TYPE_INFO exprTypeInfo = 
                       findEntryInAnyScope(string($1));
-                    if(exprTypeInfo.type == UNDEFINED)
-                      semanticError(0, ERR_UNDEFINED_IDENT);
+            //        if(exprTypeInfo.type == UNDEFINED){
+	//		cout << "entire var issue" << endl;
+          //            semanticError(0, ERR_UNDEFINED_IDENT);
+	//		}
                     $$.type = exprTypeInfo.type;
                     $$.numParams = exprTypeInfo.numParams;
                     $$.returnType = exprTypeInfo.returnType;
@@ -1105,7 +1144,9 @@ bool isIntOrFloatOrBoolCompatible(const int theType)
 {
     return((theType == INT) || (theType == FLOAT) ||
 		 (theType == BOOL) ||
-           (theType == INT_OR_STR_OR_FLOAT_OR_BOOL));
+           (theType == INT_OR_STR_OR_FLOAT_OR_BOOL)
+          || (theType == INT_OR_BOOL) || (theType == INT_OR_FLOAT_OR_BOOL) ||
+              (theType ==INT_OR_STR_OR_FLOAT));
 }
 
 // Determine whether given type is compatible with INT.
@@ -1113,21 +1154,27 @@ bool isIntCompatible(const int theType)
 {
     return((theType == INT) ||
 		(theType == BOOL) ||
-           (theType == INT_OR_STR_OR_FLOAT_OR_BOOL));
+           (theType == INT_OR_STR_OR_FLOAT_OR_BOOL)||
+            (theType == INT_OR_BOOL) || (theType ==INT_OR_FLOAT_OR_BOOL)||
+		(theType == INT_OR_STR_OR_FLOAT));
 }
 
 // Determine whether given type is compatible with BOOL.
 bool isBoolCompatible(const int theType)
 {
     return((theType == BOOL) ||
-           (theType == INT_OR_STR_OR_FLOAT_OR_BOOL));
+           (theType == INT_OR_STR_OR_FLOAT_OR_BOOL)
+            || (theType == INT_OR_FLOAT_OR_BOOL)
+            || (theType == INT_OR_BOOL));
 }
 
 // Determine whether given type is compatible with FLOAT.
 bool isFloatCompatible(const int theType)
 {
     return((theType == FLOAT) ||
-           (theType == INT_OR_STR_OR_FLOAT_OR_BOOL));
+           (theType == INT_OR_STR_OR_FLOAT_OR_BOOL)
+		||(theType == INT_OR_FLOAT_OR_BOOL)
+		||(theType == INT_OR_STR_OR_FLOAT));
 }
 
 // Determine whether given type is considered an invalid
