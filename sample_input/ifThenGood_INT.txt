@@ -1,4 +1,0 @@
-{
-  foo = function(x) { x = if (TRUE) 1 };
-  print("This should be correct")
-}

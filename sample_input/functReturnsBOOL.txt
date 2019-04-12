@@ -1,8 +1,0 @@
-{
-    bigger = function(x, y) 
-    {
-     x > y
-    };
-    if (bigger(5, 4)) TRUE else FALSE;
-    print("This should be correct")
-}

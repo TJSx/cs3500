@@ -1,8 +1,0 @@
-{
-  foo = function(x) 
-  { 
-    for (x in list(1, 2, 3))
-      print(x)
-  };
-  print("good example")
-}

@@ -1,6 +1,0 @@
-{
-    bojack = function(x, y) { print(x+y) };
-    mrPB = function() { cat("Mr. PeanutButter") };
-    bojack(1, mrPB);
-    print("bye")
-}

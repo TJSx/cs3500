@@ -1,7 +1,0 @@
-{
-    foo = function(x, y, z) 
-    { 
-      y = cat("Mr. Peanutbutter")
-    };
-    print("bye")
-}

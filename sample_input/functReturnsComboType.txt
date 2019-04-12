@@ -1,9 +1,0 @@
-{
-    getInput = function() 
-    {
-     print("Enter something: ");
-     read()
-    };
-    getInput();
-    print("This should be correct")
-}

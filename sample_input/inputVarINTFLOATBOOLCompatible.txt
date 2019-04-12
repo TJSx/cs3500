@@ -1,5 +1,0 @@
-{
-    input = read();
-    result = (input > 5) * input - 3.14;
-    print("snarky puppy!")
-}

@@ -1,6 +1,0 @@
-{
-  x = list("bojack", "Mr. Peanutbutter");
-  for (x in list(1, 2, 3))
-    print(x);
-  print("bad example")
-}

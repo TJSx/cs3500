@@ -1,5 +1,0 @@
-{
-  if (TRUE) 
-    function() { print("foo!!!") };
-  print("done!")
-}

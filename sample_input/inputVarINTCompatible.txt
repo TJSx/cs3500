@@ -1,7 +1,0 @@
-{
-    foo = function(x) 
-    {
-      x = read()
-    };
-    print("foo on you!")
-}

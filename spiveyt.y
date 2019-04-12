@@ -138,7 +138,7 @@ extern "C"
 %type <typeInfo> N_QUIT_EXPR N_CONST N_EXPR_LIST
 %type <typeInfo> N_SIMPLE_ARITHLOGIC N_TERM N_ADD_OP_LIST
 %type <typeInfo> N_FACTOR N_MULT_OP_LIST N_VAR
-%type <typeInfo> N_SINGLE_ELEMENT N_ENTIRE_VAR N_ARG_LIST
+%type <typeInfo> N_SINGLE_ELEMENT N_ENTIRE_VAR
 
 %type <num> N_INDEX N_REL_OP N_ADD_OP N_MULT_OP
 %type <num> N_ARG_LIST N_ARGS
@@ -952,23 +952,16 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                       new_temp->tlist = NULL;
                   new_temp = new_temp->tlist;
               }
-              /*
-              temp = type_info.tlist;
-              while(temp!=NULL){
-                  printf("result list length: %d\n", temp->length);
-                  temp = temp->tlist;
-              }*/
-
-
-
-
             scopeStack.top().changeEntry(
                   SYMBOL_TABLE_ENTRY(lexeme,
                   type_info));
+        }
+	else
+	{
+          if($2.is_index && $5.type == LIST)
+          {
+		semanticError(1, ERR_CANNOT_BE_LIST);
           }
-if (($2.isIndex) &&
-    ($5.type == LIST))
-semanticError(1, ERR_CANNOT_BE_LIST);
           $$.type = $5.type;
           $$.numParams = $5.numParams;
           $$.returnType = $5.returnType;
@@ -997,8 +990,8 @@ semanticError(1, ERR_CANNOT_BE_LIST);
               else
                   new_temp->tlist = NULL;
               new_temp = new_temp->tlist;
-}
-
+          }
+	}
                 }
                 ;
 

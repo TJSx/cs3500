@@ -1,7 +1,0 @@
-{
-  foo = function(x) 
-  { 
-   x = if (TRUE) "Bojack" else FALSE 
-  };
-  print("This should be correct")
-}

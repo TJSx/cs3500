@@ -1,9 +1,0 @@
-{
-    foo = function(x) 
-    {
-      characters = list("BoJack", "Mr. PeanutButter"); 
-      x = characters;
-      print(x[[1]])
-    };
-    print("bye")
-}

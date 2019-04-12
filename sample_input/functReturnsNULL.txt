@@ -1,8 +1,0 @@
-{
-    kitty = function() 
-    {
-     cat("meow")
-    };
-    kitty();
-    print("This should be correct")
-}
