@@ -138,7 +138,7 @@ extern "C"
 %type <typeInfo> N_QUIT_EXPR N_CONST N_EXPR_LIST
 %type <typeInfo> N_SIMPLE_ARITHLOGIC N_TERM N_ADD_OP_LIST
 %type <typeInfo> N_FACTOR N_MULT_OP_LIST N_VAR
-%type <typeInfo> N_SINGLE_ELEMENT N_ENTIRE_VAR
+%type <typeInfo> N_SINGLE_ELEMENT N_ENTIRE_VAR N_ARG_LIST
 
 %type <num> N_INDEX N_REL_OP N_ADD_OP N_MULT_OP
 %type <num> N_ARG_LIST N_ARGS
@@ -916,9 +916,6 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
               scopeStack.top().findEntry(lexeme);
           printValue(exprTypeInfo);
         }
-
-
-      }
       else
       {
             // if ident didn't already exist,
@@ -955,13 +952,9 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
             scopeStack.top().changeEntry(
                   SYMBOL_TABLE_ENTRY(lexeme,
                   type_info));
-        }
-	else
-	{
-          if($2.is_index && $5.type == LIST)
-          {
-		semanticError(1, ERR_CANNOT_BE_LIST);
           }
+          if (($2.isIndex) && ($5.type == LIST))
+            semanticError(1, ERR_CANNOT_BE_LIST);
           $$.type = $5.type;
           $$.numParams = $5.numParams;
           $$.returnType = $5.returnType;
@@ -991,7 +984,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                   new_temp->tlist = NULL;
               new_temp = new_temp->tlist;
           }
-	}
+
                 }
                 ;
 
