@@ -1,0 +1,4 @@
+{
+  myList = list(23, 3.14, TRUE, "BoJack");
+  myList[[2]]
+}

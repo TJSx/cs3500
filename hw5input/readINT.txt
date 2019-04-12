@@ -1,0 +1,5 @@
+# The expected output file expects you to enter 123
+{
+  print("Enter an integer (e.g., 123): ");
+  read()
+}

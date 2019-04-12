@@ -1,0 +1,5 @@
+{
+  A = list(23, 3.14, TRUE, "BoJack");
+  A[[5]] = "Mr. Peanutbutter";
+  print(A)
+}
