@@ -1,5 +1,5 @@
 /* minir.l
-    
+
 */
 
 %{
@@ -145,11 +145,13 @@ COMMENT #+.*
 
 "TRUE" {
     printTokenInfo("TRUE", yytext);
+    yylval.text = strdup(yytext);
     return T_TRUE;
 }
 
 "FALSE" {
     printTokenInfo("FALSE", yytext);
+    yylval.text = strdup(yytext);
     return T_FALSE;
 }
 
@@ -210,16 +212,19 @@ COMMENT #+.*
 
 {STRCONST} {
     printTokenInfo("STRCONST", yytext);
+    yylval.text = strdup(yytext);
     return T_STRCONST;
 }
 
 {INTCONST} {
     printTokenInfo("INTCONST", yytext);
+    yylval.text = strdup(yytext);
     return T_INTCONST;
 }
 
 {FLOATCONST} {
     printTokenInfo("FLOATCONST", yytext);
+    yylval.text = strdup(yytext);
     return T_FLOATCONST;
 }
 

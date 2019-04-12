@@ -31,7 +31,7 @@ public:
 
   bool changeEntry(SYMBOL_TABLE_ENTRY x)
   {
-    // Make sure the entry we want to change in the symbol table 
+    // Make sure the entry we want to change in the symbol table
     // is actually in the symbol table.
     map<string, SYMBOL_TABLE_ENTRY>::iterator itr;
     if ((itr = hashTable.find(x.getName())) != hashTable.end())
@@ -53,6 +53,11 @@ public:
     if ((itr = hashTable.find(theName)) == hashTable.end())
       return(info);
     else return(itr->second.getTypeInfo());
+  }
+
+  int getNumEntries()
+  {
+    return(hashTable.size());
   }
   bool find_param(string theName)
   {

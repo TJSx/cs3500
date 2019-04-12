@@ -1,11 +1,11 @@
-/* 
+/*
     minir.y
 
     flex minir.l
     bison minir.y
     g++ minir.tab.c -o parser
     ./parser < inputFileName
-    
+
 */
 
 %{
@@ -20,29 +20,33 @@ using namespace std;
 #define ARITHMETIC_OP   1
 #define LOGICAL_OP      2
 #define RELATIONAL_OP   3
+
 #define INDEX_PROD      4
 #define NOT_INDEX_PROD  5
 
 #define ERR_CANNOT_BE_FUNCT_NULL_LIST_OR_STR	0
-#define ERR_CANNOT_BE_FUNCT					1 
+#define ERR_CANNOT_BE_FUNCT					1
 #define ERR_CANNOT_BE_FUNCT_OR_NULL			2
-#define ERR_CANNOT_BE_LIST					3 
-#define ERR_MUST_BE_LIST					4
-#define ERR_MUST_BE_FUNCT					5
-#define ERR_MUST_BE_INTEGER					6
-#define ERR_MUST_BE_INT_FLOAT_OR_BOOL			7
-#define ERR_TOO_FEW_PARAMS					8
-#define ERR_TOO_MANY_PARAMS					9
-#define ERR_MULTIPLY_DEFINED_IDENT			10
-#define ERR_UNDEFINED_IDENT					11
-#define ERR_ERROR						12
+#define ERR_CANNOT_BE_FUNCT_OR_NULL_OR_LIST 3
+#define ERR_CANNOT_BE_LIST					4
+#define ERR_MUST_BE_LIST					5
+#define ERR_MUST_BE_FUNCT					6
+#define ERR_MUST_BE_INTEGER					7
+#define ERR_MUST_BE_INT_FLOAT_OR_BOOL			8
+#define ERR_TOO_FEW_PARAMS					9
+#define ERR_TOO_MANY_PARAMS					10
+#define ERR_NON_INT_FUNCT_PARAM     11
+#define ERR_MULTIPLY_DEFINED_IDENT			12
+#define ERR_UNDEFINED_IDENT					13
+#define ERR_ERROR						14
 
-const int NUM_ERR_MESSAGES = 13;  // should be ERR_ERROR + 1
+const int NUM_ERR_MESSAGES = 15;  // should be ERR_ERROR + 1
 
 const string ERR_MSG[NUM_ERR_MESSAGES] = {
 "cannot be function or null or list or string",
 "cannot be function",
 "cannot be function or null",
+"cannot be function or null or list",
 "cannot be list",
 "must be list",
 "must be function",
@@ -50,6 +54,7 @@ const string ERR_MSG[NUM_ERR_MESSAGES] = {
 "must be integer or float or bool",
 "Too few parameters in function call",
 "Too many parameters in function call",
+"Function parameters must be integer",
 "Multiply defined identifier",
 "Undefined identifier",
 "<undefined error>"
@@ -60,9 +65,13 @@ const bool suppressTokenOutput = true;
 
 int line_num = 1;
 int numExprs = 0;
+
+
 int trial = 0;
 int arg_count = 0;
 int param_counter = 0;
+
+
 stack<SYMBOL_TABLE> scopeStack; // stack of scope hashtables
 
 bool isIntOrFloatOrBoolCompatible(const int theType);
@@ -70,10 +79,12 @@ bool isIntCompatible(const int theType);
 bool isBoolCompatible(const int theType);
 bool isFloatCompatible(const int theType);
 bool isInvalidOperandType(const int theType);
+bool isListCompatible(const int theType);
 
 void beginScope();
 void endScope();
 void cleanUp();
+void printValue(TYPE_INFO type_info);
 TYPE_INFO findEntryInAnyScope(const string the_name);
 
 void semanticError(const int argNum, const int errNum);
@@ -82,14 +93,14 @@ void printTokenInfo(const char* token_type, const char* lexeme);
 
 void printRule(const char *, const char *);
 
-int yyerror(const char *s) 
+int yyerror(const char *s)
 {
     printf("Line %d: %s\n", line_num, s);
     cleanUp();
     exit(1);
 }
 
-extern "C" 
+extern "C"
 {
     int yyparse(void);
     int yylex(void);
@@ -104,19 +115,21 @@ extern "C"
     TYPE_INFO typeInfo;
 };
 
-%token T_IDENT T_INTCONST T_FLOATCONST T_UNKNOWN T_STRCONST 
+%token T_IDENT T_INTCONST T_FLOATCONST T_UNKNOWN T_STRCONST
 %token T_IF T_ELSE
-%token T_WHILE T_FUNCTION T_FOR T_IN T_NEXT T_BREAK 
+%token T_WHILE T_FUNCTION T_FOR T_IN T_NEXT T_BREAK
 %token T_TRUE T_FALSE T_QUIT
-%token T_PRINT T_CAT T_READ T_LPAREN T_RPAREN T_LBRACE 
+%token T_PRINT T_CAT T_READ T_LPAREN T_RPAREN T_LBRACE
 %token T_RBRACE T_LBRACKET
-%token T_RBRACKET T_SEMICOLON T_COMMA T_ADD T_SUB 
+%token T_RBRACKET T_SEMICOLON T_COMMA T_ADD T_SUB
 %token T_MULT T_DIV T_MOD
-%token T_POW T_LT T_LE T_GT T_GE T_EQ T_NE T_NOT T_AND 
+%token T_POW T_LT T_LE T_GT T_GE T_EQ T_NE T_NOT T_AND
 %token T_OR T_ASSIGN T_LIST
 
-%type <text> T_IDENT
+%type <text> T_IDENT T_INTCONST T_FLOATCONST
+%type <text> T_TRUE T_FALSE
 %type <text> T_ELSE
+
 %type <typeInfo> N_EXPR N_WHILE_EXPR N_IF_EXPR N_FOR_EXPR
 %type <typeInfo> N_COMPOUND_EXPR N_ARITHLOGIC_EXPR
 %type <typeInfo> N_ASSIGNMENT_EXPR N_COND_IF N_THEN_EXPR
@@ -128,11 +141,12 @@ extern "C"
 %type <typeInfo> N_SINGLE_ELEMENT N_ENTIRE_VAR N_ARG_LIST
 
 %type <num> N_INDEX N_REL_OP N_ADD_OP N_MULT_OP
+%type <num> N_ARG_LIST N_ARGS
 
 /*
  *  To eliminate ambiguity in if/else
  */
-%nonassoc   T_RPAREN 
+%nonassoc   T_RPAREN
 %nonassoc   T_ELSE
 
 
@@ -144,6 +158,8 @@ N_START         : N_EXPR
                 {
                     printRule("START", "EXPR");
                     printf("\n---- Completed parsing ----\n\n");
+                    printf("\nValue of the expression is: ");
+                    printValue($1);
                     return 0;
                 }
                 ;
@@ -153,6 +169,8 @@ N_EXPR          : N_IF_EXPR
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
+
                 }
                 | N_WHILE_EXPR
                 {
@@ -160,6 +178,7 @@ N_EXPR          : N_IF_EXPR
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
                 }
                 | N_FOR_EXPR
                 {
@@ -167,6 +186,7 @@ N_EXPR          : N_IF_EXPR
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
                 }
                 | N_COMPOUND_EXPR
                 {
@@ -174,6 +194,36 @@ N_EXPR          : N_IF_EXPR
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
+                    $$.val_bool = $1.val_bool;
+                    $$.val_int = $1.val_int;
+                    $$.val_float = $1.val_float;
+                    strcpy($$.val_string, $1.val_string);
+                    $$.is_null = $1.is_null;
+                    $$.tslist = new Trial;
+                    Trial *temp = $1.tlist;
+                    Trial *new_temp = $$.tlist;
+                    while(temp!=NULL)
+                    {
+                      new_temp->type = temp->type;
+                      new_temp->val_bool = temp->val_bool;
+                      new_temp->val_int = temp->val_int;
+                      new_temp->val_float = temp->val_float;
+                      strcpy(new_temp->val_string, temp->val_string);
+                      new_temp->length = temp->length;
+
+                      temp -> temp->tlistl
+                      if(temp!=NULL)
+                      {
+                        new_temp->tlist = NULL;
+                        }
+                        else
+                        {
+                        new_temp->tlist = NULL;
+
+                        }
+                        new_temp = new_temp->tlist;
+                      }
                 }
                 | N_ARITHLOGIC_EXPR
                 {
@@ -181,6 +231,12 @@ N_EXPR          : N_IF_EXPR
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
+                    $$.val_bool = $1.val_bool;
+                    $$.val_int = $1.val_int;
+                    $$.val_float = $1.val_float;
+                    strcpy($$.val_string, $1.val_string);
+                    $$.is_null = $1.is_null;
                 }
                 | N_ASSIGNMENT_EXPR
                 {
@@ -188,6 +244,36 @@ N_EXPR          : N_IF_EXPR
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
+                    $$.val_bool = $1.val_bool;
+                    $$.val_int = $1.val_int;
+                    $$.val_float = $1.val_float;
+                    strcpy($$.val_string, $1.val_string);
+                    $$.is_null = $1.is_null;
+                    $$.tslist = new Trial;
+                    Trial *temp = $1.tlist;
+                    Trial *new_temp = $$.tlist;
+                    while(temp!=NULL)
+                    {
+                      new_temp->type = temp->type;
+                      new_temp->val_bool = temp->val_bool;
+                      new_temp->val_int = temp->val_int;
+                      new_temp->val_float = temp->val_float;
+                      strcpy(new_temp->val_string, temp->val_string);
+                      new_temp->length = temp->length;
+
+                      temp -> temp->tlistl
+                      if(temp!=NULL)
+                      {
+                        new_temp->tlist = NULL;
+                        }
+                        else
+                        {
+                        new_temp->tlist = NULL;
+
+                        }
+                        new_temp = new_temp->tlist;
+                      }
                 }
                 | N_OUTPUT_EXPR
                 {
@@ -195,6 +281,36 @@ N_EXPR          : N_IF_EXPR
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
+                    $$.val_bool = $1.val_bool;
+                    $$.val_int = $1.val_int;
+                    $$.val_float = $1.val_float;
+                    strcpy($$.val_string, $1.val_string);
+                    $$.is_null = $1.is_null;
+                    $$.tslist = new Trial;
+                    Trial *temp = $1.tlist;
+                    Trial *new_temp = $$.tlist;
+                    while(temp!=NULL)
+                    {
+                      new_temp->type = temp->type;
+                      new_temp->val_bool = temp->val_bool;
+                      new_temp->val_int = temp->val_int;
+                      new_temp->val_float = temp->val_float;
+                      strcpy(new_temp->val_string, temp->val_string);
+                      new_temp->length = temp->length;
+
+                      temp -> temp->tlistl
+                      if(temp!=NULL)
+                      {
+                        new_temp->tlist = NULL;
+                        }
+                        else
+                        {
+                        new_temp->tlist = NULL;
+
+                        }
+                        new_temp = new_temp->tlist;
+                      }
                 }
                 | N_INPUT_EXPR
                 {
@@ -202,6 +318,8 @@ N_EXPR          : N_IF_EXPR
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
+
                 }
                 | N_LIST_EXPR
                 {
@@ -209,6 +327,7 @@ N_EXPR          : N_IF_EXPR
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
                 }
                 | N_FUNCTION_DEF
                 {
@@ -216,6 +335,7 @@ N_EXPR          : N_IF_EXPR
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
                 }
                 | N_FUNCTION_CALL
                 {
@@ -223,6 +343,7 @@ N_EXPR          : N_IF_EXPR
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
                 }
                 | N_QUIT_EXPR
                 {
@@ -230,6 +351,7 @@ N_EXPR          : N_IF_EXPR
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = false;
                     exit(1);
                 }
                 ;
@@ -240,6 +362,8 @@ N_CONST         : T_INTCONST
                     $$.type = INT;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
+                    $$.is_param = false;
+                    $$.val_int = atoi($1);
                 }
                 | T_STRCONST
                 {
@@ -247,6 +371,8 @@ N_CONST         : T_INTCONST
                     $$.type = STR;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
+                    $$.is_param = false;
+                    strcpy($$.val_string, $1);
                 }
                 | T_FLOATCONST
                 {
@@ -254,6 +380,8 @@ N_CONST         : T_INTCONST
                     $$.type = FLOAT;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
+                    $$.is_param = false;
+                    $$.val_float = atoi($1);
                 }
                 | T_TRUE
                 {
@@ -261,6 +389,8 @@ N_CONST         : T_INTCONST
                     $$.type = BOOL;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
+                    $$.is_param = false;
+                    $$.val_bool = true;
 
                 }
                 | T_FALSE
@@ -269,6 +399,8 @@ N_CONST         : T_INTCONST
                     $$.type = BOOL;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
+                    $$.is_param = false;
+                    $$.val_bool = false;
                 }
                 ;
 
@@ -276,20 +408,80 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
                 {
                     printRule("COMPOUND_EXPR",
                               "{ EXPR EXPR_LIST }");
-                    if($3.type == EPSILON)
+                    if($3.type == NOT_APPLICABLE)
                     {
-		    	$$.type = $2.type;
+		    	            $$.type = $2.type;
                     	$$.numParams = $2.numParams;
                     	$$.returnType = $2.returnType;
+                      $$.is_param = $2.is_param;
+                      $$.val_bool = $2.val_bool;
+                      $$.val_int = $2.val_int;
+                      $$.val_float = $2.val_float;
+                      strcpy($$.val_string, $2.val_string);
+                      $$.is_null = $2.is_null;
+                      $$.tslist = new Trial;
+                      Trial *temp = $2.tlist;
+                      Trial *new_temp = $$.tlist;
+                      while(temp!=NULL)
+                      {
+                        new_temp->type = temp->type;
+                        new_temp->val_bool = temp->val_bool;
+                        new_temp->val_int = temp->val_int;
+                        new_temp->val_float = temp->val_float;
+                        strcpy(new_temp->val_string, temp->val_string);
+                        new_temp->length = temp->length;
+
+                        temp -> temp->tlistl
+                        if(temp!=NULL)
+                        {
+                          new_temp->tlist = NULL;
+                          }
+                          else
+                          {
+                          new_temp->tlist = NULL;
+
+                          }
+                          new_temp = new_temp->tlist;
+                        }
                     }
                     else
                     {
-			    	$$.type = $3.type;
+			    	          $$.type = $3.type;
                     	$$.numParams = $3.numParams;
                     	$$.returnType = $3.returnType;
-		
+                      $$.is_param = $3.is_param;
+                      $$.val_bool = $3.val_bool;
+                      $$.val_int = $3.val_int;
+                      $$.val_float = $3.val_float;
+                      strcpy($$.val_string, $3.val_string);
+                      $$.is_null = $3.is_null;
+                      $$.tslist = new Trial;
+                      Trial *temp = $3.tlist;
+                      Trial *new_temp = $$.tlist;
+                      while(temp!=NULL)
+                      {
+                        new_temp->type = temp->type;
+                        new_temp->val_bool = temp->val_bool;
+                        new_temp->val_int = temp->val_int;
+                        new_temp->val_float = temp->val_float;
+                        strcpy(new_temp->val_string, temp->val_string);
+                        new_temp->length = temp->length;
+
+                        temp -> temp->tlistl
+                        if(temp!=NULL)
+                        {
+                          new_temp->tlist = NULL;
+                        }
+                          else
+                          {
+                          new_temp->tlist = NULL;
+
+                          }
+                          new_temp = new_temp->tlist;
+                      }
+
                     }
-		}
+		            }
                 ;
 
 N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
@@ -297,121 +489,186 @@ N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                     printRule("EXPR_LIST", "; EXPR EXPR_LIST");
                     if($3.type == EPSILON)
                     {
-                   	 $$.type = $2.type;
-               	     $$.numParams = $2.numParams;
+                   	  $$.type = $2.type;
+               	      $$.numParams = $2.numParams;
                 	    $$.returnType = $2.returnType;
+                      $$.is_param = $2.is_param;
+                      $$.val_bool = $2.val_bool;
+                      $$.val_int = $2.val_int;
+                      $$.val_float = $2.val_float;
+                      strcpy($$.val_string, $2.val_string);
+                      $$.is_null = $2.is_null;
+                      $$.tslist = new Trial;
+                      Trial *temp = $2.tlist;
+                      Trial *new_temp = $$.tlist;
+                      while(temp!=NULL)
+                      {
+                        new_temp->type = temp->type;
+                        new_temp->val_bool = temp->val_bool;
+                        new_temp->val_int = temp->val_int;
+                        new_temp->val_float = temp->val_float;
+                        strcpy(new_temp->val_string, temp->val_string);
+                        new_temp->length = temp->length;
+
+                        temp -> temp->tlistl
+                        if(temp!=NULL)
+                        {
+                          new_temp->tlist = NULL;
+                          }
+                          else
+                          {
+                          new_temp->tlist = NULL;
+
+                          }
+                          new_temp = new_temp->tlist;
+                        }
                     }
                     else
                     {
-			    	$$.type = $3.type;
+			    	          $$.type = $3.type;
                     	$$.numParams = $3.numParams;
                     	$$.returnType = $3.returnType;
-		
+                      $$.is_param = $3.is_param;
+                      $$.val_bool = $3.val_bool;
+                      $$.val_int = $3.val_int;
+                      $$.val_float = $3.val_float;
+                      strcpy($$.val_string, $3.val_string);
+                      $$.is_null = $3.is_null;
+                      $$.tslist = new Trial;
+                      Trial *temp = $3.tlist;
+                      Trial *new_temp = $$.tlist;
+                      while(temp!=NULL)
+                      {
+                        new_temp->type = temp->type;
+                        new_temp->val_bool = temp->val_bool;
+                        new_temp->val_int = temp->val_int;
+                        new_temp->val_float = temp->val_float;
+                        strcpy(new_temp->val_string, temp->val_string);
+                        new_temp->length = temp->length;
+
+                        temp -> temp->tlistl
+                        if(temp!=NULL)
+                        {
+                          new_temp->tlist = NULL;
+                        }
+                          else
+                          {
+                          new_temp->tlist = NULL;
+
+                          }
+                          new_temp = new_temp->tlist;
+                      }
+
                     }
-                    
+
                 }
                 | /* epsilon */
                 {
                     printRule("EXPR_LIST", "epsilon");
-                    $$.type = EPSILON;
-                    $$.numParams = EPSILON;
-                    $$.returnType = EPSILON;
+                    $$.type = NOT_APPLICABLE;
+                    $$.numParams = NOT_APPLICABLE;
+                    $$.returnType = NOT_APPLICABLE;
+                    $$.is_param = false;
+                    $$.is_null = true;
                 }
                 ;
-N_IF_EXPR	: N_COND_IF T_RPAREN N_THEN_EXPR
-		{
-			printRule("IF_EXPR", "IF ) THEN_EXPR"); 
-/*			if($1.type == FUNCTION ||$1.type == LIST ||$1.type == NULL_TYPE ||$1.type == STR)
-			{
-				line_num--;
-				yyerror("Arg 1 cannot be function or null or list or string");
-			}	
-			if($3.type == FUNCTION)
-			{
-				cout << "if expr error of then being a function" << endl;
-				printf("error");
-			}*/
-			$$.type = $3.type;
-	                $$.numParams = $3.numParams;
-      		       $$.returnType = $3.returnType;
-		}
-		| N_COND_IF T_RPAREN N_THEN_EXPR T_ELSE N_EXPR
-		{
-		//	string lexeme = string($4);
-			printRule("IF_EXPR" , " COND_IF ) THEN_EXPR ELSE EXPR");
-			if($1.type == FUNCTION ||$1.type == LIST ||$1.type == NULL_TYPE ||$1.type == STR)
-			{
-				cout << "it is this error" << endl;
-				yyerror("Arg 1 cannot be function or null or list or string");
-			}	
-			
-			if($3.type == FUNCTION)
-			{
-				cout << "if expr still can't be function" << endl;
-				printf("error");
-			}
-//			TYPE_INFO exprTypeInfo = scopeStack.top().findEntry(string($4));			
-			if($5.type == FUNCTION)
-			{
-				yyerror("Arg 3 cannot be function");
-			}
-			
-			$$.type = INT_OR_FLOAT_OR_BOOL;
-			$$.numParams = NOT_APPLICABLE;
-			$$.returnType = NOT_APPLICABLE;
-		}
-		;
+N_IF_EXPR	      : N_COND_IF T_RPAREN N_THEN_EXPR
+		              {
+			               printRule("IF_EXPR", "IF ) THEN_EXPR");
+
+                     //$$.type = $3.type;
+	                   $$.numParams = NOT_APPLICABLE;
+      		           $$.returnType = NOT_APPLICABLE;
+                     if($1.val_bool || $1.val_int != 0 || $1.val_float != 0)
+                     {
+                        $$.type = $3.type;
+                        $$.is_param = $3.is_param;
+                        $$.val_int = $3.val_int;
+                        $$.val_bool = $3.val_bool;
+                        $$.val_float = $3.val_float;
+                        strcpy($$val_string, $3.val_string);
+                        $$.is_null = $3.is_null;
+                     }
+                     else
+                     {
+                        $$.type = NULL_TYPE;
+                        $$.is_null = true;
+                     }
+		              }
+		            | N_COND_IF T_RPAREN N_THEN_EXPR T_ELSE N_EXPR
+		              {
+			               printRule("IF_EXPR" , " COND_IF ) THEN_EXPR ELSE EXPR");
+			                  if($5.type == FUNCTION)
+			                  {
+				                    semanticError(3, ERR_CANNOT_BE_FUNCT);
+			                  }
+
+			                  $$.type = $3.type ^ $5.type;
+			                  $$.numParams = NOT_APPLICABLE;
+			                  $$.returnType = NOT_APPLICABLE;
+                        $$.is_param = $3.is_param || $5.is_param;
+
+                        if($1.val_bool || $1.val_int != 0 || $1.val_float != 0)
+                        {
+                           $$.type = $3.type;
+                           $$.is_param = $3.is_param;
+                           $$.val_int = $3.val_int;
+                           $$.val_bool = $3.val_bool;
+                           $$.val_float = $3.val_float;
+                           strcpy($$val_string, $3.val_string);
+                           $$.is_null = $3.is_null;
+                        }
+                        else
+                        {
+                          $$.type = $5.type;
+                          $$.is_param = $5.is_param;
+                          $$.val_bool = $5.val_bool;
+                          $$.val_int = $5.val_int;
+                          $$.val_float = $5.val_float;
+                          strcpy($$.val_string, $5.val_string);
+                          $$.is_null = $5.is_null;
+                        }
+
+
+		                }
+		                ;
 
 N_COND_IF	: T_IF T_LPAREN N_EXPR
-		{
-			printRule("COND_IF" , "IF ( EXPR ");
-			if($3.type == FUNCTION ||$3.type == LIST ||$3.type == NULL_TYPE ||$3.type == STR)
-			{
-				yyerror("Arg 1 cannot be function or null or list or string");
-			}	
-			if($3.type == FUNCTION)
-			{
- 				cout << "if expr error of then being a function" << endl;
-				 printf("error");
-			}
-			$$.type = $3.type;
-                   	 $$.numParams = $3.numParams;
-                   	 $$.returnType = $3.returnType;
-                      
-		}
-		;
+		        {
+			         printRule("COND_IF" , "IF ( EXPR ");
+			            if($3.type == FUNCTION ||$3.type == LIST ||$3.type == NULL_TYPE ||$3.type == STR)
+			            {
+				             printValue($3);
+                     semanticError(1, ERR_CANNOT_BE_FUNCT_NULL_LIST_OR_STR);
+			            }
+                  $$.val_bool = $3.val_bool;
+                  $$.val_int = $3.val_int;
+                  $$.val_float = $3.val_float;
+                  strcpy($$.val_string, $3.val_string);
+                  $$.is_null = $3.is_null;
+
+		        }
+		        ;
 
 N_THEN_EXPR	: N_EXPR
 		{
 			printRule("THEN_EXPR" , "EXPR" );
 			if($1.type == FUNCTION)
 			{
-				yyerror("Arg 2 cannot be function");
+				semanticError(2, ERR_CANNOT_BE_FUNCT);
 			}
-				$$.type = $1.type;
-	                   	 $$.numParams = $1.numParams;
-        	         	 $$.returnType = $1.returnType;
+			$$.type = $1.type;
+	    $$.numParams = NOT_APPLICABLE;
+      $$.returnType = NOT_APPLICABLE;
+      $$.is_param = $1.is_param;
 		}
 		;
-/*
-N_IF_EXPR       : T_IF T_LPAREN N_EXPR T_RPAREN N_EXPR
-                {
-                    printRule("IF_EXPR", "IF ( EXPR ) EXPR");
-                }
-                | T_IF T_LPAREN N_EXPR T_RPAREN N_EXPR T_ELSE
-                  N_EXPR
-                {
-                    printRule("IF_EXPR", 
-                              "IF ( EXPR ) EXPR ELSE EXPR");
-		     }
-                ;
-*/
 N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR
                 {
-                    if(($3.type == FUNCTION) 
-				  || ($3.type == LIST)
-                       || ($3.type == NULL_TYPE) 
-                       || ($3.type == STR)) 
+                    if(($3.type == FUNCTION)
+				               || ($3.type == LIST)
+                       || ($3.type == NULL_TYPE)
+                       || ($3.type == STR))
                      semanticError(1,
                        ERR_CANNOT_BE_FUNCT_NULL_LIST_OR_STR);
                 }
@@ -422,35 +679,35 @@ N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR
                     $$.type = $6.type;
                     $$.numParams = $6.numParams;
                     $$.returnType = $6.returnType;
+                    $$.is_param = $6.is_param;
                 }
                 ;
 
-N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN
-			  N_EXPR
+N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN N_EXPR
                 {
-		
+
 			string lexeme = string($3);
                     	TYPE_INFO exprTypeInfo = scopeStack.top().findEntry(lexeme);
-                    if(exprTypeInfo.type == UNDEFINED) 
+                    if(exprTypeInfo.type == UNDEFINED)
 		    {
                       if(!suppressTokenOutput)
                         printf("___Adding %s to symbol table\n", $3);
                       // add in as N/A type until the
-                      // N_EXPR can be processed below to 
+                      // N_EXPR can be processed below to
                       // get the correct type
                       scopeStack.top().addEntry(
                             SYMBOL_TABLE_ENTRY(lexeme,
                             {INT_OR_STR_OR_FLOAT_OR_BOOL, NOT_APPLICABLE,
-                             NOT_APPLICABLE}, false));	  
+                             NOT_APPLICABLE}, false));
                     }
-                    else 
+                    else
 		    {
 		    // set flag that ident already existed
 				$<flag>$ = true;
                     }
-		
-		
-		
+
+
+
         	  if($5.type != LIST)
                   {
 				line_num--;
@@ -467,7 +724,7 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN
 		  $$.type = $7.type;
 		  $$.numParams = $7.numParams;
 		  $$.returnType = $7.returnType;
-	        	  printRule("FOR_EXPR", 
+	        	  printRule("FOR_EXPR",
                               "FOR ( IDENT IN EXPR ) EXPR");
 
                 }
@@ -475,47 +732,70 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN
 
 N_LIST_EXPR     : T_LIST T_LPAREN N_CONST_LIST T_RPAREN
                 {
-                    printRule("LIST_EXPR", 
+                    printRule("LIST_EXPR",
                               "LIST ( CONST_LIST )");
                     $$.type = LIST;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
+                    $$.is_param = false;
+                    $$.tlist = $3.tlist;
                 }
                 ;
 
 N_CONST_LIST    : N_CONST T_COMMA N_CONST_LIST
                 {
-                    printRule("CONST_LIST", 
+                    printRule("CONST_LIST",
                               "CONST, CONST_LIST");
+                    Trial *second = NULL;
+                    second = new Trial;
+                    second->type = $1.type;
+                    second->val_bool = $1.val_bool;
+                    second->val_int = $1.val_int;
+                    second->val_float = $1.val_float;
+                    strcpy(second->val_string, $1.val_string);
+                    second->tlist = $3.tlist;
+                    second->length = $3.tlist->length+1;
+                    $$.tlist = second;
                 }
                 | N_CONST
                 {
                     printRule("CONST_LIST", "CONST");
+                    Trial *second = NULL;
+                    second = new Trial;
+                    second->type = $1.type;
+                    second->val_bool = $1.val_bool;
+                    second->val_int = $1.val_int;
+                    second->val_float = $1.val_float;
+                    strcpy(second->val_string, $1.val_string);
+                    second->tlist = NULL;
+                    second->length = 1;
+                    $$.tlist = second;
+
                 }
                 ;
 
 N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                 {
-                    printRule("ASSIGNMENT_EXPR", 
+                    printRule("ASSIGNMENT_EXPR",
                               "IDENT INDEX ASSIGN EXPR");
                     string lexeme = string($1);
                     TYPE_INFO exprTypeInfo =
                         scopeStack.top().findEntry(lexeme);
-                    if(exprTypeInfo.type == UNDEFINED) 
-			    {
+                    if(exprTypeInfo.type == UNDEFINED)
+			              {
                       if(!suppressTokenOutput)
-                        printf("___Adding %s to symbol table\n", 
+                        printf("___Adding %s to symbol table\n",
                                $1);
                       // add in as N/A type until the
-                      // N_EXPR can be processed below to 
+                      // N_EXPR can be processed below to
                       // get the correct type
                       scopeStack.top().addEntry(
                             SYMBOL_TABLE_ENTRY(lexeme,
                             {NOT_APPLICABLE, NOT_APPLICABLE,
-                             NOT_APPLICABLE}, false));
+                             NOT_APPLICABLE, false}));
 			      $<flag>$ = false;
                     }
-                    else 
+                    else
 			    {
                      // set flag that ident already existed
 				$<flag>$ = true;
@@ -524,45 +804,201 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                 T_ASSIGN N_EXPR
                 {
                     string lexeme = string($1);
-                    TYPE_INFO exprTypeInfo = 
+                    TYPE_INFO exprTypeInfo =
                         scopeStack.top().findEntry(lexeme);
-                    if(($2 == INDEX_PROD) && 
-                       (exprTypeInfo.type != LIST)) 
-			{
-				semanticError(1, ERR_MUST_BE_LIST);
-			}   /*
+                    if(($2.is_index) &&
+                       (!isListCompatible(exprTypeInfo.type)))
+			                    {
+				                      semanticError(1, ERR_MUST_BE_LIST);
+			                    }
+                    if($<flag>3)
+                    {
+                      semanticError(1, ERR_MUST_BE_INTEGER);
+                    }
+       /*
 			    Note:
 			    Can check whether ident already
 			    existed by seeing if $<flag>3 == true.
 			    This might be useful in HW 4b.
 			    */
-                    if(exprTypeInfo.is_param == true)
-                    {
-			scopeStack.top().changeEntry(SYMBOL_TABLE_ENTRY(lexeme,
-                                        {INT, $5.numParams, INT}, true));
-			    if (($2 == INDEX_PROD) && 
-			        ($5.type == LIST))
-				{
-					semanticError(1, ERR_CANNOT_BE_LIST);
-				}
-			if(!isIntCompatible($5.type))
-			{
-				yyerror("Arg 1 must be integer");
-			}   
-                    }
-                    else
-                    {
-                    scopeStack.top().changeEntry(
-                         SYMBOL_TABLE_ENTRY(lexeme,
-                           {$5.type, $5.numParams,
-                            $5.returnType}, false));
-			    if (($2 == INDEX_PROD) && 
-			        ($5.type == LIST))
-				semanticError(1, ERR_CANNOT_BE_LIST);
-                 	}
-	            $$.type = $5.type;
-                    $$.numParams = $5.numParams;
-                    $$.returnType = $5.returnType;
+
+          if(!$2.is_index)
+        {
+          TYPE_INFO type_info;
+          type_info.type = $5.type;
+          type_info.numParams = $5.numParams;
+          type_info.returnType = $5.returnType;
+          type_info.is_param = $5.is_param;
+          type_info.val_bool = $5.val_bool;
+          type_info.val_int = $5.val_int;
+          type_info.val_float = $5.val_float;
+          strcpy(type_info.val_string, $5.val_string);
+          type_info.is_null= $5.is_null;
+
+          type_info.tlist = new Trial;
+          Trial *temp = $5.tlist;
+          Trial *new_temp = type_info.tlist;
+          while(temp!=NULL)
+          {
+              new_temp->type = temp->type;
+              new_temp->val_bool = temp->val_bool;
+              new_temp->val_int = temp->val_int;
+              new_temp->val_float = temp->val_float;
+              strcpy(new_temp->val_string, temp->val_string);
+              new_temp->length = temp->length;
+              temp = temp->tlist;
+              if(temp!=NULL)
+                  new_temp->tlist = new Trial;
+              else
+                  new_temp->tlist = NULL;
+              new_temp = new_temp->tlist;
+          }
+
+          scopeStack.top().changeEntry(
+               SYMBOL_TABLE_ENTRY(lexeme,
+                 type_info));
+        }
+        else
+        {
+              if($2.val_int<1 || $2.val_int>exprTypeInfo.tlist->length)
+              {
+                  yyerror("Subscript out of bounds");
+              }
+
+          printValue(exprTypeInfo);
+
+          TYPE_INFO type_info;
+          type_info.type = exprTypeInfo.type;
+          type_info.numParams = exprTypeInfo.numParams;
+          type_info.returnType = exprTypeInfo.returnType;
+          type_info.is_param = exprTypeInfo.is_param;
+          type_info.val_bool = exprTypeInfo.val_bool;
+          type_info.val_int = exprTypeInfo.val_int;
+          type_info.val_float = exprTypeInfo.val_float;
+          strcpy(type_info.val_string, exprTypeInfo.val_string);
+          type_info.is_null= exprTypeInfo.is_null;
+
+          type_info.tlist = new Trial;
+          Trial *temp = exprTypeInfo.tlist;
+          Trial *new_temp = type_info.tlist;
+          while(temp!=NULL)
+          {
+              new_temp->type = temp->type;
+              new_temp->val_bool = temp->val_bool;
+              new_temp->val_int = temp->val_int;
+              new_temp->val_float = temp->val_float;
+              strcpy(new_temp->val_string, temp->val_string);
+              new_temp->length = temp->length;
+              temp = temp->tlist;
+              if(temp!=NULL)
+                  new_temp->tlist = new Trial;
+              else
+                  new_temp->tlist = NULL;
+              new_temp = new_temp->tlist;
+          }
+
+          int count = $2.val_int;
+          Trial* node = type_info.tlist;
+          while(count > 1)
+          {
+              node = node->tlist;
+              count -= 1;
+          }
+          node->type = $5.type;
+          node->val_bool = $5.val_bool;
+          node->val_int = $5.val_int;
+          node->val_float = $5.val_float;
+          strcpy(node->val_string, $5.val_string);
+          scopeStack.top().changeEntry(
+               SYMBOL_TABLE_ENTRY(lexeme,
+                 type_info));
+          exprTypeInfo =
+              scopeStack.top().findEntry(lexeme);
+          printValue(exprTypeInfo);
+        }
+
+
+      }
+      else
+      {
+            // if ident didn't already exist,
+            // just change the type
+              TYPE_INFO type_info;
+              type_info.type = $5.type;
+              type_info.numParams = $5.numParams;
+              type_info.returnType = $5.returnType;
+              type_info.is_param = $5.is_param;
+              type_info.val_bool = $5.val_bool;
+              type_info.val_int = $5.val_int;
+              type_info.val_float = $5.val_float;
+              strcpy(type_info.val_string, $5.val_string);
+              type_info.is_null= $5.is_null;
+
+              type_info.tlist = new Trial;
+              Trial *temp = $5.tlist;
+              Trial *new_temp = type_info.tlist;
+              while(temp!=NULL)
+              {
+                  new_temp->type = temp->type;
+                  new_temp->val_bool = temp->val_bool;
+                  new_temp->val_int = temp->val_int;
+                  new_temp->val_float = temp->val_float;
+                  strcpy(new_temp->val_string, temp->val_string);
+                  new_temp->length = temp->length;
+                  temp = temp->tlist;
+                  if(temp!=NULL)
+                      new_temp->tlist = new Trial;
+                  else
+                      new_temp->tlist = NULL;
+                  new_temp = new_temp->tlist;
+              }
+              /*
+              temp = type_info.tlist;
+              while(temp!=NULL){
+                  printf("result list length: %d\n", temp->length);
+                  temp = temp->tlist;
+              }*/
+
+
+
+
+            scopeStack.top().changeEntry(
+                  SYMBOL_TABLE_ENTRY(lexeme,
+                  type_info));
+          }
+if (($2.isIndex) &&
+    ($5.type == LIST))
+semanticError(1, ERR_CANNOT_BE_LIST);
+          $$.type = $5.type;
+          $$.numParams = $5.numParams;
+          $$.returnType = $5.returnType;
+          $$.is_param = $5.is_param;
+          $$.val_bool = $5.val_bool;
+          $$.val_int = $5.val_int;
+          $$.val_float = $5.val_float;
+          strcpy($$.val_string, $5.val_string);
+          $$.is_null= $5.is_null;
+
+
+          $$.tlist = new Trial;
+          Trial *temp = $5.tlist;
+          Trial *new_temp = $$.tlist;
+          while(temp!=NULL)
+          {
+              new_temp->type = temp->type;
+              new_temp->val_bool = temp->val_bool;
+              new_temp->val_int = temp->val_int;
+              new_temp->val_float = temp->val_float;
+              strcpy(new_temp->val_string, temp->val_string);
+              new_temp->length = temp->length;
+              temp = temp->tlist;
+              if(temp!=NULL)
+                  new_temp->tlist = new Trial;
+              else
+                  new_temp->tlist = NULL;
+              new_temp = new_temp->tlist;
+}
+
                 }
                 ;
 
@@ -570,12 +1006,15 @@ N_INDEX :       T_LBRACKET T_LBRACKET N_EXPR T_RBRACKET
                 T_RBRACKET
 			{
                     printRule("INDEX", " [[ EXPR ]]");
-                    $$ = INDEX_PROD;
+                    $$.is_index = true;
+                    $$.type = INT;
+                    $$.val_int = $3.val_int;
 			}
 			| /* epsilon */
                 {
                     printRule("INDEX", " epsilon");
-			    $$ = NOT_INDEX_PROD;
+			                 $$.is_index = false;
+
                 }
                 ;
 
@@ -585,44 +1024,95 @@ N_QUIT_EXPR     : T_QUIT T_LPAREN T_RPAREN
                     $$.type = NULL_TYPE;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
+                    $$.is_param = false;
+                    $$.is_null = true;
                 }
                 ;
 
 N_OUTPUT_EXPR   : T_PRINT T_LPAREN N_EXPR T_RPAREN
                 {
-                    printRule("OUTPUT_EXPR", 
+                    printRule("OUTPUT_EXPR",
                               "PRINT ( EXPR )");
-                    if(($3.type == FUNCTION) || 
-                      ($3.type == NULL_TYPE)){ 
-//				semanticError(1,
-//				 ERR_CANNOT_BE_FUNCT_OR_NULL);
-			line_num--;
-  			yyerror("Arg 1 cannot be function or null or list");
-                   }
+                    if(($3.type == FUNCTION) ||
+                      ($3.type == NULL_TYPE)){
+				                  semanticError(1,
+				                      ERR_CANNOT_BE_FUNCT_OR_NULL);
+		                }
+                    printValue($3);
                     $$.type = $3.type;
                     $$.numParams = $3.numParams;
                     $$.returnType = $3.returnType;
+                    $$.is_param = $3.is_param;
+                    $$.val_bool = $3.val_bool;
+                    $$.val_float = $3.val_float;
+
+                    $$.val_int = $3.val_int;
+                    strcpy($$.val_string, $3.val_string);
+                    $$.is_null = $3.is_null;
+
+                    $$.tlist = new Trial;
+                    Trial *temp = $3.tlist;
+                    Trial *new_temp = $$.tlist;
+                    if(temp!=NULL)
+                    {
+                      new_temp->tlist = new Trial;
+
+                    }
+                    else
+                    {
+                      new_temp->tlist = NULL;
+
+                    }
+                    new_Temp = new_temp->tlist;
+
+
                 }
                 | T_CAT T_LPAREN N_EXPR T_RPAREN
                 {
-                    printRule("OUTPUT_EXPR", 
+                    printRule("OUTPUT_EXPR",
                               "CAT ( EXPR )");
-                    if(($3.type == FUNCTION) || 
-                       ($3.type == NULL_TYPE)) 
+                    if(($3.type == FUNCTION) ||
+                       ($3.type == NULL_TYPE))
 				semanticError(1,
 				 ERR_CANNOT_BE_FUNCT_OR_NULL);
-			 $$.type = NULL_TYPE;
+			              $$.type = NULL_TYPE;
                     $$.numParams = $3.numParams;
                     $$.returnType = $3.returnType;
+                    $$.is_param = $3.is_param;
+                    $$.is_null = true;
                 }
                 ;
 
 N_INPUT_EXPR    : T_READ T_LPAREN T_RPAREN
                 {
                     printRule("INPUT_EXPR", "READ ( VAR )");
-                	$$.type = INT_OR_STR_OR_FLOAT;
-			$$.numParams = NOT_APPLICABLE;
-			$$.returnType = NOT_APPLICABLE;
+                    string reader;
+                    getline(std::cin, reader);
+                    if(reader[0] == '+' || reader[0] == '-' || is_digit(reader[0]))
+                    {
+                      $$.type = INT;
+                      $$.val)unt = stoi(reader);
+                      for(int i = 1; i < reader.length(); i++)
+                      {
+                        if(reader[i] == '.')
+                        {
+                            $$.type = FLOAT;
+                            $$.val_float = stoi(reader);
+                            break;
+                        }
+                      }
+                    }
+                    else
+                    {
+                      $$.type = STR;
+                      strcpy($$.val_string, reader.c_str())
+
+                    }
+                    printf(%d %f %s, $$.val_int, $$.val_float, $$.val_string);
+                        $$.is_param = false;
+
+			                 $$.numParams = NOT_APPLICABLE;
+			                    $$.returnType = NOT_APPLICABLE;
 		}
                 ;
 
@@ -634,9 +1124,9 @@ N_FUNCTION_DEF  : T_FUNCTION
                 	    beginScope();
                 }
                 T_LPAREN N_PARAM_LIST
-		{
-			trial = scopeStack.size();
-		}
+		              {
+			               $<num>$ = scopeStack.top().getNumEntries();
+		              }
                 T_RPAREN N_COMPOUND_EXPR
                 {
               		if($7.type == FUNCTION)
@@ -644,8 +1134,9 @@ N_FUNCTION_DEF  : T_FUNCTION
 				yyerror("Arg 2 cannot be function");
 			}
 		      $$.type = FUNCTION;
-                    $$.numParams = trial;
+                    $$.numParams = $<num>5;
                     $$.returnType = $7.type;
+                    $$.is_param = false;
 			    endScope();
                 }
                 ;
@@ -675,13 +1166,13 @@ N_PARAMS        : T_IDENT
                       printf("___Adding %s to symbol table\n",
                              $1);
                     // assuming params are ints
-                    TYPE_INFO exprTypeInfo = 
-                     {INT, NOT_APPLICABLE, NOT_APPLICABLE};
-                    bool success = 
+                    TYPE_INFO exprTypeInfo =
+                     {INT, NOT_APPLICABLE, NOT_APPLICABLE,true};
+                    bool success =
                      scopeStack.top().
                       addEntry(SYMBOL_TABLE_ENTRY
-                        (lexeme, exprTypeInfo, true));
-                    if(!success) 
+                        (lexeme, exprTypeInfo));
+                    if(!success)
                     {
 				semanticError(0,
 				 ERR_MULTIPLY_DEFINED_IDENT);
@@ -689,19 +1180,19 @@ N_PARAMS        : T_IDENT
                 }
                 | T_IDENT T_COMMA N_PARAMS
                 {
-			param_counter++;
+
                     printRule("PARAMS", "IDENT, PARAMS");
                     string lexeme = string($1);
                     if(!suppressTokenOutput)
                      printf("___Adding %s to symbol table\n",
                            $1);
-                    // assuming params are ints 
-                    TYPE_INFO exprTypeInfo = 
-                     {INT, NOT_APPLICABLE, NOT_APPLICABLE};
+                    // assuming params are ints
+                    TYPE_INFO exprTypeInfo =
+                     {INT, NOT_APPLICABLE, NOT_APPLICABLE, true};
                     bool success =
                      scopeStack.top().addEntry(
-                      SYMBOL_TABLE_ENTRY(lexeme, exprTypeInfo, true));
-                    if(!success) 
+                      SYMBOL_TABLE_ENTRY(lexeme, exprTypeInfo));
+                    if(!success)
 				semanticError(0,
 				 ERR_MULTIPLY_DEFINED_IDENT);
                 }
@@ -713,18 +1204,20 @@ N_FUNCTION_CALL : T_IDENT T_LPAREN N_ARG_LIST T_RPAREN
                               " ( ARG_LIST )");
 			string lexeme = string($1);
 			TYPE_INFO check = findEntryInAnyScope($1);
-			if(check.type != FUNCTION)
+			if(check.type == UNDEFINED)
 			{
-				cout << "function call can't be function" << endl;
-				printf("error");
+				  semanticError(0, ERR_UNDEFINED_IDENT);
 			}
-			else if(arg_count != param_counter)
-			{
-				if(arg_count < param_counter)
+      if(check.type != FUNCTION)
+      {
+        semanticError(1, ERR_MUST_BE_FUNCT);
+      }
+
+				if($3 < check.numParams)
 				{
 					yyerror("Too few parameters in function call");
 				}
-				else if(arg_count > param_counter)
+				else if($3 > check.numParams)
 				{
 					yyerror("Too many parameters in function call");
 				}
@@ -732,20 +1225,25 @@ N_FUNCTION_CALL : T_IDENT T_LPAREN N_ARG_LIST T_RPAREN
 			else
 			{
 				$$.type = check.returnType;
-				$$.numParams = check.numParams;
+				$$.numParams = NOT_APPLICABLE;
+        $$.returnType = NOT_APPLICABLE;
+        $$.is_param = false;
 			}
                 }
                 ;
 
 N_ARG_LIST      : N_ARGS
                 {
-			
+
                     printRule("ARG_LIST", "ARGS");
-			$$.numParams = arg_count; 
+			                 $$ = $1;
+                       numExprs = 0;
                }
                 | N_NO_ARGS
                 {
                     printRule("ARG_LIST", "NO_ARGS");
+                    numExprs = 0;
+                    $$ = numExprs;
                 }
                 ;
 
@@ -757,21 +1255,27 @@ N_NO_ARGS       : /* epsilon */
 
 N_ARGS          : N_EXPR
                 {
-                    arg_count++;
+
                     printRule("ARGS", "EXPR");
+                    numExprs++;
+                    if(!isIntCompatible($1.type))
+                    {
+			                 yyerror("Function parameters must be integer");
+                    }
+                }
+                | N_EXPR
+                {
+
+                    printRule("ARGS", "EXPR, ARGS");
+                    numExprs++;
                     if(!isIntCompatible($1.type))
                     {
 			yyerror("Function parameters must be integer");
                     }
                 }
-                | N_EXPR T_COMMA N_ARGS
+                T_COMMA N_ARGS
                 {
-                    arg_count++;
-                    printRule("ARGS", "EXPR, ARGS");
-                    if(!isIntCompatible($1.type))
-                    {
-			yyerror("Function parameters must be integer");
-                    }
+                  $$ = numExprs;
                 }
                 ;
 
@@ -782,6 +1286,13 @@ N_ARITHLOGIC_EXPR : N_SIMPLE_ARITHLOGIC
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
+
+                    $$.val_bool = $1.val_bool;
+                    $$.val_int = $1.val_int;
+                    $$.val_float = $1.val_float;
+                    strcpy($$.val_string, $1.val_string);
+                    $$.is_null= $1.is_null;
                 }
                 | N_SIMPLE_ARITHLOGIC N_REL_OP
                   N_SIMPLE_ARITHLOGIC
@@ -792,12 +1303,19 @@ N_ARITHLOGIC_EXPR : N_SIMPLE_ARITHLOGIC
                     if(isInvalidOperandType($1.type))
                     	semanticError(1,
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
-                    if(isInvalidOperandType($3.type)) 
+                    if(isInvalidOperandType($3.type))
                    	semanticError(2,
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
-                    $$.type = BOOL; 
+                    $$.type = BOOL;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
+                    $$.is_param = false;
+
+                    $$.val_bool = $1.val_bool;
+                    $$.val_int = $1.val_int;
+                    $$.val_float = $1.val_float;
+                    strcpy($$.val_string, $1.val_string);
+                    $$.is_null= $1.is_null;
                 }
                 ;
 
@@ -825,12 +1343,40 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
 				else $$.type = $1.type;
 				$$.numParams = NOT_APPLICABLE;
 				$$.returnType = NOT_APPLICABLE;
+        $$.is_param = false;
 			    }
-                    else 
+                    else
 			    {
 				$$.type = $1.type;
 				$$.numParams = $1.numParams;
 				$$.returnType = $1.returnType;
+        $$.is_param = $1.is_param;
+
+                    $$.val_bool = $1.val_bool;
+                    $$.val_int = $1.val_int;
+                    $$.val_float = $1.val_float;
+                    strcpy($$.val_string, $1.val_string);
+                    $$.is_null= $1.is_null;
+
+
+                    $$.tlist = new Trial;
+                    Trial *temp = $1.tlist;
+                    Trial *new_temp = $$.tlist;
+                    while(temp!=NULL)
+                    {
+                        new_temp->type = temp->type;
+                        new_temp->val_bool = temp->val_bool;
+                        new_temp->val_int = temp->val_int;
+                        new_temp->val_float = temp->val_float;
+                        strcpy(new_temp->val_string, temp->val_string);
+                        new_temp->length = temp->length;
+                        temp = temp->tlist;
+                        if(temp!=NULL)
+                            new_temp->tlist = new Trial;
+                        else
+                            new_temp->tlist = NULL;
+                        new_temp = new_temp->tlist;
+                  }
 			    }
                 }
                 ;
@@ -841,17 +1387,47 @@ N_ADD_OP_LIST	: N_ADD_OP N_TERM N_ADD_OP_LIST
                               "ADD_OP TERM ADD_OP_LIST");
 			    int argWithErr =
 				($3.type == NOT_APPLICABLE)? 2: 1;
-                    if(isInvalidOperandType($2.type))                                 //gygygygygygu       
+                    if(isInvalidOperandType($2.type))                                 //gygygygygygu
 		    		semanticError(argWithErr,
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
 			    $$.numParams = NOT_APPLICABLE;
 			    $$.returnType = NOT_APPLICABLE;
+          $$.is_param = false;
 			    if ($1 == LOGICAL_OP)
 				$$.type = BOOL;
 			    else
 			    {
 				if ($3.type == NOT_APPLICABLE)
-				  $$.type = $2.type;
+        {
+            $$.type = $2.type;
+            $$.numParams = $2.numParams;
+            $$.returnType = $2.returnType;
+            $$.is_param = $2.is_param;
+            $$.val_bool = $2.val_bool;
+            $$.val_int = $2.val_int;
+            $$.val_float = $2.val_float;
+            strcpy($$.val_string, $2.val_string);
+            $$.is_null= $2.is_null;
+            $$.tlist = new Trial;
+            Trial *temp = $2.tlist;
+            Trial *new_temp = $$.tlist;
+            while(temp!=NULL)
+            {
+              new_temp->type = temp->type;
+              new_temp->val_bool = temp->val_bool;
+              new_temp->val_int = temp->val_int;
+              new_temp->val_float = temp->val_float;
+              strcpy(new_temp->val_string, temp->val_string);
+              new_temp->length = temp->length;
+              temp = temp->tlist;
+              if(temp!=NULL)
+                  new_temp->tlist = new Trial;
+              else
+                  new_temp->tlist = NULL;
+              new_temp = new_temp->tlist;
+            }
+        }
+
 				else
 				{
 				  if (isIntCompatible($2.type) &&
@@ -867,6 +1443,7 @@ N_ADD_OP_LIST	: N_ADD_OP N_TERM N_ADD_OP_LIST
 			    $$.type = NOT_APPLICABLE;
 			    $$.numParams = NOT_APPLICABLE;
 			    $$.returnType = NOT_APPLICABLE;
+          $$.is_param = false;
                 }
                 ;
 
@@ -884,6 +1461,7 @@ N_TERM		: N_FACTOR N_MULT_OP_LIST
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
                      	$$.numParams = NOT_APPLICABLE;
                      	$$.returnType = NOT_APPLICABLE;
+                      $$.is_param = false;
 				if (isBoolCompatible($1.type) &&
 				    isBoolCompatible($2.type))
 				  $$.type = BOOL;
@@ -895,30 +1473,84 @@ N_TERM		: N_FACTOR N_MULT_OP_LIST
                         else $$.type = FLOAT;
 				}
 			    }
-                    else 
+                    else
 			    {
 				$$.type = $1.type;
 				$$.numParams = $1.numParams;
 				$$.returnType = $1.returnType;
+        $$.is_param = $2.is_param;
+        $$.val_bool = $2.val_bool;
+        $$.val_int = $2.val_int;
+        $$.val_float = $2.val_float;
+        strcpy($$.val_string, $2.val_string);
+        $$.is_null= $2.is_null;
+        $$.tlist = new Trial;
+        Trial *temp = $2.tlist;
+        Trial *new_temp = $$.tlist;
+        while(temp!=NULL)
+        {
+          new_temp->type = temp->type;
+          new_temp->val_bool = temp->val_bool;
+          new_temp->val_int = temp->val_int;
+          new_temp->val_float = temp->val_float;
+          strcpy(new_temp->val_string, temp->val_string);
+          new_temp->length = temp->length;
+          temp = temp->tlist;
+          if(temp!=NULL)
+              new_temp->tlist = new Trial;
+          else
+              new_temp->tlist = NULL;
+          new_temp = new_temp->tlist;
+        }
 			    }
-                }
-                ;
+            }
+            ;
 
 N_MULT_OP_LIST	: N_MULT_OP N_FACTOR N_MULT_OP_LIST
                 {
                     printRule("MULT_OP_LIST",
                               "MULT_OP FACTOR MULT_OP_LIST");
-			    int argWithErr = 
+			    int argWithErr =
 				($3.type == NOT_APPLICABLE)? 2: 1;
-                    if(isInvalidOperandType($2.type))                    				semanticError(argWithErr,
+                    if(isInvalidOperandType($2.type))
+                        				semanticError(argWithErr,
 				  ERR_MUST_BE_INT_FLOAT_OR_BOOL);
 			    $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
 			    if ($3.type == NOT_APPLICABLE)
-				  $$.type = $2.type;
+          {
+          $$.type = $2.type;
+          $$.numParams = $2.numParams;
+          $$.returnType = $2.returnType;
+          $$.is_param = $2.is_param;
+          $$.val_bool = $2.val_bool;
+          $$.val_int = $2.val_int;
+          $$.val_float = $2.val_float;
+          strcpy($$.val_string, $2.val_string);
+          $$.is_null= $2.is_null;
+          $$.tlist = new Trial;
+          Trial *temp = $2.tlist;
+          Trial *new_temp = $$.tlist;
+          while(temp!=NULL)
+          {
+            new_temp->type = temp->type;
+            new_temp->val_bool = temp->val_bool;
+            new_temp->val_int = temp->val_int;
+            new_temp->val_float = temp->val_float;
+            strcpy(new_temp->val_string, temp->val_string);
+            new_temp->length = temp->length;
+            temp = temp->tlist;
+            if(temp!=NULL)
+                new_temp->tlist = new Trial;
+            else
+                new_temp->tlist = NULL;
+            new_temp = new_temp->tlist;
+          }
+          }
 			    else
 			    {
-                      if(isInvalidOperandType($3.type))                    				  semanticError(argWithErr,
+                      if(isInvalidOperandType($3.type))
+                        semanticError(argWithErr,
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
 			      if ($1 == LOGICAL_OP)
 				  $$.type = BOOL;
@@ -937,6 +1569,7 @@ N_MULT_OP_LIST	: N_MULT_OP N_FACTOR N_MULT_OP_LIST
 			    $$.type = NOT_APPLICABLE;
 			    $$.numParams = NOT_APPLICABLE;
 			    $$.returnType = NOT_APPLICABLE;
+          $$.is_param = false;
                 }
                 ;
 
@@ -946,6 +1579,30 @@ N_FACTOR		: N_VAR
                     $$.type = $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
+                    $$.val_bool = $1.val_bool;
+                    $$.val_int = $1.val_int;
+                    $$.val_float = $1.val_float;
+                    strcpy($$.val_string, $1.val_string);
+                    $$.is_null= $1.is_null;
+                    $$.tlist = new Trial;
+                    Trial *temp = $2.tlist;
+                    Trial *new_temp = $$.tlist;
+                    while(temp!=NULL)
+                    {
+                      new_temp->type = temp->type;
+                      new_temp->val_bool = temp->val_bool;
+                      new_temp->val_int = temp->val_int;
+                      new_temp->val_float = temp->val_float;
+                      strcpy(new_temp->val_string, temp->val_string);
+                      new_temp->length = temp->length;
+                      temp = temp->tlist;
+                      if(temp!=NULL)
+                          new_temp->tlist = new Trial;
+                      else
+                          new_temp->tlist = NULL;
+                      new_temp = new_temp->tlist;
+                    }
                 }
                 | N_CONST
                 {
@@ -953,6 +1610,7 @@ N_FACTOR		: N_VAR
                     $$.type = $1.type;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
+                    $$.is_param = false;
                 }
                 | T_LPAREN N_EXPR T_RPAREN
                 {
@@ -960,6 +1618,7 @@ N_FACTOR		: N_VAR
                     $$.type = $2.type;
                     $$.numParams = $2.numParams;
                     $$.returnType = $2.returnType;
+                    $$.is_param = $2.is_param;
                 }
                 | T_NOT N_FACTOR
                 {
@@ -967,6 +1626,7 @@ N_FACTOR		: N_VAR
                     $$.type = $2.type;
                     $$.numParams = $2.numParams;
                     $$.returnType = $2.returnType;
+                    $$.is_param = $2.is_param;
                 }
                 ;
 
@@ -1052,6 +1712,11 @@ N_VAR           : N_ENTIRE_VAR
                     $$.type == $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
+                    $$.val_bool = $1.val_bool;
+                    $$.val_int = $1.val_int;
+                    $$.val_float = $1.val_float;
+                    strcpy($$.val_string, $1.val_string);
                 }
                 | N_SINGLE_ELEMENT
                 {
@@ -1059,6 +1724,11 @@ N_VAR           : N_ENTIRE_VAR
                     $$.type == $1.type;
                     $$.numParams = $1.numParams;
                     $$.returnType = $1.returnType;
+                    $$.is_param = $1.is_param;
+                    $$.val_bool = $1.val_bool;
+                    $$.val_int = $1.val_int;
+                    $$.val_float = $1.val_float;
+                    strcpy($$.val_string, $1.val_string);
                 }
                 ;
 
@@ -1069,34 +1739,73 @@ N_SINGLE_ELEMENT : T_IDENT T_LBRACKET T_LBRACKET N_EXPR
                               " [[ EXPR ]]");
                     TYPE_INFO exprTypeInfo =
                       findEntryInAnyScope($1);
-                    if(exprTypeInfo.type == UNDEFINED) 
+                    if(exprTypeInfo.type == UNDEFINED)
                     {
-				cout << "single element issue" << endl;
-				semanticError(0, ERR_UNDEFINED_IDENT);
+				                semanticError(0, ERR_UNDEFINED_IDENT);
                     }
-			if(exprTypeInfo.type != LIST) {
-			//	cout << "N-single-element is the issue" << endl;
-			//	semanticError(1, ERR_MUST_BE_LIST);  
-			}
+			if(!isListCompatible(exprTypeInfo)) {
 
-			    $$.type = INT_OR_STR_OR_FLOAT_OR_BOOL;
+				semanticError(1, ERR_MUST_BE_LIST);
+			}
+        if($4.val_int < 1 || $4.val_int > exprTypeInfo.tlist->length)
+        {
+          yyeror("Subscript out of bounds");
+        }
+        int counter = $4.val_int;
+        Trial* node = exprTypeInfo.tlist;
+        while(counter > 1)
+        {
+          node = node->tlist;
+          counter -= 1;
+        }
+			    $$.type = node->type;
 			    $$.numParams = NOT_APPLICABLE;
 			    $$.returnType = NOT_APPLICABLE;
+          $$.is_param = false;
+          $$.val_bool = node->val_bool;
+          $$.val_int = node->val_int;
+          $$.val_float = node->val_float;
+
+          strcpy($$.val_string, node->val_string);
+
+
                 }
                 ;
 
 N_ENTIRE_VAR    : T_IDENT
                 {
                     printRule("ENTIRE_VAR", "IDENT");
-                    TYPE_INFO exprTypeInfo = 
+                    TYPE_INFO exprTypeInfo =
                       findEntryInAnyScope(string($1));
-            //        if(exprTypeInfo.type == UNDEFINED){
-	//		cout << "entire var issue" << endl;
-          //            semanticError(0, ERR_UNDEFINED_IDENT);
-	//		}
+                    if(exprTypeInfo.type == UNDEFINED){
+
+                    semanticError(0, ERR_UNDEFINED_IDENT);
+			              }
                     $$.type = exprTypeInfo.type;
                     $$.numParams = exprTypeInfo.numParams;
                     $$.returnType = exprTypeInfo.returnType;
+                    $$.is_param = exprTypeInfo.is_param;
+                    $$.val_bool = exprTypeInfo.val_bool;
+                    $$.val_float = exprTypeInfo.val_float;
+                    $$.val_int = exprTypeInfo.val_int;
+
+                    strcpy($$.val_String, exprTypeInfo.val_string);
+                    $$.is_null = exprTypeInfo.is_null;
+                    while(temp!=NULL)
+                    {
+                      new_temp->type = temp->type;
+                      new_temp->val_bool = temp->val_bool;
+                      new_temp->val_int = temp->val_int;
+                      new_temp->val_float = temp->val_float;
+                      strcpy(new_temp->val_string, temp->val_string);
+                      new_temp->length = temp->length;
+                      temp = temp->tlist;
+                      if(temp!=NULL)
+                          new_temp->tlist = new Trial;
+                      else
+                          new_temp->tlist = NULL;
+                      new_temp = new_temp->tlist;
+                    }
                 }
                 ;
 
@@ -1126,7 +1835,7 @@ void semanticError(const int argNum, const int errNum)
 // Output token (1st param) and lexeme (2nd param).
 void printTokenInfo(const char* token_type, const char* lexeme)
 {
-  if(!suppressTokenOutput) 
+  if(!suppressTokenOutput)
     printf("TOKEN: %s \t\t LEXEME: %s\n", token_type, lexeme);
 }
 
@@ -1134,7 +1843,7 @@ void printTokenInfo(const char* token_type, const char* lexeme)
 // param) and symbols on right-hand side (2nd param).
 void printRule(const char *lhs, const char *rhs)
 {
-  if(!suppressTokenOutput) 
+  if(!suppressTokenOutput)
     printf("%s -> %s\n", lhs, rhs);
 }
 
@@ -1142,41 +1851,33 @@ void printRule(const char *lhs, const char *rhs)
 // or BOOL.
 bool isIntOrFloatOrBoolCompatible(const int theType)
 {
-    return((theType == INT) || (theType == FLOAT) ||
-		 (theType == BOOL) ||
-           (theType == INT_OR_STR_OR_FLOAT_OR_BOOL)
-          || (theType == INT_OR_BOOL) || (theType == INT_OR_FLOAT_OR_BOOL) ||
-              (theType ==INT_OR_STR_OR_FLOAT));
+    return(isIntCompatible(theType) || isFloatCompatible(theType)
+          || isBoolCompatible(theType));
 }
 
 // Determine whether given type is compatible with INT.
 bool isIntCompatible(const int theType)
 {
-    return((theType == INT) ||
-		(theType == BOOL) ||
-           (theType == INT_OR_STR_OR_FLOAT_OR_BOOL)||
-            (theType == INT_OR_BOOL) || (theType ==INT_OR_FLOAT_OR_BOOL)||
-		(theType == INT_OR_STR_OR_FLOAT));
+    return(isBoolCompatible(theType) || ((theType & INT) == INT));
 }
 
 // Determine whether given type is compatible with BOOL.
 bool isBoolCompatible(const int theType)
 {
-    return((theType == BOOL) ||
-           (theType == INT_OR_STR_OR_FLOAT_OR_BOOL)
-            || (theType == INT_OR_FLOAT_OR_BOOL)
-            || (theType == INT_OR_BOOL));
+    return((theType & BOOL) == BOOL);
+
 }
 
 // Determine whether given type is compatible with FLOAT.
 bool isFloatCompatible(const int theType)
 {
-    return((theType == FLOAT) ||
-           (theType == INT_OR_STR_OR_FLOAT_OR_BOOL)
-		||(theType == INT_OR_FLOAT_OR_BOOL)
-		||(theType == INT_OR_STR_OR_FLOAT));
+    return((theType & FLOAT) == FLOAT);
 }
 
+bool isListCompatible(const int theType)
+{
+  return((theType & LIST == LIST));
+}
 // Determine whether given type is considered an invalid
 // operand type.
 bool isInvalidOperandType(const int theType)
@@ -1188,7 +1889,7 @@ bool isInvalidOperandType(const int theType)
 }
 
 // Push a new SYMBOL_TABLE onto scopeStack.
-void beginScope() 
+void beginScope()
 {
     scopeStack.push(SYMBOL_TABLE());
     if(!suppressTokenOutput)
@@ -1196,7 +1897,7 @@ void beginScope()
 }
 
 // Pop a SYMBOL_TABLE from scopeStack.
-void endScope() 
+void endScope()
 {
     scopeStack.pop();
     if(!suppressTokenOutput)
@@ -1204,7 +1905,7 @@ void endScope()
 }
 
 // Pop all SYMBOL_TABLE's from scopeStack.
-void cleanUp() 
+void cleanUp()
 {
     if (scopeStack.empty())
         return;
@@ -1217,7 +1918,7 @@ void cleanUp()
 // If the_name exists in any SYMBOL_TABLE in scopeStack, return
 // its TYPE_INFO; otherwise, return a TYPE_INFO that contains
 // type UNDEFINED.
-TYPE_INFO findEntryInAnyScope(const string the_name) 
+TYPE_INFO findEntryInAnyScope(const string the_name)
 {
     TYPE_INFO info = {UNDEFINED, NOT_APPLICABLE,
                       NOT_APPLICABLE};
@@ -1225,7 +1926,7 @@ TYPE_INFO findEntryInAnyScope(const string the_name)
     info = scopeStack.top().findEntry(the_name);
     if (info.type != UNDEFINED)
       return(info);
-    else 
+    else
     { // check in "next higher" scope
         SYMBOL_TABLE symbolTable = scopeStack.top();
         scopeStack.pop();
@@ -1235,12 +1936,73 @@ TYPE_INFO findEntryInAnyScope(const string the_name)
     }
 }
 
-int main() 
+void printValue(TYPE_INFO type_info)
 {
-    beginScope();
-    do {
-        yyparse();
-    } while (!feof(yyin));
+    if(type_info.type == INT)
+    {
+      printf("%d\n", type_info.val_int);
+    }
+    else if(type_info.type == STR)
+    {
+      printf("%s\n", type_info.val_string);
+    }
+    else if(type_info.type == BOOL)
+    {
+      printf("%s\n", type_info.val_bool?"TRUE":"FALSE");
+    }
+    else if(type_info.type == FLOAT)
+    {
+      printf("%.2f\n", type_info.val_float);
+    }
+    else if(type_info.type == NULL_TYPE)
+    {
+      printf("%s\n", "NULL");
+    }
+    else if(type_info.type == LIST)
+    {
+      printf("%s", "(");
+      Trial *temp = type_info.tlist;
+      while(temp!=NULL)
+      {
+        if(type_info.type == INT)
+        {
+          printf("%d\n", type_info.val_int);
+        }
+        else if(type_info.type == STR)
+        {
+          printf("%s\n", type_info.val_string);
+        }
+        else if(type_info.type == BOOL)
+        {
+          printf("%s\n", type_info.val_bool?"TRUE":"FALSE");
+        }
+        else if(type_info.type == FLOAT)
+        {
+          printf("%.2f\n", type_info.val_float);
+        }
+        else if(type_info.type == NULL_TYPE)
+        {
+          printf("%s\n", "NULL");
+        }
+        temp = temp->tlist;
+      };
+      printf("%s", " )");
+    }
+}
+int main(int argc, char** argv)
+{
+    if(argc < 2)
+    {
+      printf("You must specify a file in the command line!\n");
+      exit(1);
+
+    }
+    yyin = fopen(argv[1], "r");
+    beginscope();
+    do
+    {
+      yyparse();
+    }while(!feof(yyin));
     endScope();
 
     return 0;
