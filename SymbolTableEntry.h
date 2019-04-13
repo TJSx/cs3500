@@ -1,7 +1,7 @@
 #ifndef SYMBOL_TABLE_ENTRY_H
 #define SYMBOL_TABLE_ENTRY_H
-
-#include <string>
+#include <stdio.h>
+#include <string.h>
 using namespace std;
 
 
@@ -54,7 +54,7 @@ struct Trial
   int val_int;
   float val_float;
   bool val_bool;
-  cha val_string[256];
+  char val_string[256];
   int length;
   Trial* tlist;
 };
@@ -65,7 +65,7 @@ typedef struct {
   int val_int;
   float val_float;
   bool val_bool;
-  cha val_string[256];
+  char val_string[256];
   int length;
   Trial* tlist;
   bool is_index;
@@ -96,11 +96,12 @@ public:
                      const TYPE_INFO theType)
   {
     name = theName;
-    //param_check = param;
+    
     typeInfo.type = theType.type;
     typeInfo.numParams = theType.numParams;
     typeInfo.returnType = theType.returnType;
     typeInfo.is_param = theType.is_param;
+    param_check = theType.is_param;
     typeInfo.val_int = theType.val_int;
     typeInfo.val_float = theType.val_float;
     typeInfo.val_bool = theType.val_bool;
@@ -118,7 +119,7 @@ public:
       strcpy(new_temp->val_string, temp->val_string);
       new_temp->length = temp->length;
 
-      temp -> temp->tlistl
+      temp = temp->tlist;
       if(temp!=NULL)
       {
         new_temp->tlist = NULL;
@@ -135,7 +136,7 @@ public:
   // Accessors
   string getName() const { return name; }
   TYPE_INFO getTypeInfo() const { return typeInfo; }
-//  bool getParam() const { return param_check;}
+  bool getParam() const { return param_check ;}
 };
 
 #endif  // SYMBOL_TABLE_ENTRY_H

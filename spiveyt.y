@@ -126,7 +126,7 @@ extern "C"
 %token T_POW T_LT T_LE T_GT T_GE T_EQ T_NE T_NOT T_AND
 %token T_OR T_ASSIGN T_LIST
 
-%type <text> T_IDENT T_INTCONST T_FLOATCONST
+%type <text> T_IDENT T_INTCONST T_FLOATCONST T_STRCONST
 %type <text> T_TRUE T_FALSE
 %type <text> T_ELSE
 
@@ -138,7 +138,7 @@ extern "C"
 %type <typeInfo> N_QUIT_EXPR N_CONST N_EXPR_LIST
 %type <typeInfo> N_SIMPLE_ARITHLOGIC N_TERM N_ADD_OP_LIST
 %type <typeInfo> N_FACTOR N_MULT_OP_LIST N_VAR
-%type <typeInfo> N_SINGLE_ELEMENT N_ENTIRE_VAR N_ARG_LIST
+%type <typeInfo> N_SINGLE_ELEMENT N_ENTIRE_VAR N_CONST_LIST
 
 %type <num> N_INDEX N_REL_OP N_ADD_OP N_MULT_OP
 %type <num> N_ARG_LIST N_ARGS
@@ -200,7 +200,7 @@ N_EXPR          : N_IF_EXPR
                     $$.val_float = $1.val_float;
                     strcpy($$.val_string, $1.val_string);
                     $$.is_null = $1.is_null;
-                    $$.tslist = new Trial;
+                    $$.tlist = new Trial;
                     Trial *temp = $1.tlist;
                     Trial *new_temp = $$.tlist;
                     while(temp!=NULL)
@@ -212,7 +212,7 @@ N_EXPR          : N_IF_EXPR
                       strcpy(new_temp->val_string, temp->val_string);
                       new_temp->length = temp->length;
 
-                      temp -> temp->tlistl
+                      temp = temp->tlist;
                       if(temp!=NULL)
                       {
                         new_temp->tlist = NULL;
@@ -250,7 +250,7 @@ N_EXPR          : N_IF_EXPR
                     $$.val_float = $1.val_float;
                     strcpy($$.val_string, $1.val_string);
                     $$.is_null = $1.is_null;
-                    $$.tslist = new Trial;
+                    $$.tlist = new Trial;
                     Trial *temp = $1.tlist;
                     Trial *new_temp = $$.tlist;
                     while(temp!=NULL)
@@ -262,7 +262,7 @@ N_EXPR          : N_IF_EXPR
                       strcpy(new_temp->val_string, temp->val_string);
                       new_temp->length = temp->length;
 
-                      temp -> temp->tlistl
+                      temp = temp->tlist;
                       if(temp!=NULL)
                       {
                         new_temp->tlist = NULL;
@@ -287,7 +287,7 @@ N_EXPR          : N_IF_EXPR
                     $$.val_float = $1.val_float;
                     strcpy($$.val_string, $1.val_string);
                     $$.is_null = $1.is_null;
-                    $$.tslist = new Trial;
+                    $$.tlist = new Trial;
                     Trial *temp = $1.tlist;
                     Trial *new_temp = $$.tlist;
                     while(temp!=NULL)
@@ -299,7 +299,7 @@ N_EXPR          : N_IF_EXPR
                       strcpy(new_temp->val_string, temp->val_string);
                       new_temp->length = temp->length;
 
-                      temp -> temp->tlistl
+                      temp = temp->tlist;
                       if(temp!=NULL)
                       {
                         new_temp->tlist = NULL;
@@ -419,7 +419,7 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
                       $$.val_float = $2.val_float;
                       strcpy($$.val_string, $2.val_string);
                       $$.is_null = $2.is_null;
-                      $$.tslist = new Trial;
+                      $$.tlist = new Trial;
                       Trial *temp = $2.tlist;
                       Trial *new_temp = $$.tlist;
                       while(temp!=NULL)
@@ -431,7 +431,7 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
                         strcpy(new_temp->val_string, temp->val_string);
                         new_temp->length = temp->length;
 
-                        temp -> temp->tlistl
+                        temp = temp->tlist;
                         if(temp!=NULL)
                         {
                           new_temp->tlist = NULL;
@@ -455,7 +455,7 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
                       $$.val_float = $3.val_float;
                       strcpy($$.val_string, $3.val_string);
                       $$.is_null = $3.is_null;
-                      $$.tslist = new Trial;
+                      $$.tlist = new Trial;
                       Trial *temp = $3.tlist;
                       Trial *new_temp = $$.tlist;
                       while(temp!=NULL)
@@ -467,7 +467,7 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
                         strcpy(new_temp->val_string, temp->val_string);
                         new_temp->length = temp->length;
 
-                        temp -> temp->tlistl
+                        temp = temp->tlist;
                         if(temp!=NULL)
                         {
                           new_temp->tlist = NULL;
@@ -487,7 +487,7 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
 N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                 {
                     printRule("EXPR_LIST", "; EXPR EXPR_LIST");
-                    if($3.type == EPSILON)
+                    if($3.type == NULL_TYPE)
                     {
                    	  $$.type = $2.type;
                	      $$.numParams = $2.numParams;
@@ -498,7 +498,7 @@ N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                       $$.val_float = $2.val_float;
                       strcpy($$.val_string, $2.val_string);
                       $$.is_null = $2.is_null;
-                      $$.tslist = new Trial;
+                      $$.tlist = new Trial;
                       Trial *temp = $2.tlist;
                       Trial *new_temp = $$.tlist;
                       while(temp!=NULL)
@@ -510,7 +510,7 @@ N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                         strcpy(new_temp->val_string, temp->val_string);
                         new_temp->length = temp->length;
 
-                        temp -> temp->tlistl
+                        temp = temp->tlist;
                         if(temp!=NULL)
                         {
                           new_temp->tlist = NULL;
@@ -534,7 +534,7 @@ N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                       $$.val_float = $3.val_float;
                       strcpy($$.val_string, $3.val_string);
                       $$.is_null = $3.is_null;
-                      $$.tslist = new Trial;
+                      $$.tlist = new Trial;
                       Trial *temp = $3.tlist;
                       Trial *new_temp = $$.tlist;
                       while(temp!=NULL)
@@ -546,7 +546,7 @@ N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                         strcpy(new_temp->val_string, temp->val_string);
                         new_temp->length = temp->length;
 
-                        temp -> temp->tlistl
+                        temp = temp->tlist;
                         if(temp!=NULL)
                         {
                           new_temp->tlist = NULL;
@@ -586,7 +586,7 @@ N_IF_EXPR	      : N_COND_IF T_RPAREN N_THEN_EXPR
                         $$.val_int = $3.val_int;
                         $$.val_bool = $3.val_bool;
                         $$.val_float = $3.val_float;
-                        strcpy($$val_string, $3.val_string);
+                        strcpy($$.val_string, $3.val_string);
                         $$.is_null = $3.is_null;
                      }
                      else
@@ -615,7 +615,7 @@ N_IF_EXPR	      : N_COND_IF T_RPAREN N_THEN_EXPR
                            $$.val_int = $3.val_int;
                            $$.val_bool = $3.val_bool;
                            $$.val_float = $3.val_float;
-                           strcpy($$val_string, $3.val_string);
+                           strcpy($$.val_string, $3.val_string);
                            $$.is_null = $3.is_null;
                         }
                         else
@@ -698,7 +698,7 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN N_EXPR
                       scopeStack.top().addEntry(
                             SYMBOL_TABLE_ENTRY(lexeme,
                             {INT_OR_STR_OR_FLOAT_OR_BOOL, NOT_APPLICABLE,
-                             NOT_APPLICABLE}, false));
+                             NOT_APPLICABLE, false}));
                     }
                     else
 		    {
@@ -999,7 +999,7 @@ N_INDEX :       T_LBRACKET T_LBRACKET N_EXPR T_RBRACKET
 			| /* epsilon */
                 {
                     printRule("INDEX", " epsilon");
-			                 $$.is_index = false;
+                    $$.is_index = false;
 
                 }
                 ;
@@ -1049,7 +1049,7 @@ N_OUTPUT_EXPR   : T_PRINT T_LPAREN N_EXPR T_RPAREN
                       new_temp->tlist = NULL;
 
                     }
-                    new_Temp = new_temp->tlist;
+                    new_temp = new_temp->tlist;
 
 
                 }
@@ -1074,10 +1074,10 @@ N_INPUT_EXPR    : T_READ T_LPAREN T_RPAREN
                     printRule("INPUT_EXPR", "READ ( VAR )");
                     string reader;
                     getline(std::cin, reader);
-                    if(reader[0] == '+' || reader[0] == '-' || is_digit(reader[0]))
+                    if(reader[0] == '+' || reader[0] == '-' || isdigit(reader[0]))
                     {
                       $$.type = INT;
-                      $$.val)unt = stoi(reader);
+                      $$.val_int = stoi(reader);
                       for(int i = 1; i < reader.length(); i++)
                       {
                         if(reader[i] == '.')
@@ -1091,10 +1091,10 @@ N_INPUT_EXPR    : T_READ T_LPAREN T_RPAREN
                     else
                     {
                       $$.type = STR;
-                      strcpy($$.val_string, reader.c_str())
+                      strcpy($$.val_string, reader.c_str());
 
                     }
-                    printf(%d %f %s, $$.val_int, $$.val_float, $$.val_string);
+                    printf("%d %f %s", $$.val_int, $$.val_float, $$.val_string);
                         $$.is_param = false;
 
 			                 $$.numParams = NOT_APPLICABLE;
@@ -1194,10 +1194,10 @@ N_FUNCTION_CALL : T_IDENT T_LPAREN N_ARG_LIST T_RPAREN
 			{
 				  semanticError(0, ERR_UNDEFINED_IDENT);
 			}
-      if(check.type != FUNCTION)
-      {
-        semanticError(1, ERR_MUST_BE_FUNCT);
-      }
+		      	if(check.type != FUNCTION)
+     			 {
+       				 semanticError(1, ERR_MUST_BE_FUNCT);
+      			}
 
 				if($3 < check.numParams)
 				{
@@ -1207,7 +1207,6 @@ N_FUNCTION_CALL : T_IDENT T_LPAREN N_ARG_LIST T_RPAREN
 				{
 					yyerror("Too many parameters in function call");
 				}
-			}
 			else
 			{
 				$$.type = check.returnType;
@@ -1572,7 +1571,7 @@ N_FACTOR		: N_VAR
                     strcpy($$.val_string, $1.val_string);
                     $$.is_null= $1.is_null;
                     $$.tlist = new Trial;
-                    Trial *temp = $2.tlist;
+                    Trial *temp = $1.tlist;
                     Trial *new_temp = $$.tlist;
                     while(temp!=NULL)
                     {
@@ -1729,13 +1728,13 @@ N_SINGLE_ELEMENT : T_IDENT T_LBRACKET T_LBRACKET N_EXPR
                     {
 				                semanticError(0, ERR_UNDEFINED_IDENT);
                     }
-			if(!isListCompatible(exprTypeInfo)) {
+			if(!isListCompatible(exprTypeInfo.type)) {
 
 				semanticError(1, ERR_MUST_BE_LIST);
 			}
         if($4.val_int < 1 || $4.val_int > exprTypeInfo.tlist->length)
         {
-          yyeror("Subscript out of bounds");
+          yyerror("Subscript out of bounds");
         }
         int counter = $4.val_int;
         Trial* node = exprTypeInfo.tlist;
@@ -1775,8 +1774,10 @@ N_ENTIRE_VAR    : T_IDENT
                     $$.val_float = exprTypeInfo.val_float;
                     $$.val_int = exprTypeInfo.val_int;
 
-                    strcpy($$.val_String, exprTypeInfo.val_string);
+                    strcpy($$.val_string, exprTypeInfo.val_string);
                     $$.is_null = exprTypeInfo.is_null;
+                    Trial *temp = exprTypeInfo.tlist;
+                    Trial *new_temp = $$.tlist;
                     while(temp!=NULL)
                     {
                       new_temp->type = temp->type;
@@ -1984,7 +1985,7 @@ int main(int argc, char** argv)
 
     }
     yyin = fopen(argv[1], "r");
-    beginscope();
+    beginScope();
     do
     {
       yyparse();
