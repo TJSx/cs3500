@@ -1,5 +1,0 @@
-{
-  x = if (TRUE) cat("BoJack") else 3.14;
-  y = x + 100;
-  print("This should produce an error!")
-}

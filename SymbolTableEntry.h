@@ -66,7 +66,6 @@ typedef struct {
   float val_float;
   bool val_bool;
   char val_string[256];
-  int length;
   Trial* tlist;
   bool is_index;
   bool is_null;

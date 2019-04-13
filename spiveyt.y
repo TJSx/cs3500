@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <string.h>
 #include <string>
 #include <stack>
 #include "SymbolTable.h"
@@ -137,10 +138,10 @@ extern "C"
 %type <typeInfo> N_FUNCTION_DEF N_FUNCTION_CALL
 %type <typeInfo> N_QUIT_EXPR N_CONST N_EXPR_LIST
 %type <typeInfo> N_SIMPLE_ARITHLOGIC N_TERM N_ADD_OP_LIST
-%type <typeInfo> N_FACTOR N_MULT_OP_LIST N_VAR
+%type <typeInfo> N_FACTOR N_MULT_OP_LIST N_VAR N_INDEX
 %type <typeInfo> N_SINGLE_ELEMENT N_ENTIRE_VAR N_CONST_LIST
 
-%type <num> N_INDEX N_REL_OP N_ADD_OP N_MULT_OP
+%type <num>  N_REL_OP N_ADD_OP N_MULT_OP
 %type <num> N_ARG_LIST N_ARGS
 
 /*
@@ -813,8 +814,10 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
 			                    }
                     if($<flag>3)
                     {
-                      semanticError(1, ERR_MUST_BE_INTEGER);
-                    }
+                     if(exprTypeInfo.is_param && !isIntCompatible($5.type))
+			{
+			 semanticError(1, ERR_MUST_BE_INTEGER);
+                    	}
        /*
 			    Note:
 			    Can check whether ident already
@@ -915,7 +918,8 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
           exprTypeInfo =
               scopeStack.top().findEntry(lexeme);
           printValue(exprTypeInfo);
-        }
+       }
+	 }
       else
       {
             // if ident didn't already exist,
@@ -953,7 +957,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                   SYMBOL_TABLE_ENTRY(lexeme,
                   type_info));
           }
-          if (($2.isIndex) && ($5.type == LIST))
+          if (($2.is_index) && ($5.type == LIST))
             semanticError(1, ERR_CANNOT_BE_LIST);
           $$.type = $5.type;
           $$.numParams = $5.numParams;
