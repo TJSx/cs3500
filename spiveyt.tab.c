@@ -1477,7 +1477,7 @@ yyreduce:
 #line 172 "spiveyt.y" /* yacc.c:1646  */
     {
                     printRule("START", "EXPR");
-                    printf("\n---- Completed parsing ----\n\n");
+                    printf("\n---- Completed parsing ----\n");
                     printf("\nValue of the expression is: ");
                     printValue((yyvsp[0].typeInfo));
                     return 0;
@@ -2122,7 +2122,7 @@ yyreduce:
                             (exprTypeInfo.type == LIST))
 			{
 				semanticError(1, ERR_CANNOT_BE_FUNCT_OR_NULL_OR_LIST);
-			}	
+			}
 		    // set flag that ident already existed
 			//	$<flag>$ = true;
                     }
@@ -2524,8 +2524,8 @@ yyreduce:
                        ((yyvsp[-1].typeInfo).type == NULL_TYPE))
 				semanticError(1,
 				 ERR_CANNOT_BE_FUNCT_OR_NULL);
+                    printValue((yyvsp[-1].typeInfo));
 			              (yyval.typeInfo).type = NULL_TYPE;
-                    (yyval.typeInfo).type = NULL_TYPE;
                     (yyval.typeInfo).numParams = (yyvsp[-1].typeInfo).numParams;
                     (yyval.typeInfo).returnType = (yyvsp[-1].typeInfo).returnType;
                     (yyval.typeInfo).is_param = (yyvsp[-1].typeInfo).is_param;
@@ -2560,7 +2560,7 @@ yyreduce:
                       strcpy((yyval.typeInfo).val_string, reader.c_str());
 
                     }
-                    printf("%d %f %s", (yyval.typeInfo).val_int, (yyval.typeInfo).val_float, (yyval.typeInfo).val_string);
+                    //printf("%d %f %s", $$.val_int, $$.val_float, $$.val_string);
                         (yyval.typeInfo).is_param = false;
 
 			                 (yyval.typeInfo).numParams = NOT_APPLICABLE;
@@ -2803,12 +2803,12 @@ yyreduce:
                     if(isInvalidOperandType((yyvsp[0].typeInfo).type))
                    	semanticError(2,
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
-                    
+
 		    (yyval.typeInfo).type = BOOL;
                     (yyval.typeInfo).numParams = NOT_APPLICABLE;
                     (yyval.typeInfo).returnType = NOT_APPLICABLE;
                     (yyval.typeInfo).is_param = false;
-                    
+
                     if((yyvsp[-2].typeInfo).type == BOOL && (yyvsp[-2].typeInfo).val_bool)
                     {
 			(yyvsp[-2].typeInfo).val_float = 1;
@@ -2836,27 +2836,27 @@ yyreduce:
 
                     if((yyvsp[-1].num) == EQL)
                     {
-			(yyval.typeInfo).val_bool = ((yyvsp[-2].typeInfo).val_float == (yyvsp[0].typeInfo).val_float);	
+			(yyval.typeInfo).val_bool = ((yyvsp[-2].typeInfo).val_float == (yyvsp[0].typeInfo).val_float);
                     }
-                    if((yyvsp[-1].num) == NEQ)
+                    else if((yyvsp[-1].num) == NEQ)
                     {
-			(yyval.typeInfo).val_bool = ((yyvsp[-2].typeInfo).val_float != (yyvsp[0].typeInfo).val_float);	
+			(yyval.typeInfo).val_bool = ((yyvsp[-2].typeInfo).val_float != (yyvsp[0].typeInfo).val_float);
                     }
-                    if((yyvsp[-1].num) == GEQ)
+                    else if((yyvsp[-1].num) == GEQ)
                     {
-			(yyval.typeInfo).val_bool = ((yyvsp[-2].typeInfo).val_float >= (yyvsp[0].typeInfo).val_float);	
+			(yyval.typeInfo).val_bool = ((yyvsp[-2].typeInfo).val_float >= (yyvsp[0].typeInfo).val_float);
                     }
-                    if((yyvsp[-1].num) == LEQ)
+                    else if((yyvsp[-1].num) == LEQ)
                     {
-			(yyval.typeInfo).val_bool = ((yyvsp[-2].typeInfo).val_float <= (yyvsp[0].typeInfo).val_float);	
+			(yyval.typeInfo).val_bool = ((yyvsp[-2].typeInfo).val_float <= (yyvsp[0].typeInfo).val_float);
                     }
-                    if((yyvsp[-1].num) == LESS)
+                    else if((yyvsp[-1].num) == LESS)
                     {
-			(yyval.typeInfo).val_bool = ((yyvsp[-2].typeInfo).val_float < (yyvsp[0].typeInfo).val_float);	
+			(yyval.typeInfo).val_bool = ((yyvsp[-2].typeInfo).val_float < (yyvsp[0].typeInfo).val_float);
                     }
-                    if((yyvsp[-1].num) == GREATER)
+                  else if((yyvsp[-1].num) == GREATER)
                     {
-			(yyval.typeInfo).val_bool = ((yyvsp[-2].typeInfo).val_float > (yyvsp[0].typeInfo).val_float);	
+			(yyval.typeInfo).val_bool = ((yyvsp[-2].typeInfo).val_float > (yyvsp[0].typeInfo).val_float);
                     }
 
                     (yyval.typeInfo).val_int = (yyvsp[-2].typeInfo).val_int;
@@ -2880,7 +2880,7 @@ yyreduce:
                       if(isInvalidOperandType((yyvsp[0].typeInfo).type))
                         semanticError(2,
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
-			
+
 
 			if((yyvsp[0].typeInfo).type == BOOL)
 			{
@@ -2893,7 +2893,7 @@ yyreduce:
 				{
 					(yyvsp[0].typeInfo).val_int = 0;
 					(yyvsp[0].typeInfo).val_float = 0;
-				}	
+				}
 			}
 			if((yyvsp[-1].typeInfo).type == BOOL)
 			{
@@ -2906,14 +2906,14 @@ yyreduce:
 				{
 					(yyvsp[-1].typeInfo).val_int = 0;
 					(yyvsp[-1].typeInfo).val_float = 0;
-				}	
+				}
 			}
-			
+
 			if(isLog((yyvsp[0].typeInfo).opType))
 			{
 				(yyval.typeInfo).type = BOOL;
-				if(((yyvsp[-1].typeInfo).type == FLOAT && (yyvsp[-1].typeInfo).val_float == 0)
-                                  ||((yyvsp[-1].typeInfo).type == INT && (yyvsp[-1].typeInfo).val_int == 0))
+				if(((yyvsp[-1].typeInfo).type == FLOAT and (yyvsp[-1].typeInfo).val_float == 0)
+                                  ||((yyvsp[-1].typeInfo).type == INT and (yyvsp[-1].typeInfo).val_int == 0))
 				{
                                 	(yyvsp[-1].typeInfo).val_bool = false;
 				}
@@ -2921,8 +2921,8 @@ yyreduce:
 				{
 					(yyvsp[-1].typeInfo).val_bool = true;
 				}
-				if(((yyvsp[0].typeInfo).type == FLOAT && (yyvsp[0].typeInfo).val_float == 0)
-                                  ||((yyvsp[0].typeInfo).type == INT && (yyvsp[0].typeInfo).val_int == 0))
+				if(((yyvsp[0].typeInfo).type == FLOAT and (yyvsp[0].typeInfo).val_float == 0)
+                                  ||((yyvsp[0].typeInfo).type == INT and (yyvsp[0].typeInfo).val_int == 0))
 				{
                                 	(yyvsp[0].typeInfo).val_bool = false;
 				}
@@ -2930,7 +2930,7 @@ yyreduce:
 				{
 					(yyvsp[0].typeInfo).val_bool = true;
 				}
-				
+
 				if((yyvsp[0].typeInfo).opType == AND)
 				{
 					(yyval.typeInfo).val_bool = (yyvsp[-1].typeInfo).val_bool && (yyvsp[0].typeInfo).val_bool;
@@ -2940,7 +2940,7 @@ yyreduce:
 					(yyval.typeInfo).val_bool = (yyvsp[-1].typeInfo).val_bool || (yyvsp[0].typeInfo).val_bool;
 				}
 			}
-			
+
 			else if(isIntCompatible((yyvsp[-1].typeInfo).type) && isIntCompatible((yyvsp[0].typeInfo).type))
 			{
 				(yyval.typeInfo).type = INT;
@@ -2959,7 +2959,7 @@ yyreduce:
 				if((yyvsp[-1].typeInfo).type == INT)
 				{
                                 	(yyvsp[-1].typeInfo).val_float = (float)(yyvsp[-1].typeInfo).val_int;
-				}	
+				}
 				if((yyvsp[0].typeInfo).type == INT)
 				{
                                 	(yyvsp[0].typeInfo).val_float = (float)(yyvsp[0].typeInfo).val_int;
@@ -2987,7 +2987,7 @@ yyreduce:
 			(yyval.typeInfo).val_int = (yyvsp[-1].typeInfo).val_int;
 			(yyval.typeInfo).val_float = (yyvsp[-1].typeInfo).val_float;
 			strcpy((yyval.typeInfo).val_string, (yyvsp[-1].typeInfo).val_string);
-			(yyval.typeInfo).is_null = (yyvsp[-1].typeInfo).is_null;			
+			(yyval.typeInfo).is_null = (yyvsp[-1].typeInfo).is_null;
                         (yyval.typeInfo).tlist = new Trial;
                     	Trial *temp = (yyvsp[-1].typeInfo).tlist;
                     	Trial *new_temp = (yyval.typeInfo).tlist;
@@ -3034,8 +3034,8 @@ yyreduce:
 			if(isLog((yyvsp[0].typeInfo).opType))
 			{
 				(yyval.typeInfo).type = BOOL;
-				if(((yyvsp[0].typeInfo).type == FLOAT && (yyvsp[0].typeInfo).val_float == 0)
-                                  || ((yyvsp[0].typeInfo).type == INT && (yyvsp[0].typeInfo).val_int == 0))
+				if(((yyvsp[0].typeInfo).type == FLOAT and (yyvsp[0].typeInfo).val_float == 0)
+                                  || ((yyvsp[0].typeInfo).type == INT and (yyvsp[0].typeInfo).val_int == 0))
 				{
 					(yyvsp[0].typeInfo).val_bool = false;
 				}
@@ -3080,7 +3080,7 @@ yyreduce:
 					(yyval.typeInfo).val_int = (yyvsp[-1].typeInfo).val_int;
 					(yyval.typeInfo).val_float = (yyvsp[-1].typeInfo).val_float;
 					strcpy((yyval.typeInfo).val_string, (yyvsp[-1].typeInfo).val_string);
-					(yyval.typeInfo).is_null = (yyvsp[-1].typeInfo).is_null;			
+					(yyval.typeInfo).is_null = (yyvsp[-1].typeInfo).is_null;
                 		        (yyval.typeInfo).tlist = new Trial;
                     			Trial *temp = (yyvsp[-1].typeInfo).tlist;
                  		   	Trial *new_temp = (yyval.typeInfo).tlist;
@@ -3102,7 +3102,7 @@ yyreduce:
 							new_temp->tlist = NULL;
 						}
 						new_temp = new_temp->tlist;
-	
+
         	        	        }
 
                               	}
@@ -3152,7 +3152,7 @@ yyreduce:
 						if((yyvsp[-1].typeInfo).type == INT)
 						{
 		                                	(yyvsp[-1].typeInfo).val_float = (float)(yyvsp[-1].typeInfo).val_int;
-						}	
+						}
 						if((yyvsp[0].typeInfo).type == INT)
 						{
                 		                	(yyvsp[0].typeInfo).val_float = (float)(yyvsp[0].typeInfo).val_int;
@@ -3170,8 +3170,8 @@ yyreduce:
 					(yyval.typeInfo).numParams = NOT_APPLICABLE;
 					(yyval.typeInfo).returnType = NOT_APPLICABLE;
 					(yyval.typeInfo).is_param = false;
-						(yyval.typeInfo).opType = (yyvsp[-2].num);	
-                        }        
+						(yyval.typeInfo).opType = (yyvsp[-2].num);
+                        }
 			}
 			}
 #line 3178 "spiveyt.tab.c" /* yacc.c:1646  */
@@ -3212,23 +3212,23 @@ yyreduce:
 				|| ((yyvsp[-1].typeInfo).type == INT && (yyvsp[-1].typeInfo).val_int == 0))
 				{
 					(yyvsp[-1].typeInfo).val_bool = false;
-				}		
+				}
 				else if(((yyvsp[-1].typeInfo).type == FLOAT && (yyvsp[-1].typeInfo).val_float != 0)
 				|| ((yyvsp[-1].typeInfo).type == INT && (yyvsp[-1].typeInfo).val_int != 0))
 				{
 					(yyvsp[-1].typeInfo).val_bool = true;
-				}		
+				}
 				if(((yyvsp[0].typeInfo).type == FLOAT && (yyvsp[0].typeInfo).val_float == 0)
 				|| ((yyvsp[0].typeInfo).type == INT && (yyvsp[0].typeInfo).val_int == 0))
 				{
 					(yyvsp[0].typeInfo).val_bool = false;
-				}		
+				}
 				else if(((yyvsp[0].typeInfo).type == FLOAT && (yyvsp[0].typeInfo).val_float != 0)
 				|| ((yyvsp[0].typeInfo).type == INT && (yyvsp[0].typeInfo).val_int == 0))
 				{
 					(yyvsp[0].typeInfo).val_bool = true;
-				}		
-				
+				}
+
 				if((yyvsp[0].typeInfo).opType == AND)
 				{
 					(yyval.typeInfo).val_bool = (yyvsp[-1].typeInfo).val_bool && (yyvsp[0].typeInfo).val_bool;
@@ -3240,7 +3240,7 @@ yyreduce:
 			}
 			else
 			{
-				
+
                             	if((yyvsp[0].typeInfo).type == BOOL)
                                 {
 					if((yyvsp[0].typeInfo).val_bool)
@@ -3300,40 +3300,40 @@ yyreduce:
 				if((yyvsp[-1].typeInfo).type == INT)
                                 {
 		                    	(yyvsp[-1].typeInfo).val_float = (float)(yyvsp[-1].typeInfo).val_int;
-				}	
+				}
 				if((yyvsp[0].typeInfo).type == INT)
 				{
                                         (yyvsp[0].typeInfo).val_float = (float)(yyvsp[0].typeInfo).val_int;
 				}
 					if((yyvsp[0].typeInfo).opType == MULT)
 					{
-						(yyval.typeInfo).val_int = (yyvsp[-1].typeInfo).val_int * (yyvsp[0].typeInfo).val_int;
+						(yyval.typeInfo).val_float = (yyvsp[-1].typeInfo).val_float * (yyvsp[0].typeInfo).val_float;
 					}
 					else if((yyvsp[0].typeInfo).opType == DIV)
 					{
-						if((yyvsp[0].typeInfo).val_int == 0)
+						if((yyvsp[0].typeInfo).val_float == 0)
 						{
 							yyerror("Attempted division by zero");
 						}
 						else
 						{
-							(yyval.typeInfo).val_int = (yyvsp[-1].typeInfo).val_int / (yyvsp[0].typeInfo).val_int;
+							(yyval.typeInfo).val_float = (yyvsp[-1].typeInfo).val_float / (yyvsp[0].typeInfo).val_float;
 						}
 					}
                                         else if((yyvsp[0].typeInfo).opType == MOD)
 					{
-						(yyval.typeInfo).val_int = (yyvsp[-1].typeInfo).val_int % (yyvsp[0].typeInfo).val_int;
+						(yyval.typeInfo).val_float = fmod((yyvsp[-1].typeInfo).val_float, (yyvsp[0].typeInfo).val_float);
 					}
                                         else if((yyvsp[0].typeInfo).opType == POW)
 					{
-						(yyval.typeInfo).val_int = pow((yyvsp[-1].typeInfo).val_int, (yyvsp[0].typeInfo).val_int);
+						(yyval.typeInfo).val_float = pow((yyvsp[-1].typeInfo).val_float, (yyvsp[0].typeInfo).val_float);
 					}
 			}
 			}
 			}
 			else
 			{
-				
+
 				(yyval.typeInfo).type = (yyvsp[-1].typeInfo).type;
 				(yyval.typeInfo).numParams = (yyvsp[-1].typeInfo).numParams;
 				(yyval.typeInfo).returnType = (yyvsp[-1].typeInfo).returnType;
@@ -3395,20 +3395,20 @@ yyreduce:
 				|| ((yyvsp[0].typeInfo).type == INT && (yyvsp[0].typeInfo).val_int == 0))
 				{
 					(yyvsp[0].typeInfo).val_bool = false;
-				}		
+				}
 				else
 				{
 					(yyvsp[0].typeInfo).val_bool = true;
-				}		
+				}
 				if(((yyvsp[-1].typeInfo).type == FLOAT && (yyvsp[-1].typeInfo).val_float == 0)
 				|| ((yyvsp[-1].typeInfo).type == INT && (yyvsp[-1].typeInfo).val_int == 0))
 				{
 					(yyvsp[-1].typeInfo).val_bool = false;
-				}		
+				}
 				else
 				{
 					(yyvsp[-1].typeInfo).val_bool = true;
-				}		
+				}
 				if((yyvsp[0].typeInfo).type == NOT_APPLICABLE)
 				{
 					(yyval.typeInfo).val_bool = (yyvsp[-1].typeInfo).val_bool;
@@ -3476,31 +3476,31 @@ yyreduce:
                                 		if((yyvsp[-1].typeInfo).type==BOOL){
                                         	    if((yyvsp[-1].typeInfo).val_bool){
                                                 	(yyvsp[-1].typeInfo).val_int = 1;
-                                              	  (yyvsp[-1].typeInfo).val_float = 1;    
+                                              	  (yyvsp[-1].typeInfo).val_float = 1;
                                             }else{
                                                 (yyvsp[-1].typeInfo).val_int = 0;
-                                                (yyvsp[-1].typeInfo).val_float = 0;                                                
+                                                (yyvsp[-1].typeInfo).val_float = 0;
                                             }
                                         }
                                         if((yyvsp[0].typeInfo).type==BOOL){
                                             if((yyvsp[0].typeInfo).val_bool){
                                                 (yyvsp[0].typeInfo).val_int = 1;
-                                                (yyvsp[0].typeInfo).val_float = 1;    
+                                                (yyvsp[0].typeInfo).val_float = 1;
                                             }else{
                                                 (yyvsp[0].typeInfo).val_int = 0;
-                                                (yyvsp[0].typeInfo).val_float = 0;                                                
+                                                (yyvsp[0].typeInfo).val_float = 0;
                                             }
-                                        }                      
+                                        }
                       if (isIntCompatible((yyvsp[-1].typeInfo).type) &&
                           isIntCompatible((yyvsp[0].typeInfo).type))
                           {
-                     
+
                         (yyval.typeInfo).type = INT;
                         if((yyvsp[0].typeInfo).opType == MULT){
                             (yyval.typeInfo).val_int = (yyvsp[-1].typeInfo).val_int * (yyvsp[0].typeInfo).val_int;
                         }else if((yyvsp[0].typeInfo).opType == DIV){
                             if((yyvsp[0].typeInfo).val_int == 0){
-                                yyerror("Attempted division by zero");                          
+                                yyerror("Attempted division by zero");
                             }else{
                                 (yyval.typeInfo).val_int = (yyvsp[-1].typeInfo).val_int / (yyvsp[0].typeInfo).val_int;
                             }
@@ -3509,7 +3509,7 @@ yyreduce:
                         }else if((yyvsp[0].typeInfo).opType == POW){
                             (yyval.typeInfo).val_int = pow((yyvsp[-1].typeInfo).val_int,(yyvsp[0].typeInfo).val_int);
                         }
-                        
+
                         }
                       else{
                         (yyval.typeInfo).type = FLOAT;
@@ -3518,12 +3518,12 @@ yyreduce:
                         }
                         if((yyvsp[0].typeInfo).type == INT){
                             (yyvsp[0].typeInfo).val_float = (float)(yyvsp[0].typeInfo).val_int;
-                        }                    
+                        }
                         if((yyvsp[0].typeInfo).opType == MULT){
                             (yyval.typeInfo).val_float = (yyvsp[-1].typeInfo).val_float * (yyvsp[0].typeInfo).val_float;
                         }else if((yyvsp[0].typeInfo).opType == DIV){
                             if((yyvsp[0].typeInfo).val_float == 0){
-                                yyerror("Attempted division by zero");                          
+                                yyerror("Attempted division by zero");
                             }else{
                                 (yyval.typeInfo).val_float = (yyvsp[-1].typeInfo).val_float / (yyvsp[0].typeInfo).val_float;
                             }
@@ -3531,7 +3531,7 @@ yyreduce:
                             (yyval.typeInfo).val_float = fmod((yyvsp[-1].typeInfo).val_float, (yyvsp[0].typeInfo).val_float);
                         }else if((yyvsp[0].typeInfo).opType == POW){
                             (yyval.typeInfo).val_float = pow((yyvsp[-1].typeInfo).val_float,(yyvsp[0].typeInfo).val_float);
-                        }                    
+                        }
                         }
                       }
 			(yyval.typeInfo).opType = (yyvsp[-2].num);
@@ -3568,14 +3568,14 @@ yyreduce:
                     if((yyvsp[0].typeInfo).type == INT)
 			{
 				(yyval.typeInfo).val_float =(float)(yyvsp[0].typeInfo).val_int;
-			}	
+			}
 			if((yyvsp[0].typeInfo).type == BOOL)
 			{
 				if((yyvsp[0].typeInfo).val_bool)
 				{
 					(yyvsp[0].typeInfo).val_bool = 1;
 					(yyvsp[0].typeInfo).val_float = 1;
-				
+
 				}
 				else
 				{
@@ -3862,7 +3862,7 @@ yyreduce:
           node = node->tlist;
           counter -= 1;
         }
-          
+
 			    (yyval.typeInfo).type = node->type;
 			    (yyval.typeInfo).numParams = NOT_APPLICABLE;
 			    (yyval.typeInfo).returnType = NOT_APPLICABLE;
@@ -3898,6 +3898,8 @@ yyreduce:
 
                     strcpy((yyval.typeInfo).val_string, exprTypeInfo.val_string);
                     (yyval.typeInfo).is_null = exprTypeInfo.is_null;
+
+                    (yyval.typeInfo).tlist = new Trial;
                     Trial *temp = exprTypeInfo.tlist;
                     Trial *new_temp = (yyval.typeInfo).tlist;
                     while(temp!=NULL)
@@ -3916,11 +3918,11 @@ yyreduce:
                       new_temp = new_temp->tlist;
                     }
                 }
-#line 3920 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 3922 "spiveyt.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 3924 "spiveyt.tab.c" /* yacc.c:1646  */
+#line 3926 "spiveyt.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -4148,7 +4150,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 2347 "spiveyt.y" /* yacc.c:1906  */
+#line 2349 "spiveyt.y" /* yacc.c:1906  */
 
 
 #include "lex.yy.c"
@@ -4331,23 +4333,23 @@ void printValue(TYPE_INFO type_info)
       Trial *temp = type_info.tlist;
       while(temp!=NULL)
       {
-        if(type_info.type == INT)
+        if(temp->type == INT)
         {
-          printf("%d\n", type_info.val_int);
+          printf("%d\n", temp->val_int);
         }
-        else if(type_info.type == STR)
+        else if(temp->type == STR)
         {
-          printf("%s\n", type_info.val_string);
+          printf("%s\n", temp->val_string);
         }
-        else if(type_info.type == BOOL)
+        else if(temp->type == BOOL)
         {
-          printf("%s\n", type_info.val_bool?"TRUE":"FALSE");
+          printf("%s\n",temp->val_bool?"TRUE":"FALSE");
         }
-        else if(type_info.type == FLOAT)
+        else if(temp->type == FLOAT)
         {
-          printf("%.2f\n", type_info.val_float);
+          printf("%.2f\n", temp->val_float);
         }
-        else if(type_info.type == NULL_TYPE)
+        else if(temp->type == NULL_TYPE)
         {
           printf("%s\n", "NULL");
         }

@@ -1435,7 +1435,7 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
 					$1.val_bool = true;
 				}
 				if(($2.type == FLOAT and $2.val_float == 0)
-                                  ||($2.type == and && $2.val_int == 0))
+                                  ||($2.type == INT and $2.val_int == 0))
 				{
                                 	$2.val_bool = false;
 				}
