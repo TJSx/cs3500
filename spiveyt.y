@@ -2528,23 +2528,23 @@ void printValue(TYPE_INFO type_info)
       Trial *temp = type_info.tlist;
       while(temp!=NULL)
       {
-        if(type_info.type == INT)
+        if(temp->type == INT)
         {
-          printf("%d\n", type_info.val_int);
+          printf("%d\n", temp->val_int);
         }
-        else if(type_info.type == STR)
+        else if(temp->type == STR)
         {
-          printf("%s\n", type_info.val_string);
+          printf("%s\n", temp->val_string);
         }
-        else if(type_info.type == BOOL)
+        else if(temp->type == BOOL)
         {
-          printf("%s\n", type_info.val_bool?"TRUE":"FALSE");
+          printf("%s\n",temp->val_bool?"TRUE":"FALSE");
         }
-        else if(type_info.type == FLOAT)
+        else if(temp->type == FLOAT)
         {
-          printf("%.2f\n", type_info.val_float);
+          printf("%.2f\n", temp->val_float);
         }
-        else if(type_info.type == NULL_TYPE)
+        else if(temp->type == NULL_TYPE)
         {
           printf("%s\n", "NULL");
         }
