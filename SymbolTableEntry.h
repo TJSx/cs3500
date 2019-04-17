@@ -95,7 +95,7 @@ public:
                      const TYPE_INFO theType)
   {
     name = theName;
-    
+
     typeInfo.type = theType.type;
     typeInfo.numParams = theType.numParams;
     typeInfo.returnType = theType.returnType;
@@ -104,6 +104,7 @@ public:
     typeInfo.val_int = theType.val_int;
     typeInfo.val_float = theType.val_float;
     typeInfo.val_bool = theType.val_bool;
+    strcpy(typeInfo.val_string, theType.val_string);
     typeInfo.is_null = theType.is_null;
 
     typeInfo.tlist = new Trial;
@@ -121,7 +122,7 @@ public:
       temp = temp->tlist;
       if(temp!=NULL)
       {
-        new_temp->tlist = NULL;
+        new_temp->tlist = new Trial;
       }
       else
       {
