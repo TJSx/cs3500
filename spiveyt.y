@@ -171,7 +171,7 @@ extern "C"
 N_START         : N_EXPR
                 {
                     printRule("START", "EXPR");
-                    printf("\n---- Completed parsing ----\n\n");
+                    printf("\n---- Completed parsing ----\n");
                     printf("\nValue of the expression is: ");
                     printValue($1);
                     return 0;
@@ -723,7 +723,7 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT
                             (exprTypeInfo.type == LIST))
 			{
 				semanticError(1, ERR_CANNOT_BE_FUNCT_OR_NULL_OR_LIST);
-			}	
+			}
 		    // set flag that ident already existed
 			//	$<flag>$ = true;
                     }
@@ -1090,8 +1090,8 @@ N_OUTPUT_EXPR   : T_PRINT T_LPAREN N_EXPR T_RPAREN
                        ($3.type == NULL_TYPE))
 				semanticError(1,
 				 ERR_CANNOT_BE_FUNCT_OR_NULL);
+                    printValue($3);
 			              $$.type = NULL_TYPE;
-                    $$.type = NULL_TYPE;
                     $$.numParams = $3.numParams;
                     $$.returnType = $3.returnType;
                     $$.is_param = $3.is_param;
@@ -1124,7 +1124,7 @@ N_INPUT_EXPR    : T_READ T_LPAREN T_RPAREN
                       strcpy($$.val_string, reader.c_str());
 
                     }
-                    printf("%d %f %s", $$.val_int, $$.val_float, $$.val_string);
+                    //printf("%d %f %s", $$.val_int, $$.val_float, $$.val_string);
                         $$.is_param = false;
 
 			                 $$.numParams = NOT_APPLICABLE;
@@ -1318,12 +1318,12 @@ N_ARITHLOGIC_EXPR : N_SIMPLE_ARITHLOGIC
                     if(isInvalidOperandType($3.type))
                    	semanticError(2,
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
-                    
+
 		    $$.type = BOOL;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
                     $$.is_param = false;
-                    
+
                     if($1.type == BOOL && $1.val_bool)
                     {
 			$1.val_float = 1;
@@ -1351,27 +1351,27 @@ N_ARITHLOGIC_EXPR : N_SIMPLE_ARITHLOGIC
 
                     if($2 == EQL)
                     {
-			$$.val_bool = ($1.val_float == $3.val_float);	
+			$$.val_bool = ($1.val_float == $3.val_float);
                     }
-                    if($2 == NEQ)
+                    else if($2 == NEQ)
                     {
-			$$.val_bool = ($1.val_float != $3.val_float);	
+			$$.val_bool = ($1.val_float != $3.val_float);
                     }
-                    if($2 == GEQ)
+                    else if($2 == GEQ)
                     {
-			$$.val_bool = ($1.val_float >= $3.val_float);	
+			$$.val_bool = ($1.val_float >= $3.val_float);
                     }
-                    if($2 == LEQ)
+                    else if($2 == LEQ)
                     {
-			$$.val_bool = ($1.val_float <= $3.val_float);	
+			$$.val_bool = ($1.val_float <= $3.val_float);
                     }
-                    if($2 == LESS)
+                    else if($2 == LESS)
                     {
-			$$.val_bool = ($1.val_float < $3.val_float);	
+			$$.val_bool = ($1.val_float < $3.val_float);
                     }
-                    if($2 == GREATER)
+                  else if($2 == GREATER)
                     {
-			$$.val_bool = ($1.val_float > $3.val_float);	
+			$$.val_bool = ($1.val_float > $3.val_float);
                     }
 
                     $$.val_int = $1.val_int;
@@ -1393,7 +1393,7 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
                       if(isInvalidOperandType($2.type))
                         semanticError(2,
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
-			
+
 
 			if($2.type == BOOL)
 			{
@@ -1406,7 +1406,7 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
 				{
 					$2.val_int = 0;
 					$2.val_float = 0;
-				}	
+				}
 			}
 			if($1.type == BOOL)
 			{
@@ -1419,14 +1419,14 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
 				{
 					$1.val_int = 0;
 					$1.val_float = 0;
-				}	
+				}
 			}
-			
+
 			if(isLog($2.opType))
 			{
 				$$.type = BOOL;
-				if(($1.type == FLOAT && $1.val_float == 0)
-                                  ||($1.type == INT && $1.val_int == 0))
+				if(($1.type == FLOAT and $1.val_float == 0)
+                                  ||($1.type == INT and $1.val_int == 0))
 				{
                                 	$1.val_bool = false;
 				}
@@ -1434,8 +1434,8 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
 				{
 					$1.val_bool = true;
 				}
-				if(($2.type == FLOAT && $2.val_float == 0)
-                                  ||($2.type == INT && $2.val_int == 0))
+				if(($2.type == FLOAT and $2.val_float == 0)
+                                  ||($2.type == and && $2.val_int == 0))
 				{
                                 	$2.val_bool = false;
 				}
@@ -1443,7 +1443,7 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
 				{
 					$2.val_bool = true;
 				}
-				
+
 				if($2.opType == AND)
 				{
 					$$.val_bool = $1.val_bool && $2.val_bool;
@@ -1453,7 +1453,7 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
 					$$.val_bool = $1.val_bool || $2.val_bool;
 				}
 			}
-			
+
 			else if(isIntCompatible($1.type) && isIntCompatible($2.type))
 			{
 				$$.type = INT;
@@ -1472,7 +1472,7 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
 				if($1.type == INT)
 				{
                                 	$1.val_float = (float)$1.val_int;
-				}	
+				}
 				if($2.type == INT)
 				{
                                 	$2.val_float = (float)$2.val_int;
@@ -1500,7 +1500,7 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
 			$$.val_int = $1.val_int;
 			$$.val_float = $1.val_float;
 			strcpy($$.val_string, $1.val_string);
-			$$.is_null = $1.is_null;			
+			$$.is_null = $1.is_null;
                         $$.tlist = new Trial;
                     	Trial *temp = $1.tlist;
                     	Trial *new_temp = $$.tlist;
@@ -1545,8 +1545,8 @@ N_ADD_OP_LIST	: N_ADD_OP N_TERM N_ADD_OP_LIST
 			if(isLog($3.opType))
 			{
 				$$.type = BOOL;
-				if(($3.type == FLOAT && $3.val_float == 0)
-                                  || ($3.type == INT && $3.val_int == 0))
+				if(($3.type == FLOAT and $3.val_float == 0)
+                                  || ($3.type == INT and $3.val_int == 0))
 				{
 					$3.val_bool = false;
 				}
@@ -1591,7 +1591,7 @@ N_ADD_OP_LIST	: N_ADD_OP N_TERM N_ADD_OP_LIST
 					$$.val_int = $2.val_int;
 					$$.val_float = $2.val_float;
 					strcpy($$.val_string, $2.val_string);
-					$$.is_null = $2.is_null;			
+					$$.is_null = $2.is_null;
                 		        $$.tlist = new Trial;
                     			Trial *temp = $2.tlist;
                  		   	Trial *new_temp = $$.tlist;
@@ -1613,7 +1613,7 @@ N_ADD_OP_LIST	: N_ADD_OP N_TERM N_ADD_OP_LIST
 							new_temp->tlist = NULL;
 						}
 						new_temp = new_temp->tlist;
-	
+
         	        	        }
 
                               	}
@@ -1663,7 +1663,7 @@ N_ADD_OP_LIST	: N_ADD_OP N_TERM N_ADD_OP_LIST
 						if($2.type == INT)
 						{
 		                                	$2.val_float = (float)$2.val_int;
-						}	
+						}
 						if($3.type == INT)
 						{
                 		                	$3.val_float = (float)$3.val_int;
@@ -1681,10 +1681,10 @@ N_ADD_OP_LIST	: N_ADD_OP N_TERM N_ADD_OP_LIST
 					$$.numParams = NOT_APPLICABLE;
 					$$.returnType = NOT_APPLICABLE;
 					$$.is_param = false;
-						$$.opType = $1;	
-                        }        
+						$$.opType = $1;
+                        }
 			}
-			}	
+			}
                 | /* epsilon */
                 {
                     printRule("ADD_OP_LIST", "epsilon");
@@ -1717,23 +1717,23 @@ N_TERM		: N_FACTOR N_MULT_OP_LIST
 				|| ($1.type == INT && $1.val_int == 0))
 				{
 					$1.val_bool = false;
-				}		
+				}
 				else if(($1.type == FLOAT && $1.val_float != 0)
 				|| ($1.type == INT && $1.val_int != 0))
 				{
 					$1.val_bool = true;
-				}		
+				}
 				if(($2.type == FLOAT && $2.val_float == 0)
 				|| ($2.type == INT && $2.val_int == 0))
 				{
 					$2.val_bool = false;
-				}		
+				}
 				else if(($2.type == FLOAT && $2.val_float != 0)
 				|| ($2.type == INT && $2.val_int == 0))
 				{
 					$2.val_bool = true;
-				}		
-				
+				}
+
 				if($2.opType == AND)
 				{
 					$$.val_bool = $1.val_bool && $2.val_bool;
@@ -1745,7 +1745,7 @@ N_TERM		: N_FACTOR N_MULT_OP_LIST
 			}
 			else
 			{
-				
+
                             	if($2.type == BOOL)
                                 {
 					if($2.val_bool)
@@ -1805,40 +1805,40 @@ N_TERM		: N_FACTOR N_MULT_OP_LIST
 				if($1.type == INT)
                                 {
 		                    	$1.val_float = (float)$1.val_int;
-				}	
+				}
 				if($2.type == INT)
 				{
                                         $2.val_float = (float)$2.val_int;
 				}
 					if($2.opType == MULT)
 					{
-						$$.val_int = $1.val_int * $2.val_int;
+						$$.val_float = $1.val_float * $2.val_float;
 					}
 					else if($2.opType == DIV)
 					{
-						if($2.val_int == 0)
+						if($2.val_float == 0)
 						{
 							yyerror("Attempted division by zero");
 						}
 						else
 						{
-							$$.val_int = $1.val_int / $2.val_int;
+							$$.val_float = $1.val_float / $2.val_float;
 						}
 					}
                                         else if($2.opType == MOD)
 					{
-						$$.val_int = $1.val_int % $2.val_int;
+						$$.val_float = fmod($1.val_float, $2.val_float);
 					}
                                         else if($2.opType == POW)
 					{
-						$$.val_int = pow($1.val_int, $2.val_int);
+						$$.val_float = pow($1.val_float, $2.val_float);
 					}
 			}
 			}
 			}
 			else
 			{
-				
+
 				$$.type = $1.type;
 				$$.numParams = $1.numParams;
 				$$.returnType = $1.returnType;
@@ -1898,20 +1898,20 @@ N_MULT_OP_LIST	: N_MULT_OP N_FACTOR N_MULT_OP_LIST
 				|| ($3.type == INT && $3.val_int == 0))
 				{
 					$3.val_bool = false;
-				}		
+				}
 				else
 				{
 					$3.val_bool = true;
-				}		
+				}
 				if(($2.type == FLOAT && $2.val_float == 0)
 				|| ($2.type == INT && $2.val_int == 0))
 				{
 					$2.val_bool = false;
-				}		
+				}
 				else
 				{
 					$2.val_bool = true;
-				}		
+				}
 				if($3.type == NOT_APPLICABLE)
 				{
 					$$.val_bool = $2.val_bool;
@@ -1979,31 +1979,31 @@ N_MULT_OP_LIST	: N_MULT_OP N_FACTOR N_MULT_OP_LIST
                                 		if($2.type==BOOL){
                                         	    if($2.val_bool){
                                                 	$2.val_int = 1;
-                                              	  $2.val_float = 1;    
+                                              	  $2.val_float = 1;
                                             }else{
                                                 $2.val_int = 0;
-                                                $2.val_float = 0;                                                
+                                                $2.val_float = 0;
                                             }
                                         }
                                         if($3.type==BOOL){
                                             if($3.val_bool){
                                                 $3.val_int = 1;
-                                                $3.val_float = 1;    
+                                                $3.val_float = 1;
                                             }else{
                                                 $3.val_int = 0;
-                                                $3.val_float = 0;                                                
+                                                $3.val_float = 0;
                                             }
-                                        }                      
+                                        }
                       if (isIntCompatible($2.type) &&
                           isIntCompatible($3.type))
                           {
-                     
+
                         $$.type = INT;
                         if($3.opType == MULT){
                             $$.val_int = $2.val_int * $3.val_int;
                         }else if($3.opType == DIV){
                             if($3.val_int == 0){
-                                yyerror("Attempted division by zero");                          
+                                yyerror("Attempted division by zero");
                             }else{
                                 $$.val_int = $2.val_int / $3.val_int;
                             }
@@ -2012,7 +2012,7 @@ N_MULT_OP_LIST	: N_MULT_OP N_FACTOR N_MULT_OP_LIST
                         }else if($3.opType == POW){
                             $$.val_int = pow($2.val_int,$3.val_int);
                         }
-                        
+
                         }
                       else{
                         $$.type = FLOAT;
@@ -2021,12 +2021,12 @@ N_MULT_OP_LIST	: N_MULT_OP N_FACTOR N_MULT_OP_LIST
                         }
                         if($3.type == INT){
                             $3.val_float = (float)$3.val_int;
-                        }                    
+                        }
                         if($3.opType == MULT){
                             $$.val_float = $2.val_float * $3.val_float;
                         }else if($3.opType == DIV){
                             if($3.val_float == 0){
-                                yyerror("Attempted division by zero");                          
+                                yyerror("Attempted division by zero");
                             }else{
                                 $$.val_float = $2.val_float / $3.val_float;
                             }
@@ -2034,7 +2034,7 @@ N_MULT_OP_LIST	: N_MULT_OP N_FACTOR N_MULT_OP_LIST
                             $$.val_float = fmod($2.val_float, $3.val_float);
                         }else if($3.opType == POW){
                             $$.val_float = pow($2.val_float,$3.val_float);
-                        }                    
+                        }
                         }
                       }
 			$$.opType = $1;
@@ -2065,14 +2065,14 @@ N_FACTOR		: N_VAR
                     if($1.type == INT)
 			{
 				$$.val_float =(float)$1.val_int;
-			}	
+			}
 			if($1.type == BOOL)
 			{
 				if($1.val_bool)
 				{
 					$1.val_bool = 1;
 					$1.val_float = 1;
-				
+
 				}
 				else
 				{
@@ -2290,7 +2290,7 @@ N_SINGLE_ELEMENT : T_IDENT T_LBRACKET T_LBRACKET N_EXPR
           node = node->tlist;
           counter -= 1;
         }
-          
+
 			    $$.type = node->type;
 			    $$.numParams = NOT_APPLICABLE;
 			    $$.returnType = NOT_APPLICABLE;
@@ -2324,6 +2324,8 @@ N_ENTIRE_VAR    : T_IDENT
 
                     strcpy($$.val_string, exprTypeInfo.val_string);
                     $$.is_null = exprTypeInfo.is_null;
+
+                    $$.tlist = new Trial;
                     Trial *temp = exprTypeInfo.tlist;
                     Trial *new_temp = $$.tlist;
                     while(temp!=NULL)
