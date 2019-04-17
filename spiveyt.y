@@ -822,7 +822,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                     string lexeme = string($1);
                     TYPE_INFO exprTypeInfo =
                         scopeStack.top().findEntry(lexeme);
-                    if(($2.isIndex) &&
+                    if(($2.is_index) &&
 				 (!isListCompatible(
                           exprTypeInfo.type)))
 				semanticError(1, ERR_MUST_BE_LIST);
@@ -831,7 +831,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
 				if (exprTypeInfo.is_param && !isIntCompatible($5.type))
                      semanticError(1, ERR_MUST_BE_INTEGER);
 
-                  if(!$2.isIndex)
+                  if(!$2.is_index)
                   {
                     TYPE_INFO type_info;
                     type_info.type = $5.type;
@@ -965,7 +965,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                             SYMBOL_TABLE_ENTRY(lexeme,
                             type_info));
                     }
-			    if (($2.isIndex) &&
+			    if (($2.is_index) &&
 			        ($5.type == LIST))
 				semanticError(1, ERR_CANNOT_BE_LIST);
                     $$.type = $5.type;
@@ -1004,7 +1004,7 @@ N_INDEX :       T_LBRACKET T_LBRACKET N_EXPR T_RBRACKET
                 T_RBRACKET
 			{
                     printRule("INDEX", " [[ EXPR ]]");
-                    $$.isIndex = true;
+                    $$.is_index = true;
                     $$.type = INT;
                     $$.val_int = $3.val_int;
 
@@ -1012,7 +1012,7 @@ N_INDEX :       T_LBRACKET T_LBRACKET N_EXPR T_RBRACKET
 			| /* epsilon */
                 {
                     printRule("INDEX", " epsilon");
-			    $$.isIndex = false;
+			    $$.is_index = false;
                 }
                 ;
 
@@ -1118,7 +1118,6 @@ N_INPUT_EXPR    : T_READ T_LPAREN T_RPAREN
                         $$.type = STR;
                         strcpy($$.val_string, buffer.c_str());
                     }
-                    //printf("%d %f %s", $$.val_int, $$.val_float, $$.val_string);
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
                     $$.is_param = false;
@@ -1299,7 +1298,6 @@ N_ARITHLOGIC_EXPR : N_SIMPLE_ARITHLOGIC
                    	semanticError(2,
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
 
-                    //printf("in expression %f and %f\n", $1.val_float, $3.val_float);
                     $$.type = BOOL;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
@@ -1368,7 +1366,6 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
                               "TERM ADD_OP_LIST");
 			    if ($2.type != NOT_APPLICABLE)
 			    {
-                    //printf("it 1 is optype logical %d", $2.opType);
                       if(isInvalidOperandType($1.type))
                         semanticError(1,
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
@@ -1403,7 +1400,6 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
                                         }
                                     }
                 if(isLog($2.opType)){
-                    //printf("it 2 is optype logical %d", $2.opType);
                     $$.type = BOOL;
                     if(($1.type == FLOAT and $1.val_float == 0)
                         || ($1.type == INT and $1.val_int == 0))
