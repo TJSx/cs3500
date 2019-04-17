@@ -70,7 +70,7 @@ typedef struct {
   bool is_index;
   bool is_null;
   bool is_param;
-
+  int opType;
 } TYPE_INFO;
 
 class SYMBOL_TABLE_ENTRY

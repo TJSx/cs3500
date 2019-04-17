@@ -15,15 +15,31 @@
 #include <string.h>
 #include <string>
 #include <stack>
+#include <math.h>
+#include <cmath>
 #include "SymbolTable.h"
 using namespace std;
 
 #define ARITHMETIC_OP   1
 #define LOGICAL_OP      2
 #define RELATIONAL_OP   3
+#define MOD 4
+#define DIV 5
+#define MULT 6
+#define ADD 7
+#define SUB 8
+#define POW 9
+#define LESS 10
+#define GREATER 11
+#define LEQ 12
+#define GEQ 13
+#define NEQ 14
+#define EQL 15
+#define OR 16
+#define AND 17
 
-#define INDEX_PROD      4
-#define NOT_INDEX_PROD  5
+//#define INDEX_PROD      4
+//#define NOT_INDEX_PROD  5
 
 #define ERR_CANNOT_BE_FUNCT_NULL_LIST_OR_STR	0
 #define ERR_CANNOT_BE_FUNCT					1
@@ -67,12 +83,6 @@ const bool suppressTokenOutput = true;
 int line_num = 1;
 int numExprs = 0;
 
-
-int trial = 0;
-int arg_count = 0;
-int param_counter = 0;
-
-
 stack<SYMBOL_TABLE> scopeStack; // stack of scope hashtables
 
 bool isIntOrFloatOrBoolCompatible(const int theType);
@@ -81,6 +91,10 @@ bool isBoolCompatible(const int theType);
 bool isFloatCompatible(const int theType);
 bool isInvalidOperandType(const int theType);
 bool isListCompatible(const int theType);
+
+bool isArith(const int theType);
+bool isRel(const int theType);
+bool isLog(const int theType);
 
 void beginScope();
 void endScope();
@@ -129,7 +143,6 @@ extern "C"
 
 %type <text> T_IDENT T_INTCONST T_FLOATCONST T_STRCONST
 %type <text> T_TRUE T_FALSE
-%type <text> T_ELSE
 
 %type <typeInfo> N_EXPR N_WHILE_EXPR N_IF_EXPR N_FOR_EXPR
 %type <typeInfo> N_COMPOUND_EXPR N_ARITHLOGIC_EXPR
@@ -216,7 +229,7 @@ N_EXPR          : N_IF_EXPR
                       temp = temp->tlist;
                       if(temp!=NULL)
                       {
-                        new_temp->tlist = NULL;
+                        new_temp->tlist = new Trial;
                         }
                         else
                         {
@@ -266,7 +279,7 @@ N_EXPR          : N_IF_EXPR
                       temp = temp->tlist;
                       if(temp!=NULL)
                       {
-                        new_temp->tlist = NULL;
+                        new_temp->tlist = new Trial;
                         }
                         else
                         {
@@ -303,7 +316,7 @@ N_EXPR          : N_IF_EXPR
                       temp = temp->tlist;
                       if(temp!=NULL)
                       {
-                        new_temp->tlist = NULL;
+                        new_temp->tlist = new Trial;
                         }
                         else
                         {
@@ -382,7 +395,7 @@ N_CONST         : T_INTCONST
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
                     $$.is_param = false;
-                    $$.val_float = atoi($1);
+                    $$.val_float = atof($1);
                 }
                 | T_TRUE
                 {
@@ -411,9 +424,9 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
                               "{ EXPR EXPR_LIST }");
                     if($3.type == NOT_APPLICABLE)
                     {
-		    	            $$.type = $2.type;
-                    	$$.numParams = $2.numParams;
-                    	$$.returnType = $2.returnType;
+                      $$.type = $2.type;
+                      $$.numParams = $2.numParams;
+                      $$.returnType = $2.returnType;
                       $$.is_param = $2.is_param;
                       $$.val_bool = $2.val_bool;
                       $$.val_int = $2.val_int;
@@ -435,7 +448,7 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
                         temp = temp->tlist;
                         if(temp!=NULL)
                         {
-                          new_temp->tlist = NULL;
+                          new_temp->tlist = new Trial;
                           }
                           else
                           {
@@ -447,7 +460,7 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
                     }
                     else
                     {
-			    	          $$.type = $3.type;
+                        $$.type = $3.type;
                     	$$.numParams = $3.numParams;
                     	$$.returnType = $3.returnType;
                       $$.is_param = $3.is_param;
@@ -471,7 +484,7 @@ N_COMPOUND_EXPR : T_LBRACE N_EXPR N_EXPR_LIST T_RBRACE
                         temp = temp->tlist;
                         if(temp!=NULL)
                         {
-                          new_temp->tlist = NULL;
+                          new_temp->tlist = new Trial;
                         }
                           else
                           {
@@ -490,7 +503,7 @@ N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                     printRule("EXPR_LIST", "; EXPR EXPR_LIST");
                     if($3.type == NULL_TYPE)
                     {
-                   	  $$.type = $2.type;
+                      $$.type = $2.type;
                	      $$.numParams = $2.numParams;
                 	    $$.returnType = $2.returnType;
                       $$.is_param = $2.is_param;
@@ -514,7 +527,7 @@ N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                         temp = temp->tlist;
                         if(temp!=NULL)
                         {
-                          new_temp->tlist = NULL;
+                          new_temp->tlist = new Trial;
                           }
                           else
                           {
@@ -550,7 +563,7 @@ N_EXPR_LIST     : T_SEMICOLON N_EXPR N_EXPR_LIST
                         temp = temp->tlist;
                         if(temp!=NULL)
                         {
-                          new_temp->tlist = NULL;
+                          new_temp->tlist = new Trial;
                         }
                           else
                           {
@@ -580,6 +593,7 @@ N_IF_EXPR	      : N_COND_IF T_RPAREN N_THEN_EXPR
                      //$$.type = $3.type;
 	                   $$.numParams = NOT_APPLICABLE;
       		           $$.returnType = NOT_APPLICABLE;
+                          $$.is_param = $3.is_param;
                      if($1.val_bool || $1.val_int != 0 || $1.val_float != 0)
                      {
                         $$.type = $3.type;
@@ -681,10 +695,11 @@ N_WHILE_EXPR    : T_WHILE T_LPAREN N_EXPR
                     $$.numParams = $6.numParams;
                     $$.returnType = $6.returnType;
                     $$.is_param = $6.is_param;
+                    $$.is_null = true;
                 }
                 ;
 
-N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN N_EXPR
+N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT
                 {
 
 			string lexeme = string($3);
@@ -703,28 +718,31 @@ N_FOR_EXPR      : T_FOR T_LPAREN T_IDENT T_IN N_EXPR T_RPAREN N_EXPR
                     }
                     else
 		    {
+			if((exprTypeInfo.type == FUNCTION) ||
+                            (exprTypeInfo.type == NULL_TYPE) ||
+                            (exprTypeInfo.type == LIST))
+			{
+				semanticError(1, ERR_CANNOT_BE_FUNCT_OR_NULL_OR_LIST);
+			}	
 		    // set flag that ident already existed
-				$<flag>$ = true;
+			//	$<flag>$ = true;
                     }
 
-
-
-        	  if($5.type != LIST)
+                  }
+		T_IN N_EXPR
+		{
+        	  if($6.type != LIST)
                   {
-				line_num--;
 				yyerror("Arg 2 must be list");
                   }
-			TYPE_INFO checker = scopeStack.top().findEntry(lexeme);
-                    	bool check = isIntOrFloatOrBoolCompatible(checker.type);
-			if(check != true)
-			{
-				line_num--;
-				yyerror("Arg 1 cannot be function or null or list");
-			}
-
-		  $$.type = $7.type;
-		  $$.numParams = $7.numParams;
-		  $$.returnType = $7.returnType;
+		}
+		T_RPAREN N_EXPR
+		{
+		  $$.type = $9.type;
+		  $$.numParams = $9.numParams;
+		  $$.returnType = $9.returnType;
+			$$.is_param = $9.is_param;
+			$$.is_null = true;
 	        	  printRule("FOR_EXPR",
                               "FOR ( IDENT IN EXPR ) EXPR");
 
@@ -782,6 +800,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
                     string lexeme = string($1);
                     TYPE_INFO exprTypeInfo =
                         scopeStack.top().findEntry(lexeme);
+
                     if(exprTypeInfo.type == UNDEFINED)
 			              {
                       if(!suppressTokenOutput)
@@ -863,7 +882,7 @@ N_ASSIGNMENT_EXPR : T_IDENT N_INDEX
         }
         else
         {
-              if($2.val_int<1 || $2.val_int>exprTypeInfo.tlist->length)
+              if($2.val_int < 1 || $2.val_int > exprTypeInfo.tlist->length)
               {
                   yyerror("Subscript out of bounds");
               }
@@ -1045,17 +1064,23 @@ N_OUTPUT_EXPR   : T_PRINT T_LPAREN N_EXPR T_RPAREN
                     Trial *new_temp = $$.tlist;
                     if(temp!=NULL)
                     {
-                      new_temp->tlist = new Trial;
-
+			new_temp->type = temp->type;
+			new_temp->val_bool = temp->val_bool;
+			new_temp->val_int = temp->val_int;
+			new_temp->val_float = temp->val_float;
+			strcpy(new_temp->val_string, temp->val_string);
+			new_temp->length = temp->length;
+			temp = temp->tlist;
+			if(temp!=NULL)
+			{
+				new_temp->tlist = new Trial;
+			}
+			else
+			{
+				new_temp->tlist = NULL;
+			}
+			new_temp = new_temp->tlist;
                     }
-                    else
-                    {
-                      new_temp->tlist = NULL;
-
-                    }
-                    new_temp = new_temp->tlist;
-
-
                 }
                 | T_CAT T_LPAREN N_EXPR T_RPAREN
                 {
@@ -1066,6 +1091,7 @@ N_OUTPUT_EXPR   : T_PRINT T_LPAREN N_EXPR T_RPAREN
 				semanticError(1,
 				 ERR_CANNOT_BE_FUNCT_OR_NULL);
 			              $$.type = NULL_TYPE;
+                    $$.type = NULL_TYPE;
                     $$.numParams = $3.numParams;
                     $$.returnType = $3.returnType;
                     $$.is_param = $3.is_param;
@@ -1087,7 +1113,7 @@ N_INPUT_EXPR    : T_READ T_LPAREN T_RPAREN
                         if(reader[i] == '.')
                         {
                             $$.type = FLOAT;
-                            $$.val_float = stoi(reader);
+                            $$.val_float = stof(reader);
                             break;
                         }
                       }
@@ -1119,15 +1145,15 @@ N_FUNCTION_DEF  : T_FUNCTION
 		              }
                 T_RPAREN N_COMPOUND_EXPR
                 {
-              		if($7.type == FUNCTION)
-			{
-				yyerror("Arg 2 cannot be function");
-			}
-		      $$.type = FUNCTION;
+                    endScope();
+                    if($7.type == FUNCTION)
+                    {
+                          yyerror("Arg 2 cannot be function");
+                    }
+                    $$.type = FUNCTION;
                     $$.numParams = $<num>5;
                     $$.returnType = $7.type;
                     $$.is_param = false;
-			    endScope();
                 }
                 ;
 
@@ -1149,7 +1175,6 @@ N_NO_PARAMS     : /* epsilon */
 
 N_PARAMS        : T_IDENT
                 {
-              		param_counter++;
 		      printRule("PARAMS", "IDENT");
                     string lexeme = string($1);
                     if(!suppressTokenOutput)
@@ -1157,7 +1182,7 @@ N_PARAMS        : T_IDENT
                              $1);
                     // assuming params are ints
                     TYPE_INFO exprTypeInfo =
-                     {INT, NOT_APPLICABLE, NOT_APPLICABLE,true};
+                     {INT, NOT_APPLICABLE, NOT_APPLICABLE, true};
                     bool success =
                      scopeStack.top().
                       addEntry(SYMBOL_TABLE_ENTRY
@@ -1207,17 +1232,14 @@ N_FUNCTION_CALL : T_IDENT T_LPAREN N_ARG_LIST T_RPAREN
 				{
 					yyerror("Too few parameters in function call");
 				}
-				else if($3 > check.numParams)
+				if($3 > check.numParams)
 				{
 					yyerror("Too many parameters in function call");
 				}
-			else
-			{
 				$$.type = check.returnType;
 				$$.numParams = NOT_APPLICABLE;
-        $$.returnType = NOT_APPLICABLE;
-        $$.is_param = false;
-			}
+        			$$.returnType = NOT_APPLICABLE;
+        			$$.is_param = false;
                 }
                 ;
 
@@ -1251,6 +1273,7 @@ N_ARGS          : N_EXPR
                     {
 			                 yyerror("Function parameters must be integer");
                     }
+			$$ = numExprs;
                 }
                 | N_EXPR
                 {
@@ -1295,12 +1318,62 @@ N_ARITHLOGIC_EXPR : N_SIMPLE_ARITHLOGIC
                     if(isInvalidOperandType($3.type))
                    	semanticError(2,
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
-                    $$.type = BOOL;
+                    
+		    $$.type = BOOL;
                     $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
                     $$.is_param = false;
+                    
+                    if($1.type == BOOL && $1.val_bool)
+                    {
+			$1.val_float = 1;
+                    }
+                    else if($1.type == BOOL && !($1.val_bool))
+                    {
+			$1.val_float = 0;
+                    }
+                    if($3.type == BOOL && $3.val_bool)
+                    {
+			$1.val_float = 1;
+                    }
+                    else if($3.type == BOOL && !($3.val_bool))
+                    {
+			$1.val_float = 0;
+                    }
+                    if($1.type == INT)
+                    {
+			$1.val_float = $1.val_int;
+                    }
+                    if($3.type == INT)
+                    {
+			$3.val_float = $3.val_int;
+                    }
 
-                    $$.val_bool = $1.val_bool;
+                    if($2 == EQL)
+                    {
+			$$.val_bool = ($1.val_float == $3.val_float);	
+                    }
+                    if($2 == NEQ)
+                    {
+			$$.val_bool = ($1.val_float != $3.val_float);	
+                    }
+                    if($2 == GEQ)
+                    {
+			$$.val_bool = ($1.val_float >= $3.val_float);	
+                    }
+                    if($2 == LEQ)
+                    {
+			$$.val_bool = ($1.val_float <= $3.val_float);	
+                    }
+                    if($2 == LESS)
+                    {
+			$$.val_bool = ($1.val_float < $3.val_float);	
+                    }
+                    if($2 == GREATER)
+                    {
+			$$.val_bool = ($1.val_float > $3.val_float);	
+                    }
+
                     $$.val_int = $1.val_int;
                     $$.val_float = $1.val_float;
                     strcpy($$.val_string, $1.val_string);
@@ -1320,53 +1393,139 @@ N_SIMPLE_ARITHLOGIC : N_TERM N_ADD_OP_LIST
                       if(isInvalidOperandType($2.type))
                         semanticError(2,
 				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
-				if (isBoolCompatible($1.type) &&
-				    isBoolCompatible($2.type))
-				  $$.type = BOOL;
-				else if (isIntCompatible($1.type) &&
-				         isIntCompatible($2.type))
-                             $$.type = INT;
-                     else if (isFloatCompatible($1.type) ||
-				         isFloatCompatible($2.type))
-				       $$.type = FLOAT;
-				else $$.type = $1.type;
-				$$.numParams = NOT_APPLICABLE;
-				$$.returnType = NOT_APPLICABLE;
-        $$.is_param = false;
-			    }
+			
+
+			if($2.type == BOOL)
+			{
+				if($2.val_bool)
+				{
+					$2.val_int = 1;
+					$2.val_float = 1;
+				}
+				else
+				{
+					$2.val_int = 0;
+					$2.val_float = 0;
+				}	
+			}
+			if($1.type == BOOL)
+			{
+				if($1.val_bool)
+				{
+					$1.val_int = 1;
+					$1.val_float = 1;
+				}
+				else
+				{
+					$1.val_int = 0;
+					$1.val_float = 0;
+				}	
+			}
+			
+			if(isLog($2.opType))
+			{
+				$$.type = BOOL;
+				if(($1.type == FLOAT && $1.val_float == 0)
+                                  ||($1.type == INT && $1.val_int == 0))
+				{
+                                	$1.val_bool = false;
+				}
+				else
+				{
+					$1.val_bool = true;
+				}
+				if(($2.type == FLOAT && $2.val_float == 0)
+                                  ||($2.type == INT && $2.val_int == 0))
+				{
+                                	$2.val_bool = false;
+				}
+				else
+				{
+					$2.val_bool = true;
+				}
+				
+				if($2.opType == AND)
+				{
+					$$.val_bool = $1.val_bool && $2.val_bool;
+				}
+				else if($2.opType == OR)
+				{
+					$$.val_bool = $1.val_bool || $2.val_bool;
+				}
+			}
+			
+			else if(isIntCompatible($1.type) && isIntCompatible($2.type))
+			{
+				$$.type = INT;
+				if($2.opType == ADD)
+				{
+					$$.val_int = $1.val_int+$2.val_int;
+				}
+				else if($2.opType == SUB)
+				{
+					$$.val_int = $1.val_int-$2.val_int;
+				}
+			}
+			else
+			{
+				$$.type == FLOAT;
+				if($1.type == INT)
+				{
+                                	$1.val_float = (float)$1.val_int;
+				}	
+				if($2.type == INT)
+				{
+                                	$2.val_float = (float)$2.val_int;
+				}
+				if($2.opType == ADD)
+				{
+					$$.val_float = $1.val_float+$2.val_float;
+				}
+				if($2.opType == SUB)
+				{
+					$$.val_float = $1.val_float-$2.val_float;
+				}
+			}
+			$$.numParams = NOT_APPLICABLE;
+			$$.returnType = NOT_APPLICABLE;
+			$$.is_param = false;
+			}
                     else
-			    {
-				$$.type = $1.type;
-				$$.numParams = $1.numParams;
-				$$.returnType = $1.returnType;
-        $$.is_param = $1.is_param;
-
-                    $$.val_bool = $1.val_bool;
-                    $$.val_int = $1.val_int;
-                    $$.val_float = $1.val_float;
-                    strcpy($$.val_string, $1.val_string);
-                    $$.is_null= $1.is_null;
-
-
-                    $$.tlist = new Trial;
-                    Trial *temp = $1.tlist;
-                    Trial *new_temp = $$.tlist;
-                    while(temp!=NULL)
                     {
-                        new_temp->type = temp->type;
-                        new_temp->val_bool = temp->val_bool;
-                        new_temp->val_int = temp->val_int;
-                        new_temp->val_float = temp->val_float;
-                        strcpy(new_temp->val_string, temp->val_string);
-                        new_temp->length = temp->length;
-                        temp = temp->tlist;
-                        if(temp!=NULL)
-                            new_temp->tlist = new Trial;
-                        else
-                            new_temp->tlist = NULL;
-                        new_temp = new_temp->tlist;
-                  }
-			    }
+			$$.type = $1.type;
+			$$.numParams = $1.numParams;
+			$$.returnType = $1.returnType;
+			$$.is_param = $1.is_param;
+			$$.val_bool = $1.val_bool;
+			$$.val_int = $1.val_int;
+			$$.val_float = $1.val_float;
+			strcpy($$.val_string, $1.val_string);
+			$$.is_null = $1.is_null;			
+                        $$.tlist = new Trial;
+                    	Trial *temp = $1.tlist;
+                    	Trial *new_temp = $$.tlist;
+                    	if(temp!=NULL)
+                    	{
+				new_temp->type = temp->type;
+				new_temp->val_bool = temp->val_bool;
+				new_temp->val_int = temp->val_int;
+				new_temp->val_float = temp->val_float;
+				strcpy(new_temp->val_string, temp->val_string);
+				new_temp->length = temp->length;
+				temp = temp->tlist;
+				if(temp!=NULL)
+				{
+					new_temp->tlist = new Trial;
+				}
+				else
+				{
+					new_temp->tlist = NULL;
+				}
+				new_temp = new_temp->tlist;
+
+                        }
+		}
+			$$.opType = $2.opType;
                 }
                 ;
 
@@ -1382,50 +1541,150 @@ N_ADD_OP_LIST	: N_ADD_OP N_TERM N_ADD_OP_LIST
 			    $$.numParams = NOT_APPLICABLE;
 			    $$.returnType = NOT_APPLICABLE;
           $$.is_param = false;
-			    if ($1 == LOGICAL_OP)
+			$$.opType = $1;
+			if(isLog($3.opType))
+			{
 				$$.type = BOOL;
-			    else
-			    {
-				if ($3.type == NOT_APPLICABLE)
-        {
-            $$.type = $2.type;
-            $$.numParams = $2.numParams;
-            $$.returnType = $2.returnType;
-            $$.is_param = $2.is_param;
-            $$.val_bool = $2.val_bool;
-            $$.val_int = $2.val_int;
-            $$.val_float = $2.val_float;
-            strcpy($$.val_string, $2.val_string);
-            $$.is_null= $2.is_null;
-            $$.tlist = new Trial;
-            Trial *temp = $2.tlist;
-            Trial *new_temp = $$.tlist;
-            while(temp!=NULL)
-            {
-              new_temp->type = temp->type;
-              new_temp->val_bool = temp->val_bool;
-              new_temp->val_int = temp->val_int;
-              new_temp->val_float = temp->val_float;
-              strcpy(new_temp->val_string, temp->val_string);
-              new_temp->length = temp->length;
-              temp = temp->tlist;
-              if(temp!=NULL)
-                  new_temp->tlist = new Trial;
-              else
-                  new_temp->tlist = NULL;
-              new_temp = new_temp->tlist;
-            }
-        }
-
+				if(($3.type == FLOAT && $3.val_float == 0)
+                                  || ($3.type == INT && $3.val_int == 0))
+				{
+					$3.val_bool = false;
+				}
 				else
 				{
-				  if (isIntCompatible($2.type) &&
-					 isIntCompatible($3.type))
-                          $$.type = INT;
-                       else $$.type = FLOAT;
+					$3.val_bool = true;
 				}
-                    }
-                }
+				if(($2.type == FLOAT && $2.val_float == 0)
+                                  || ($2.type == INT && $2.val_int == 0))
+				{
+					$2.val_bool = false;
+				}
+				else
+				{
+					$2.val_bool = true;
+				}
+				if($3.type == NOT_APPLICABLE)
+				{
+					$$.val_bool = $2.val_bool;
+				}
+				else
+				{
+					if($3.opType == AND)
+					{
+						$$.val_bool = $3.val_bool && $2.val_bool;
+					}
+					if($3.opType == OR)
+					{
+						$$.val_bool = $3.val_bool || $2.val_bool;
+					}
+				}
+			}
+			else
+			{
+				if($3.type == NOT_APPLICABLE)
+				{
+					$$.type = $2.type;
+					$$.numParams = $2.numParams;
+					$$.returnType = $2.returnType;
+					$$.is_param = $2.is_param;
+					$$.val_bool = $2.val_bool;
+					$$.val_int = $2.val_int;
+					$$.val_float = $2.val_float;
+					strcpy($$.val_string, $2.val_string);
+					$$.is_null = $2.is_null;			
+                		        $$.tlist = new Trial;
+                    			Trial *temp = $2.tlist;
+                 		   	Trial *new_temp = $$.tlist;
+                    			if(temp!=NULL)
+                    			{
+						new_temp->type = temp->type;
+						new_temp->val_bool = temp->val_bool;
+						new_temp->val_int = temp->val_int;
+						new_temp->val_float = temp->val_float;
+						strcpy(new_temp->val_string, temp->val_string);
+						new_temp->length = temp->length;
+						temp = temp->tlist;
+						if(temp!=NULL)
+						{
+							new_temp->tlist = new Trial;
+						}
+						else
+						{
+							new_temp->tlist = NULL;
+						}
+						new_temp = new_temp->tlist;
+	
+        	        	        }
+
+                              	}
+				else
+				{
+					if($2.type == BOOL)
+					{
+						if($2.val_bool)
+						{
+							$2.val_int = 1;
+							$2.val_float = 1;
+						}
+						else
+						{
+							$2.val_int = 0;
+							$2.val_float = 0;
+						}
+					}
+					if($3.type == BOOL)
+					{
+						if($3.val_bool)
+						{
+							$3.val_int = 1;
+							$3.val_float = 1;
+						}
+						else
+						{
+							$3.val_int = 0;
+							$3.val_float = 0;
+						}
+					}
+					if(isIntCompatible($2.type) && isIntCompatible($3.type))
+					{
+						$$.type = INT;
+						if($3.opType == ADD)
+						{
+							$$.val_int = $2.val_int+$3.val_int;
+						}
+						else if($3.opType == SUB)
+						{
+							$$.val_int = $2.val_int-$3.val_int;
+						}
+					}
+					else
+					{
+						$$.type == FLOAT;
+						if($2.type == INT)
+						{
+		                                	$2.val_float = (float)$2.val_int;
+						}	
+						if($3.type == INT)
+						{
+                		                	$3.val_float = (float)$3.val_int;
+						}
+						if($3.opType == ADD)
+						{
+							$$.val_float = $2.val_float+$3.val_float;
+						}
+						if($3.opType == SUB)
+						{
+							$$.val_float = $2.val_float-$3.val_float;
+						}
+
+					}
+					$$.numParams = NOT_APPLICABLE;
+					$$.returnType = NOT_APPLICABLE;
+					$$.is_param = false;
+						$$.opType = $1;	
+                        }        
+			}
+			}	
                 | /* epsilon */
                 {
                     printRule("ADD_OP_LIST", "epsilon");
@@ -1451,47 +1710,171 @@ N_TERM		: N_FACTOR N_MULT_OP_LIST
                      	$$.numParams = NOT_APPLICABLE;
                      	$$.returnType = NOT_APPLICABLE;
                       $$.is_param = false;
-				if (isBoolCompatible($1.type) &&
-				    isBoolCompatible($2.type))
-				  $$.type = BOOL;
+			if(isLog($2.opType))
+			{
+				$$.type = BOOL;
+				if(($1.type == FLOAT && $1.val_float == 0)
+				|| ($1.type == INT && $1.val_int == 0))
+				{
+					$1.val_bool = false;
+				}		
+				else if(($1.type == FLOAT && $1.val_float != 0)
+				|| ($1.type == INT && $1.val_int != 0))
+				{
+					$1.val_bool = true;
+				}		
+				if(($2.type == FLOAT && $2.val_float == 0)
+				|| ($2.type == INT && $2.val_int == 0))
+				{
+					$2.val_bool = false;
+				}		
+				else if(($2.type == FLOAT && $2.val_float != 0)
+				|| ($2.type == INT && $2.val_int == 0))
+				{
+					$2.val_bool = true;
+				}		
+				
+				if($2.opType == AND)
+				{
+					$$.val_bool = $1.val_bool && $2.val_bool;
+				}
+				else if($2.opType == OR)
+				{
+					$$.val_bool = $1.val_bool || $2.val_bool;
+				}
+			}
+			else
+			{
+				
+                            	if($2.type == BOOL)
+                                {
+					if($2.val_bool)
+					{
+						$2.val_int = 1;
+						$2.val_float = 1;
+                                        }
+					else
+					{
+						$2.val_int = 0;
+						$2.val_float = 0;
+					}
+				}
+				if($1.type == BOOL)
+				{
+					if($1.val_bool)
+					{
+						$1.val_int = 1;
+						$1.val_float = 1;
+					}
+					else
+                                        {
+						$1.val_int = 0;
+						$1.val_float = 0;
+					}
+				}
+				if(isIntCompatible($1.type) && isIntCompatible($2.type))
+				{
+					$$.type = INT;
+					if($2.opType == MULT)
+					{
+						$$.val_int = $1.val_int * $2.val_int;
+					}
+					else if($2.opType == DIV)
+					{
+						if($2.val_int == 0)
+						{
+							yyerror("Attempted division by zero");
+						}
+						else
+						{
+							$$.val_int = $1.val_int / $2.val_int;
+						}
+					}
+                                        else if($2.opType == MOD)
+					{
+						$$.val_int = $1.val_int % $2.val_int;
+					}
+                                        else if($2.opType == POW)
+					{
+						$$.val_int = pow($1.val_int, $2.val_int);
+					}
+			}
 				else
 				{
-				  if (isIntCompatible($1.type) &&
-				      isIntCompatible($2.type))
-                            $$.type = INT;
-                        else $$.type = FLOAT;
+				$$.type == FLOAT;
+				if($1.type == INT)
+                                {
+		                    	$1.val_float = (float)$1.val_int;
+				}	
+				if($2.type == INT)
+				{
+                                        $2.val_float = (float)$2.val_int;
 				}
-			    }
-                    else
-			    {
+					if($2.opType == MULT)
+					{
+						$$.val_int = $1.val_int * $2.val_int;
+					}
+					else if($2.opType == DIV)
+					{
+						if($2.val_int == 0)
+						{
+							yyerror("Attempted division by zero");
+						}
+						else
+						{
+							$$.val_int = $1.val_int / $2.val_int;
+						}
+					}
+                                        else if($2.opType == MOD)
+					{
+						$$.val_int = $1.val_int % $2.val_int;
+					}
+                                        else if($2.opType == POW)
+					{
+						$$.val_int = pow($1.val_int, $2.val_int);
+					}
+			}
+			}
+			}
+			else
+			{
+				
 				$$.type = $1.type;
 				$$.numParams = $1.numParams;
 				$$.returnType = $1.returnType;
-        $$.is_param = $2.is_param;
-        $$.val_bool = $2.val_bool;
-        $$.val_int = $2.val_int;
-        $$.val_float = $2.val_float;
-        strcpy($$.val_string, $2.val_string);
-        $$.is_null= $2.is_null;
-        $$.tlist = new Trial;
-        Trial *temp = $2.tlist;
-        Trial *new_temp = $$.tlist;
-        while(temp!=NULL)
-        {
-          new_temp->type = temp->type;
-          new_temp->val_bool = temp->val_bool;
-          new_temp->val_int = temp->val_int;
-          new_temp->val_float = temp->val_float;
-          strcpy(new_temp->val_string, temp->val_string);
-          new_temp->length = temp->length;
-          temp = temp->tlist;
-          if(temp!=NULL)
-              new_temp->tlist = new Trial;
-          else
-              new_temp->tlist = NULL;
-          new_temp = new_temp->tlist;
-        }
-			    }
+			        $$.is_param = $1.is_param;
+			        $$.val_bool = $1.val_bool;
+			        $$.val_int = $1.val_int;
+			        $$.val_float = $1.val_float;
+		       	 	strcpy($$.val_string, $1.val_string);
+			        $$.is_null= $1.is_null;
+				if($$.type == INT)
+				{
+					$$.val_float = (float)$$.val_int;
+				}
+
+   			  	$$.tlist = new Trial;
+				Trial *temp = $1.tlist;
+			        Trial *new_temp = $$.tlist;
+			        while(temp!=NULL)
+			        {
+                             	 	new_temp->type = temp->type;
+		          		new_temp->val_bool = temp->val_bool;
+		      		  	  new_temp->val_int = temp->val_int;
+		      	   		 new_temp->val_float = temp->val_float;
+		        		  strcpy(new_temp->val_string, temp->val_string);
+		     		     new_temp->length = temp->length;
+		     		     temp = temp->tlist;
+		  		        if(temp!=NULL)
+        		     		 new_temp->tlist = new Trial;
+       			  		else
+        		    		  new_temp->tlist = NULL;
+                                    new_temp = new_temp->tlist;
+        			}
+
+			}
+			$$.opType = $2.opType;
+
             }
             ;
 
@@ -1506,52 +1889,159 @@ N_MULT_OP_LIST	: N_MULT_OP N_FACTOR N_MULT_OP_LIST
 				  ERR_MUST_BE_INT_FLOAT_OR_BOOL);
 			    $$.numParams = NOT_APPLICABLE;
                     $$.returnType = NOT_APPLICABLE;
-			    if ($3.type == NOT_APPLICABLE)
-          {
-          $$.type = $2.type;
-          $$.numParams = $2.numParams;
-          $$.returnType = $2.returnType;
-          $$.is_param = $2.is_param;
-          $$.val_bool = $2.val_bool;
-          $$.val_int = $2.val_int;
-          $$.val_float = $2.val_float;
-          strcpy($$.val_string, $2.val_string);
-          $$.is_null= $2.is_null;
-          $$.tlist = new Trial;
-          Trial *temp = $2.tlist;
-          Trial *new_temp = $$.tlist;
-          while(temp!=NULL)
-          {
-            new_temp->type = temp->type;
-            new_temp->val_bool = temp->val_bool;
-            new_temp->val_int = temp->val_int;
-            new_temp->val_float = temp->val_float;
-            strcpy(new_temp->val_string, temp->val_string);
-            new_temp->length = temp->length;
-            temp = temp->tlist;
-            if(temp!=NULL)
-                new_temp->tlist = new Trial;
-            else
-                new_temp->tlist = NULL;
-            new_temp = new_temp->tlist;
-          }
-          }
-			    else
-			    {
-                      if(isInvalidOperandType($3.type))
-                        semanticError(argWithErr,
-				    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
-			      if ($1 == LOGICAL_OP)
-				  $$.type = BOOL;
-			      else
-			      {
-				  if (isIntCompatible($2.type) &&
-				      isIntCompatible($3.type))
-				    $$.type = INT;
-				  else $$.type = FLOAT;
-			      }
-                    }
-                }
+			$$.is_param = false;
+			$$.opType = $1;
+			if(isLog($3.opType))
+			{
+				$$.type = BOOL;
+				if(($3.type == FLOAT && $3.val_float == 0)
+				|| ($3.type == INT && $3.val_int == 0))
+				{
+					$3.val_bool = false;
+				}		
+				else
+				{
+					$3.val_bool = true;
+				}		
+				if(($2.type == FLOAT && $2.val_float == 0)
+				|| ($2.type == INT && $2.val_int == 0))
+				{
+					$2.val_bool = false;
+				}		
+				else
+				{
+					$2.val_bool = true;
+				}		
+				if($3.type == NOT_APPLICABLE)
+				{
+					$$.val_bool = $2.val_bool;
+				}
+				else
+				{
+					if($3.opType == AND)
+					{
+						$$.val_bool = $3.val_bool && $2.val_bool;
+					}
+					else if($3.opType == OR)
+					{
+						$$.val_bool = $3.val_bool || $2.val_bool;
+					}
+				}
+			}
+			else
+			{
+				if($3.type == NOT_APPLICABLE)
+				{
+     				 	$$.type = $2.type;
+                                        $$.numParams = $2.numParams;
+                                        $$.returnType = $2.returnType;
+ 				        $$.is_param = $2.is_param;
+	        		  	$$.val_bool = $2.val_bool;
+					$$.val_int = $2.val_int;
+                                        $$.val_float = $2.val_float;
+                              		strcpy($$.val_string, $2.val_string);
+		  			$$.is_null= $2.is_null;
+        	 			if($$.type == INT)
+					{
+						$$.val_float = (float)$$.val_int;
+					}
+					$$.tlist = new Trial;
+     		     			Trial *temp = $2.tlist;
+     		     			Trial *new_temp = $$.tlist;
+                                        while(temp!=NULL)
+   	       				{
+   	        				new_temp->type = temp->type;
+                                                new_temp->val_bool = temp->val_bool;
+                                                new_temp->val_int = temp->val_int;
+ 					     	new_temp->val_float = temp->val_float;
+ 				           	strcpy(new_temp->val_string, temp->val_string);
+			  		    	new_temp->length = temp->length;
+        				    	temp = temp->tlist;
+       					     	if(temp!=NULL)
+ 				     			new_temp->tlist = new Trial;
+        		   	 		else
+                					new_temp->tlist = NULL;
+          			 		new_temp = new_temp->tlist;
+         			 	}
+
+				}
+				else
+                                {
+		                      if(isInvalidOperandType($3.type))
+                		        semanticError(argWithErr,
+					    ERR_MUST_BE_INT_FLOAT_OR_BOOL);
+					if(isLog($1))
+                                        {
+						$$.type = BOOL;
+					}
+					else
+					{
+                                		if($2.type==BOOL){
+                                        	    if($2.val_bool){
+                                                	$2.val_int = 1;
+                                              	  $2.val_float = 1;    
+                                            }else{
+                                                $2.val_int = 0;
+                                                $2.val_float = 0;                                                
+                                            }
+                                        }
+                                        if($3.type==BOOL){
+                                            if($3.val_bool){
+                                                $3.val_int = 1;
+                                                $3.val_float = 1;    
+                                            }else{
+                                                $3.val_int = 0;
+                                                $3.val_float = 0;                                                
+                                            }
+                                        }                      
+                      if (isIntCompatible($2.type) &&
+                          isIntCompatible($3.type))
+                          {
+                     
+                        $$.type = INT;
+                        if($3.opType == MULT){
+                            $$.val_int = $2.val_int * $3.val_int;
+                        }else if($3.opType == DIV){
+                            if($3.val_int == 0){
+                                yyerror("Attempted division by zero");                          
+                            }else{
+                                $$.val_int = $2.val_int / $3.val_int;
+                            }
+                        }else if($3.opType == MOD){
+                            $$.val_int = $2.val_int % $3.val_int;
+                        }else if($3.opType == POW){
+                            $$.val_int = pow($2.val_int,$3.val_int);
+                        }
+                        
+                        }
+                      else{
+                        $$.type = FLOAT;
+                        if($2.type == INT){
+                            $2.val_float = (float)$2.val_int;
+                        }
+                        if($3.type == INT){
+                            $3.val_float = (float)$3.val_int;
+                        }                    
+                        if($3.opType == MULT){
+                            $$.val_float = $2.val_float * $3.val_float;
+                        }else if($3.opType == DIV){
+                            if($3.val_float == 0){
+                                yyerror("Attempted division by zero");                          
+                            }else{
+                                $$.val_float = $2.val_float / $3.val_float;
+                            }
+                        }else if($3.opType == MOD){
+                            $$.val_float = fmod($2.val_float, $3.val_float);
+                        }else if($3.opType == POW){
+                            $$.val_float = pow($2.val_float,$3.val_float);
+                        }                    
+                        }
+                      }
+			$$.opType = $1;
+				}
+			}
+
+		}
                 | /* epsilon */
                 {
                     printRule("MULT_OP_LIST", "epsilon");
@@ -1572,7 +2062,25 @@ N_FACTOR		: N_VAR
                     $$.val_bool = $1.val_bool;
                     $$.val_int = $1.val_int;
                     $$.val_float = $1.val_float;
-                    strcpy($$.val_string, $1.val_string);
+                    if($1.type == INT)
+			{
+				$$.val_float =(float)$1.val_int;
+			}	
+			if($1.type == BOOL)
+			{
+				if($1.val_bool)
+				{
+					$1.val_bool = 1;
+					$1.val_float = 1;
+				
+				}
+				else
+				{
+					$1.val_bool = 0;
+					$1.val_float = 0;
+				}
+			}
+			strcpy($$.val_string, $1.val_string);
                     $$.is_null= $1.is_null;
                     $$.tlist = new Trial;
                     Trial *temp = $1.tlist;
@@ -1608,90 +2116,125 @@ N_FACTOR		: N_VAR
                     $$.numParams = $2.numParams;
                     $$.returnType = $2.returnType;
                     $$.is_param = $2.is_param;
+                    $$.val_bool = $2.val_bool;
+                    $$.val_int = $2.val_int;
+                    $$.val_float = $2.val_float;
+			strcpy($$.val_string, $2.val_string);
+                    $$.is_null= $2.is_null;
+                    $$.tlist = new Trial;
+                    Trial *temp = $2.tlist;
+                    Trial *new_temp = $$.tlist;
+                    while(temp!=NULL)
+                    {
+                      new_temp->type = temp->type;
+                      new_temp->val_bool = temp->val_bool;
+                      new_temp->val_int = temp->val_int;
+                      new_temp->val_float = temp->val_float;
+                      strcpy(new_temp->val_string, temp->val_string);
+                      new_temp->length = temp->length;
+                      temp = temp->tlist;
+                      if(temp!=NULL)
+                          new_temp->tlist = new Trial;
+                      else
+                          new_temp->tlist = NULL;
+                      new_temp = new_temp->tlist;
+                    }
                 }
                 | T_NOT N_FACTOR
                 {
                     printRule("FACTOR", "! FACTOR");
-                    $$.type = $2.type;
+                    $$.type = BOOL;
                     $$.numParams = $2.numParams;
                     $$.returnType = $2.returnType;
                     $$.is_param = $2.is_param;
+			if($2.type == BOOL)
+			{
+				$$.val_bool = $2.val_bool?false:true;
+			}
+			else if($2.type == INT)
+			{
+				$$.val_bool = $2.val_int !=0?false:true;
+			}
+			else if($2.type == FLOAT)
+			{
+				$$.val_bool = $2.val_float ==0?true:false;
+			}
                 }
                 ;
 
 N_ADD_OP	     : T_ADD
                 {
                     printRule("ADD_OP", "+");
-                    $$ = ARITHMETIC_OP;
+                    $$ = ADD;
                 }
                 | T_SUB
                 {
                     printRule("ADD_OP", "-");
-                    $$ = ARITHMETIC_OP;
+                    $$ = SUB;
                 }
                 | T_OR
                 {
                     printRule("ADD_OP", "|");
-                    $$ = LOGICAL_OP;
+                    $$ = OR;
                 }
                 ;
 
 N_MULT_OP      : T_MULT
                 {
                     printRule("MULT_OP", "*");
-                    $$ = ARITHMETIC_OP;
+                    $$ = MULT;
                 }
                 | T_DIV
                 {
                     printRule("MULT_OP", "/");
-                    $$ = ARITHMETIC_OP;
+                    $$ = DIV;
                 }
                 | T_AND
                 {
                     printRule("MULT_OP", "&");
-                    $$ = LOGICAL_OP;
+                    $$ = AND;
                 }
                 | T_MOD
                 {
                     printRule("MULT_OP", "\%\%");
-                    $$ = ARITHMETIC_OP;
+                    $$ = MOD;
                 }
                 | T_POW
                 {
                     printRule("MULT_OP", "^");
-                    $$ = ARITHMETIC_OP;
+                    $$ = POW;
                 }
                 ;
 
 N_REL_OP        : T_LT
                 {
                     printRule("REL_OP", "<");
-                    $$ = RELATIONAL_OP;
+                    $$ = LESS;
                 }
                 | T_GT
                 {
                     printRule("REL_OP", ">");
-                    $$ = RELATIONAL_OP;
+                    $$ = GREATER;
                 }
                 | T_LE
                 {
                     printRule("REL_OP", "<=");
-                    $$ = RELATIONAL_OP;
+                    $$ = LEQ;
                 }
                 | T_GE
                 {
                     printRule("REL_OP", ">=");
-                    $$ = RELATIONAL_OP;
+                    $$ = GEQ;
                 }
                 | T_EQ
                 {
                     printRule("REL_OP", "==");
-                    $$ = RELATIONAL_OP;
+                    $$ = EQL;
                 }
                 | T_NE
                 {
                     printRule("REL_OP", "!=");
-                    $$ = RELATIONAL_OP;
+                    $$ = NEQ;
                 }
                 ;
 
@@ -1747,6 +2290,7 @@ N_SINGLE_ELEMENT : T_IDENT T_LBRACKET T_LBRACKET N_EXPR
           node = node->tlist;
           counter -= 1;
         }
+          
 			    $$.type = node->type;
 			    $$.numParams = NOT_APPLICABLE;
 			    $$.returnType = NOT_APPLICABLE;
@@ -1804,6 +2348,31 @@ N_ENTIRE_VAR    : T_IDENT
 
 #include "lex.yy.c"
 extern FILE *yyin;
+
+
+bool isArith(const int theType)
+{
+	return theType == ADD ||
+	 theType == SUB ||
+	 theType == MULT ||
+	theType == DIV ||
+	 theType == POW ||
+	 theType == MOD;
+}
+
+bool isRel(const int theType)
+{
+	return theType == EQL ||
+	theType == NEQ ||
+	theType == LESS ||
+	theType == GREATER ||
+	theType == LEQ ||
+	theType == GEQ;
+}
+bool isLog(const int theType)
+{
+	return theType == AND || theType == OR;
+}
 
 //  Construct a string as an argument number (1st param, 0
 //  if no argument number in message) and message (2nd param
@@ -1905,6 +2474,8 @@ void cleanUp()
         cleanUp();
     }
 }
+
+
 
 // If the_name exists in any SYMBOL_TABLE in scopeStack, return
 // its TYPE_INFO; otherwise, return a TYPE_INFO that contains
